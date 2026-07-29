@@ -167,6 +167,42 @@ A performance fee (`profitFeeBPS`, default 10%, hard-capped at
 profit only. That is a separate role from `feeWallet1` / `feeWallet2`, which
 are funded from staking-yield claims.
 
+## Deployed instance
+
+Live on **Polygon mainnet** (chain id 137):
+
+| | |
+| --- | --- |
+| Contract | [`0x1Eb07993f2842dc9BB0B69dADE1d033324246768`](https://polygonscan.com/address/0x1Eb07993f2842dc9BB0B69dADE1d033324246768) |
+| Deploy tx | [`0x1945a997e43cb7bedd7eafdb3dde0280cb0a2d5ab9e6e9d7937a13316526aec6`](https://polygonscan.com/tx/0x1945a997e43cb7bedd7eafdb3dde0280cb0a2d5ab9e6e9d7937a13316526aec6) |
+| Block | 91081649 |
+| Owner | `0x0C52DDb2F4147A4FD8A749F988Ab41A6E201669A` |
+| Collateral | `0xc2132D05D31c914a87C6611C10748AEb04B58e8F` (Tether on Polygon, on-chain symbol `USDT0`) |
+| Fee wallets / profit recipient | All three set to the owner address; changeable via `setFeeWallets` / `setProfitRecipient` |
+
+Constructor state was read back from chain after deployment and matches.
+
+> **Source is not yet verified on PolygonScan.** Verification needs a
+> `POLYGONSCAN_API_KEY`; run the `forge verify-contract` command below once you
+> have one.
+
+> **The collateral token is USDT, not the USDC.e that Polymarket markets are
+> collateralized in.** `collateralToken` is immutable, so this is fixed for the
+> life of this deployment: staking, referrals, claims and exits all work
+> normally, but `executePolymarketSplit` / `Merge` / `Redeem` cannot interact
+> with real Polymarket conditions. Using the arbitrage engine would require a
+> fresh deployment against USDC.e.
+
+Post-deploy checklist:
+
+1. Register partners — `addPartner` once per address, from the owner wallet.
+2. Set the recovery wallet — `setRecoveryWallet`, before any rescue vote exists.
+3. Split the fee roles if the owner address should not receive all three.
+4. Verify the source on PolygonScan.
+
+Note that the 24-hour free-stake window starts at deployment: during it, a
+stake must be exactly 10 USDT and is recorded as a free position.
+
 ## Deployment
 
 ```bash
