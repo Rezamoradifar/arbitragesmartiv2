@@ -182,9 +182,35 @@ Live on **Polygon mainnet** (chain id 137):
 
 Constructor state was read back from chain after deployment and matches.
 
-> **Source is not yet verified on PolygonScan.** Verification needs a
-> `POLYGONSCAN_API_KEY`; run the `forge verify-contract` command below once you
-> have one.
+### Source verification
+
+Verified with an **exact bytecode match** on both creation and runtime code:
+
+| Verifier | Status | Link |
+| --- | --- | --- |
+| Sourcify | `exact_match` | [repo entry](https://repo.sourcify.dev/137/0x1Eb07993f2842dc9BB0B69dADE1d033324246768) |
+| Blockscout | Fully verified | [contract page](https://polygon.blockscout.com/address/0x1Eb07993f2842dc9BB0B69dADE1d033324246768?tab=contract) |
+| PolygonScan | Not verified yet | needs `POLYGONSCAN_API_KEY` |
+
+An exact match means the deployed bytecode was reproduced byte-for-byte from
+this repository's source, including metadata — so the code on chain is provably
+the code here.
+
+PolygonScan is still outstanding because Sourcify's relayed submission hit its
+daily quota. To do it directly:
+
+```bash
+export POLYGONSCAN_API_KEY=<your key>
+forge verify-contract 0x1Eb07993f2842dc9BB0B69dADE1d033324246768 \
+  src/ArbiSmartV2.sol:ArbiSmartV2 --chain 137 --watch \
+  --constructor-args $(cast abi-encode \
+    "constructor(address,address,address,address,address)" \
+    0xc2132D05D31c914a87C6611C10748AEb04B58e8F \
+    0x0C52DDb2F4147A4FD8A749F988Ab41A6E201669A \
+    0x0C52DDb2F4147A4FD8A749F988Ab41A6E201669A \
+    0x0C52DDb2F4147A4FD8A749F988Ab41A6E201669A \
+    0x0C52DDb2F4147A4FD8A749F988Ab41A6E201669A)
+```
 
 > **The collateral token is USDT, not the USDC.e that Polymarket markets are
 > collateralized in.** `collateralToken` is immutable, so this is fixed for the
