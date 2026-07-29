@@ -78,6 +78,10 @@ web_modules/
 .env
 .env.*
 !.env.example
+# Committed on purpose: every value in it is NEXT_PUBLIC_*, so it is compiled
+# into the client bundle and public the moment the site is served. Real
+# secrets belong in .env.local, which stays ignored by the rule above.
+!frontend/.env.production
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

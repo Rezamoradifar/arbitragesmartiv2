@@ -15,17 +15,28 @@ APP_DIR="$HOME/arbitragesmartiv2"
 DOMAIN="arbhub.site"
 
 # --- Values baked from the live deployment -------------------------------
-CONTRACT="0x1Eb07993f2842dc9BB0B69dADE1d033324246768"
-COLLATERAL="0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
-APP_URL="https://arbhub.site"
-# Set these two before running, or export them in your shell first.
-WALLETCONNECT_ID="${WALLETCONNECT_ID:-}"
+#
+# Every one of these is a NEXT_PUBLIC_* value, meaning it is compiled into the
+# client bundle and readable by anyone who opens devtools. None of them are
+# secrets, so committing them costs nothing and saves a manual step.
+#
+# The WalletConnect project id in particular is public by design — it
+# identifies the project to the relay, it does not authenticate anything. What
+# protects it is the allowed-domains list in the Reown dashboard, which is why
+# arbhub.site must be added there.
+#
+# Override any of them by exporting the variable before running.
+CONTRACT="${CONTRACT:-0x1Eb07993f2842dc9BB0B69dADE1d033324246768}"
+COLLATERAL="${COLLATERAL:-0xc2132D05D31c914a87C6611C10748AEb04B58e8F}"
+APP_URL="${APP_URL:-https://arbhub.site}"
+WALLETCONNECT_ID="${WALLETCONNECT_ID:-00a6d669500a837d18aa4adeb86fc783}"
 POLYGON_RPC="${POLYGON_RPC:-https://polygon.gateway.tenderly.co}"
 
 say() { printf "\n\033[1;32m==>\033[0m %s\n" "$1"; }
 die() { printf "\n\033[1;31mERROR:\033[0m %s\n" "$1" >&2; exit 1; }
 
-[ -n "$WALLETCONNECT_ID" ] || die "WALLETCONNECT_ID is unset. Run: WALLETCONNECT_ID=<32 hex chars> bash deploy.sh"
+[[ "$WALLETCONNECT_ID" =~ ^[0-9a-fA-F]{32}$ ]] || \
+  die "WALLETCONNECT_ID must be 32 hex characters (got: '${WALLETCONNECT_ID}'). The app would fall back to MetaMask-only."
 
 # --- 1. Node 20 -----------------------------------------------------------
 if ! command -v node >/dev/null 2>&1 || [ "$(node -v | cut -c2-3)" -lt 20 ] 2>/dev/null; then
