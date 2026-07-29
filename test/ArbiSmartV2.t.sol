@@ -518,7 +518,7 @@ contract ArbiSmartV2Test is Test {
         assertEq(usdc.balanceOf(alice) - before, STAKE, "full principal, no penalty");
     }
 
-    function test_emergencyWithdraw_partnerPathIsFasterThanGracePeriod() public {
+    function test_emergencyWithdraw_partnerPathIsFasterThanGracePeriod() public view {
         assertLt(arbi.EMERGENCY_DELAY(), arbi.EMERGENCY_GRACE_PERIOD());
     }
 
