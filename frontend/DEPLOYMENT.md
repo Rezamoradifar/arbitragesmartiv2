@@ -18,7 +18,7 @@ Unknown routes correctly return 404.
 ## 1. Install dependencies and configure environment
 
 ```bash
-cd ~/projects/arbitragesmartiv2/frontend
+cd ~/arbitragesmartiv2/frontend
 npm install
 cp .env.example .env.local
 nano .env.local
@@ -30,16 +30,28 @@ Fill in real values:
 | --- | --- |
 | `NEXT_PUBLIC_CONTRACT_ADDRESS` | Deployed and verified ArbiSmartV2 address |
 | `NEXT_PUBLIC_COLLATERAL_ADDRESS` | Must match the contract's `collateralToken()` |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | From WalletConnect Cloud |
-| `NEXT_PUBLIC_POLYGON_RPC_URL` | Private RPC provider, not the public endpoint |
+| `NEXT_PUBLIC_APP_URL` | `https://arbhub.site` |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | 32 hex chars from cloud.reown.com; add `arbhub.site` to the project's allowed domains |
+| `NEXT_PUBLIC_POLYGON_RPC_URL` | An archive-capable endpoint — see `.env.example` |
 
 Every variable is `NEXT_PUBLIC_*`, so all of them are bundled into the client
 and visible to users. Never put a secret here.
 
-**The RPC endpoint matters.** The `/activity` page queries roughly 200,000
-blocks of logs in one call. Public endpoints commonly reject or truncate range
-queries that large, and the page will show an error telling the user exactly
-that. A private provider (Alchemy, Infura, QuickNode) fixes it.
+**The RPC endpoint matters, and the thing that matters is archive access.**
+The `/activity` page reads about three days of event logs. Most free endpoints
+answer recent-block queries fine but refuse history that deep, so the page
+falls back to the last ~20 minutes and says so on screen. Among free options
+only Tenderly's gateway served the full window in testing; Alchemy, Infura and
+QuickNode all do on their free tiers. The app also ships a built-in failover
+list, so a single endpoint going down does not take the site with it.
+
+**Without a WalletConnect project id**, only browser-extension wallets such as
+MetaMask can connect — no Trust Wallet, no mobile QR. The dashboard shows a
+visible warning in that state so a misconfigured deploy is obvious rather than
+silently halving your addressable users.
+
+**TLS is not optional.** Browser wallets refuse to inject on plain HTTP, so the
+connect button will not work until certbot has run.
 
 ## 2. Build and run
 
@@ -62,7 +74,7 @@ pm2 startup    # follow the printed instruction to persist across reboots
 ```nginx
 server {
     listen 80;
-    server_name your-domain.com;
+    server_name arbhub.site www.arbhub.site;
 
     location / {
         proxy_pass http://127.0.0.1:3000;
@@ -81,7 +93,7 @@ server {
 Then issue TLS:
 
 ```bash
-sudo certbot --nginx -d your-domain.com
+sudo certbot --nginx -d arbhub.site -d www.arbhub.site
 ```
 
 ## 5. Redeploying after a contract change

@@ -31,6 +31,15 @@ const TRACKED = [
   "EmergencyPaused",
 ] as const;
 
+/** Roughly three days of Polygon blocks at ~2s each. */
+const LOOKBACK_BLOCKS = 120_000n;
+/** Fallback window when the endpoint refuses deep history — about 20 minutes. */
+const SHALLOW_LOOKBACK = 600n;
+/** Chunk width for that fallback; 1rpc caps eth_getLogs at 50 blocks. */
+const CHUNK_BLOCKS = 45n;
+/** Chunks in flight at once — enough to be quick, low enough to avoid 429s. */
+const CHUNK_CONCURRENCY = 4;
+
 type Entry = {
   key: string;
   name: string;
@@ -75,6 +84,7 @@ export default function ActivityPage() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [partial, setPartial] = useState(false);
   const [filter, setFilter] = useState<"all" | "staking" | "governance" | "arbitrage">("all");
 
   const load = useCallback(async () => {
@@ -83,15 +93,61 @@ export default function ActivityPage() {
     setError(null);
     try {
       const latest = await client.getBlockNumber();
-      // Polygon produces ~2s blocks; 200k blocks is roughly the last five days,
-      // which is what most RPC providers will serve in a single range query.
-      const fromBlock = latest > 200_000n ? latest - 200_000n : 0n;
+      const fullFrom = latest > LOOKBACK_BLOCKS ? latest - LOOKBACK_BLOCKS : 0n;
 
-      const logs = (await client.getLogs({
-        address: CONTRACT_ADDRESS,
-        fromBlock,
-        toBlock: latest,
-      })) as unknown as RawLog[];
+      // Free Polygon endpoints differ in what they will serve, and the binding
+      // constraint is archive DEPTH rather than range width: several happily
+      // answer a query over recent blocks but refuse the same width once it
+      // reaches back a few days (drpc and publicnode gate history behind a paid
+      // plan or a token; 1rpc caps at 50 blocks outright). Only an archive-
+      // capable endpoint — Tenderly among the free ones, or any private
+      // provider — serves the whole window.
+      //
+      // So: ask for the full window in one call, and if that is refused, fall
+      // back to a short recent window in small chunks, which every endpoint
+      // tested does serve. The UI says which of the two happened rather than
+      // quietly showing a truncated feed as if it were complete.
+      let logs: RawLog[] = [];
+      let reduced = false;
+
+      try {
+        logs = (await client.getLogs({
+          address: CONTRACT_ADDRESS,
+          fromBlock: fullFrom,
+          toBlock: latest,
+        })) as unknown as RawLog[];
+      } catch {
+        reduced = true;
+        const shallowFrom = latest > SHALLOW_LOOKBACK ? latest - SHALLOW_LOOKBACK : 0n;
+
+        const ranges: Array<{ from: bigint; to: bigint }> = [];
+        for (let start = shallowFrom; start <= latest; start += CHUNK_BLOCKS + 1n) {
+          const end = start + CHUNK_BLOCKS > latest ? latest : start + CHUNK_BLOCKS;
+          ranges.push({ from: start, to: end });
+        }
+
+        let failed = 0;
+        for (let i = 0; i < ranges.length; i += CHUNK_CONCURRENCY) {
+          const batch = ranges.slice(i, i + CHUNK_CONCURRENCY);
+          const results = await Promise.all(
+            batch.map((r) =>
+              client
+                .getLogs({ address: CONTRACT_ADDRESS, fromBlock: r.from, toBlock: r.to })
+                .catch(() => {
+                  failed++;
+                  return [];
+                }),
+            ),
+          );
+          for (const chunk of results) logs.push(...(chunk as unknown as RawLog[]));
+        }
+
+        if (failed === ranges.length) {
+          throw new Error("This RPC endpoint refused every log query.");
+        }
+      }
+
+      setPartial(reduced);
 
       const { decodeEventLog } = await import("viem");
       const decoded: Entry[] = [];
@@ -155,7 +211,7 @@ export default function ActivityPage() {
 
       <Section
         title="Recent events"
-        description="Approximately the last five days of Polygon blocks."
+        description="Approximately the last three days of Polygon blocks."
         action={
           <button className="btn-secondary" onClick={load} disabled={loading}>
             {loading ? "Loading…" : "Refresh"}
@@ -185,6 +241,14 @@ export default function ActivityPage() {
               Public RPC endpoints often limit log queries. Set NEXT_PUBLIC_POLYGON_RPC_URL to a
               private provider for a reliable feed.
             </p>
+          </div>
+        )}
+
+        {partial && !error && (
+          <div className="mb-4 rounded-xl border border-amber-800 bg-amber-950/60 px-4 py-3 text-sm text-amber-300">
+            This RPC endpoint does not serve deep history, so only the last ~20 minutes of
+            activity is shown. Point NEXT_PUBLIC_POLYGON_RPC_URL at an archive-capable provider
+            for the full three-day window.
           </div>
         )}
 

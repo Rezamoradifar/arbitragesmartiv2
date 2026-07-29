@@ -3,16 +3,32 @@ import "./globals.css";
 import { Web3Providers } from "@/lib/wagmi";
 import { NavBar } from "@/components/NavBar";
 
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://arbhub.site";
+const TITLE = "ArbiSmart — Polygon Staking & Referral Platform";
+const DESCRIPTION =
+  "Fixed daily staking rewards and a four-level referral programme on Polygon, with partner-governed emergency controls and a no-penalty exit stakers can trigger without permission.";
+
 export const metadata: Metadata = {
-  title: "ArbiSmart — Polygon Staking & Referral Platform",
-  description:
-    "Fixed daily staking rewards and a four-level referral programme on Polygon, with partner-governed emergency controls and a no-penalty exit stakers can trigger without permission.",
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  applicationName: "ArbiSmart",
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "ArbiSmart — Polygon Staking & Referral Platform",
+    title: TITLE,
     description:
       "Staking with an exit you don't have to trust anyone for. Every control that could touch your principal is bounded, delayed, or put to a vote.",
+    url: SITE_URL,
+    siteName: "ArbiSmart",
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description:
+      "Staking with an exit you don't have to trust anyone for, on Polygon.",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

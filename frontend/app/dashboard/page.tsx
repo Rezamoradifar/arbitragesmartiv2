@@ -7,6 +7,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useContractTx, TxStatus } from "@/components/TxButton";
 import { Alert, Badge, Countdown, EmptyState, Progress, Row, Section, Skeleton } from "@/components/ui";
 import { useProtocol, useUserPosition, useReferralTree } from "@/lib/hooks";
+import { hasWalletConnect } from "@/lib/wagmi";
 import {
   COLLATERAL_ADDRESS,
   CONTRACT_ADDRESS,
@@ -54,6 +55,15 @@ function Dashboard() {
         <div className="mt-8 flex justify-center">
           <ConnectButton />
         </div>
+        {!hasWalletConnect && (
+          <div className="mx-auto mt-8 max-w-lg">
+            <Alert tone="warn" title="Mobile and QR wallet connections are disabled">
+              No WalletConnect project id is configured, so only browser-extension wallets such as
+              MetaMask can connect. Set <code>NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID</code> and
+              rebuild to enable Trust Wallet, Rainbow, and mobile QR sign-in.
+            </Alert>
+          </div>
+        )}
       </div>
     );
   }
