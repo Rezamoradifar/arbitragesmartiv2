@@ -121,15 +121,32 @@ contract ArbiSmartV2InvariantTest is Test {
         assertEq(summed, arbi.totalArbitrageDeployed(), "totalArbitrageDeployed must equal the sum of commitments");
     }
 
-    /// @dev The deployment budget must always be at least the flat balance
-    ///      cap — the profit surplus can only ever add to it, never subtract.
-    function invariant_arbitrageBudgetNeverBelowFlatCap() public view {
-        uint256 flatCap = (usdc.balanceOf(address(arbi)) * 2000) / 10000;
-        assertGe(arbi.polymarketArbitrageAvailable(), flatCap, "profit surplus must never reduce the budget");
+    /// @dev The arbitrage cap must behave cumulatively: consuming the full
+    ///      allowance can never push total deployed capital past the ceiling,
+    ///      and once the ceiling is reached the allowance must be exactly
+    ///      zero. This is the guard against the per-call cap that repeated
+    ///      splits could walk through.
+    function invariant_arbitrageCapIsCumulative() public view {
+        uint256 deployed = arbi.totalArbitrageDeployed();
+        uint256 ceiling = arbi.arbitrageDeploymentCeiling();
+        uint256 available = arbi.polymarketArbitrageAvailable();
+
+        assertLe(available, usdc.balanceOf(address(arbi)), "cannot offer more collateral than the pool holds");
+
+        if (deployed >= ceiling) {
+            assertEq(available, 0, "no headroom once the ceiling is reached");
+        } else {
+            assertLe(deployed + available, ceiling, "consuming the allowance must not breach the ceiling");
+        }
+    }
+
+    /// @dev totalAssets must account for every collateral token the pool
+    ///      controls, whether liquid or committed to open positions.
+    function invariant_totalAssetsCoversLiquidAndDeployed() public view {
         assertEq(
-            arbi.polymarketArbitrageAvailable(),
-            flatCap + arbi.arbitrageProfitSurplus(),
-            "budget must be exactly flat cap plus undeployed profit"
+            arbi.totalAssets(),
+            usdc.balanceOf(address(arbi)) + arbi.totalArbitrageDeployed(),
+            "totalAssets must equal liquid balance plus deployed capital"
         );
     }
 }

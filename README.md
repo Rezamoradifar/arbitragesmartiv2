@@ -137,12 +137,24 @@ is no function that sends pooled staker collateral to a wallet.
 
 ### Deployment budget
 
-```
-polymarketArbitrageAvailable() = balance × ARBITRAGE_MAX_BPS / 10000
-                               + arbitrageProfitSurplus()
+The cap is **cumulative**, measured against total assets — not a flat
+percentage of the current balance:
 
-arbitrageProfitSurplus()       = max(0, totalArbitrageProfit − totalArbitrageDeployed)
 ```
+totalAssets()                  = liquid balance + totalArbitrageDeployed
+arbitrageDeploymentCeiling()   = totalAssets × ARBITRAGE_MAX_BPS / 10000
+                               + totalArbitrageProfit
+
+polymarketArbitrageAvailable() = min(ceiling − deployed, liquid balance)
+                                 (0 once deployed reaches the ceiling)
+```
+
+A per-call percentage cap is not a cap: each split shrinks the balance the
+next one is measured against, so repeated calls converge on the whole pool —
+40 were enough to move 99%+ of collateral into outcome tokens and leave
+`emergencyWithdraw` reverting for lack of liquidity. Because a split moves
+value between the two halves of `totalAssets` and leaves the total unchanged,
+the ceiling above does not recede as it is consumed.
 
 `ARBITRAGE_MAX_BPS` is 20% (the hardened base's bound, kept as-is).
 `totalArbitrageProfit` accrues only **net** realized profit — redemption
@@ -211,9 +223,12 @@ forge verify-contract <deployed-address> src/ArbiSmartV2.sol:ArbiSmartV2 \
   are never called.
 - **Position IDs are not derived on-chain.** `getPolymarketOutcomeBalance`
   takes a position ID computed off-chain.
-- **Partial redemptions make the profit figure conservative.**
-  `executePolymarketRedeem` assumes the full commitment for a condition is
-  redeemed in one call.
+- **Redemption profit is measured per condition, by balance delta.**
+  `executePolymarketRedeem` retires `committedByCondition` only by the amount
+  actually recovered, so redeeming a position across several calls is handled
+  correctly and principal is never billed as profit. It does write state
+  after the external call — unavoidable for a balance-delta measurement, and
+  safe under `onlyOwner` + `nonReentrant` against a fixed trusted address.
 - **Staking economics are unaudited as a business model.** Daily rates, plan
   durations, the referral tables, and the penalty schedule are carried over
   unchanged from the original contract. They are product parameters, not

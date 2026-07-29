@@ -680,13 +680,41 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
         return totalArbitrageProfit > totalArbitrageDeployed ? totalArbitrageProfit - totalArbitrageDeployed : 0;
     }
 
+    /// @notice Total assets under management: liquid collateral plus whatever
+    ///         is currently committed to open Polymarket positions. A split
+    ///         moves value between the two, so this figure is invariant across
+    ///         it — which is exactly what makes it a stable base for the cap.
+    function totalAssets() public view returns (uint256) {
+        return collateralToken.balanceOf(address(this)) + totalArbitrageDeployed;
+    }
+
+    /// @notice Cumulative ceiling on {totalArbitrageDeployed}: an
+    ///         {ARBITRAGE_MAX_BPS} share of {totalAssets}, plus all realized
+    ///         profit the pool has ever kept.
+    function arbitrageDeploymentCeiling() public view returns (uint256) {
+        return (totalAssets() * ARBITRAGE_MAX_BPS) / BPS_DENOMINATOR + totalArbitrageProfit;
+    }
+
     /// @notice Maximum amount of pooled collateral that may be committed to
-    ///         a single {executePolymarketSplit} call right now: a flat
-    ///         {ARBITRAGE_MAX_BPS} share of the balance, plus any realized
-    ///         profit not currently deployed.
+    ///         {executePolymarketSplit} right now.
+    /// @dev The cap is CUMULATIVE, measured against {arbitrageDeploymentCeiling},
+    ///      not a flat percentage of the current balance. A per-call
+    ///      percentage cap is not a cap at all: each split shrinks the balance
+    ///      the next one is measured against, so repeated calls converge on
+    ///      the entire pool. Forty calls were enough to move over 99% of the
+    ///      collateral into outcome tokens and leave {emergencyWithdraw}
+    ///      reverting for lack of liquidity. Because a split leaves
+    ///      {totalAssets} unchanged, this ceiling does not move as it is
+    ///      consumed. Also clamped to the liquid balance, since the contract
+    ///      cannot split collateral it does not hold.
     function polymarketArbitrageAvailable() public view returns (uint256) {
-        uint256 buffer = (collateralToken.balanceOf(address(this)) * ARBITRAGE_MAX_BPS) / BPS_DENOMINATOR;
-        return buffer + arbitrageProfitSurplus();
+        uint256 ceiling = arbitrageDeploymentCeiling();
+        uint256 deployed = totalArbitrageDeployed;
+        if (deployed >= ceiling) return 0;
+
+        uint256 headroom = ceiling - deployed;
+        uint256 balance = collateralToken.balanceOf(address(this));
+        return headroom > balance ? balance : headroom;
     }
 
     // ============================================================
@@ -780,23 +808,31 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     {
         uint256 balanceBefore = collateralToken.balanceOf(address(this));
 
-        // Effect before the external call (strict CEI): `committed` is
-        // already known at this point and does not depend on the call's
-        // outcome. Only `received` (below) genuinely requires reading the
-        // post-call balance — a balance-delta measurement is inherently a
-        // post-interaction read, there is no way to know it beforehand, and
-        // this function is `onlyOwner` + `nonReentrant` calling only the
-        // fixed, trusted Conditional Tokens address, so this is safe.
         uint256 committed = committedByCondition[conditionId];
-        committedByCondition[conditionId] = 0;
-        totalArbitrageDeployed -= committed;
 
         IConditionalTokens(POLYMARKET_CONDITIONAL_TOKENS)
             .redeemPositions(collateralToken, bytes32(0), conditionId, indexSets);
 
         uint256 received = collateralToken.balanceOf(address(this)) - balanceBefore;
 
-        uint256 profit = received > committed ? received - committed : 0;
+        // The principal tracker is retired by the amount ACTUALLY recovered,
+        // never zeroed outright. Zeroing it up front made partial redemptions
+        // exploitable: the first call retired the whole commitment while
+        // returning only part of it, so a second call on the same condition
+        // saw `committed == 0` and billed 100% of the proceeds — pure staker
+        // principal — as profit. Retiring only `principalReturned` leaves the
+        // unrecovered remainder on the books for the next call.
+        //
+        // This writes state after the external call, departing from the strict
+        // CEI used elsewhere. That is unavoidable: `received` is a balance
+        // delta and cannot be known beforehand. It is safe here because the
+        // function is `onlyOwner` + `nonReentrant` and the only external call
+        // is to the fixed, trusted Conditional Tokens address.
+        uint256 principalReturned = received > committed ? committed : received;
+        committedByCondition[conditionId] = committed - principalReturned;
+        totalArbitrageDeployed -= principalReturned;
+
+        uint256 profit = received - principalReturned;
         uint256 fee = (profit * profitFeeBPS) / BPS_DENOMINATOR;
         if (fee > 0) {
             collateralToken.safeTransfer(profitRecipient, fee);
