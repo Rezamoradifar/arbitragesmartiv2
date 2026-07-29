@@ -15,6 +15,23 @@ with rendered content under `npm run start`:
 
 Unknown routes correctly return 404.
 
+## Quick path — one script
+
+On the server:
+
+```bash
+git clone -b claude/arbismartv2-contract-setup-qz72zv \
+  https://github.com/Rezamoradifar/arbitragesmartiv2.git
+WALLETCONNECT_ID=<your 32-hex id> bash arbitragesmartiv2/frontend/deploy.sh
+```
+
+`deploy.sh` installs Node 20, builds, starts PM2, writes the nginx vhost, and
+requests a certificate — but only after checking that the domain actually
+resolves to that machine. If it does not, it says so and skips certbot rather
+than failing halfway. Re-run it after a `git pull` to ship an update.
+
+The manual steps below do the same thing by hand.
+
 ## 1. Install dependencies and configure environment
 
 ```bash
