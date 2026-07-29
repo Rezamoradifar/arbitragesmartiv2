@@ -380,6 +380,33 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     uint256 public emergencyActivatedAt;
 
     // ============================================================
+    // Emergency fund rescue
+    // ============================================================
+
+    /// @notice How long after {rescueInitiatedAt} the sweep may execute.
+    ///         Deliberately longer than {EMERGENCY_DELAY}: reaching rescue
+    ///         quorum also activates emergency mode, so stakers' own
+    ///         {emergencyWithdraw} opens at 2 days while the sweep cannot
+    ///         fire until day 7. Stakers get a 5-day head start on their own
+    ///         principal, and only the remainder is ever swept.
+    uint256 public constant RESCUE_DELAY = 7 days;
+
+    /// @notice Destination of {executeRescue}. Owner-settable, but frozen for
+    ///         as long as any rescue vote is outstanding, so the destination
+    ///         cannot be switched underneath a vote that partners already
+    ///         approved.
+    address public recoveryWallet;
+
+    /// @notice Live rescue votes, tallied separately from {emergencyVotes}.
+    ///         Authorising a wind-down and authorising a sweep of the pool
+    ///         are different decisions and are voted on separately.
+    mapping(address => bool) public rescueVotes;
+    uint256 public rescueVoteCount;
+
+    /// @notice Timestamp rescue quorum was reached; 0 while no rescue is armed.
+    uint256 public rescueInitiatedAt;
+
+    // ============================================================
     // Arbitrage profit accounting
     // ============================================================
 
@@ -495,6 +522,13 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     event EmergencyActivated(uint256 activatedAt);
     event EmergencyCancelled();
 
+    event RecoveryWalletUpdated(address indexed newRecoveryWallet);
+    event RescueVoted(address indexed voter, uint256 totalVotes);
+    event RescueVoteRevoked(address indexed voter, uint256 totalVotes);
+    event RescueInitiated(uint256 initiatedAt, uint256 executableAt);
+    event RescueCancelled();
+    event RescueExecuted(address indexed recoveryWallet, uint256 amount);
+
     /// @notice Emitted when realized arbitrage profit is credited to the pool.
     event ArbitrageProfitAccrued(uint256 amount, uint256 totalProfit);
 
@@ -531,6 +565,14 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     error EmergencyActive();
     error EmergencyDelayNotElapsed();
     error EmergencyIrrevocable();
+    error AlreadyVotedRescue();
+    error NotVotedRescue();
+    error RescueNotArmed();
+    error RescueQuorumNotReached();
+    error RescueDelayNotElapsed();
+    error RescueVotePending();
+    error NoRecoveryWallet();
+    error NothingToRescue();
 
     // ============================================================
     // Modifiers
@@ -900,6 +942,115 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
 
     function isPartner(address account) external view returns (bool) {
         return _isPartner(account);
+    }
+
+    // ============================================================
+    // Emergency fund rescue — partner-gated, time-delayed
+    // ============================================================
+
+    /// @notice Sets the destination for {executeRescue}.
+    /// @dev Frozen while any rescue vote is outstanding, so the owner cannot
+    ///      re-point the destination after partners have approved a sweep to
+    ///      a particular address. To change it, the pending votes must be
+    ///      revoked first.
+    function setRecoveryWallet(address newRecoveryWallet) external onlyOwner {
+        if (newRecoveryWallet == address(0)) revert ZeroAddress();
+        if (rescueVoteCount > 0) revert RescueVotePending();
+        recoveryWallet = newRecoveryWallet;
+        emit RecoveryWalletUpdated(newRecoveryWallet);
+    }
+
+    /// @notice Casts a rescue vote. On reaching {REQUIRED_VOTES} the sweep is
+    ///         armed: the contract enters {emergencyMode} (pausing it and
+    ///         starting the 2-day countdown to stakers' own
+    ///         {emergencyWithdraw}), and {executeRescue} becomes callable
+    ///         {RESCUE_DELAY} after this moment.
+    /// @dev Voted separately from {voteEmergency} on purpose. Winding the
+    ///      pool down and sweeping it to a recovery wallet are different
+    ///      decisions, and a partner who agrees to the first has not thereby
+    ///      agreed to the second.
+    function voteRescue() external onlyVoter {
+        if (rescueVotes[msg.sender]) revert AlreadyVotedRescue();
+
+        rescueVotes[msg.sender] = true;
+        rescueVoteCount++;
+        emit RescueVoted(msg.sender, rescueVoteCount);
+
+        if (rescueVoteCount >= REQUIRED_VOTES && rescueInitiatedAt == 0) {
+            rescueInitiatedAt = block.timestamp;
+
+            // Arming a sweep also opens the stakers' own exit, so they are
+            // never left with a locked contract and a pending drain.
+            if (!emergencyMode) {
+                emergencyMode = true;
+                emergencyActivatedAt = block.timestamp;
+                emit EmergencyActivated(block.timestamp);
+            }
+            if (!paused()) {
+                _pause();
+                pausedAt = block.timestamp;
+                emit EmergencyPaused(block.timestamp);
+            }
+
+            emit RescueInitiated(block.timestamp, block.timestamp + RESCUE_DELAY);
+        }
+    }
+
+    /// @notice Withdraws a rescue vote, disarming the sweep if this drops the
+    ///         tally below quorum.
+    /// @dev Unlike {revokeEmergencyVote}, this stays available right up until
+    ///      {executeRescue} succeeds, and has no irrevocability window.
+    ///      Revoking here is the safety-increasing direction — it removes a
+    ///      pending drain — so it is never locked. Cancelling a rescue does
+    ///      NOT clear {emergencyMode}: stakers keep the exit they were
+    ///      already promised.
+    function revokeRescueVote() external onlyVoter {
+        if (!rescueVotes[msg.sender]) revert NotVotedRescue();
+
+        rescueVotes[msg.sender] = false;
+        rescueVoteCount--;
+        emit RescueVoteRevoked(msg.sender, rescueVoteCount);
+
+        if (rescueVoteCount < REQUIRED_VOTES && rescueInitiatedAt != 0) {
+            rescueInitiatedAt = 0;
+            emit RescueCancelled();
+        }
+    }
+
+    /// @notice Sweeps the contract's entire remaining collateral balance to
+    ///         {recoveryWallet}. Requires a standing {REQUIRED_VOTES} quorum
+    ///         AND {RESCUE_DELAY} elapsed since the vote passed.
+    /// @dev This is the last-resort response to a compromise. Three things
+    ///      keep it from being a unilateral drain: it needs partner quorum,
+    ///      it is announced on-chain {RESCUE_DELAY} in advance, and stakers'
+    ///      {emergencyWithdraw} opens 5 days before it can fire. A stolen
+    ///      owner key alone cannot reach it.
+    function executeRescue() external onlyOwner nonReentrant {
+        if (rescueInitiatedAt == 0) revert RescueNotArmed();
+        if (rescueVoteCount < REQUIRED_VOTES) revert RescueQuorumNotReached();
+        if (block.timestamp < rescueInitiatedAt + RESCUE_DELAY) revert RescueDelayNotElapsed();
+
+        address destination = recoveryWallet;
+        if (destination == address(0)) revert NoRecoveryWallet();
+
+        uint256 amount = collateralToken.balanceOf(address(this));
+        if (amount == 0) revert NothingToRescue();
+
+        collateralToken.safeTransfer(destination, amount);
+        emit RescueExecuted(destination, amount);
+    }
+
+    /// @notice Whether {executeRescue} would succeed right now.
+    function rescueReady() external view returns (bool) {
+        return rescueInitiatedAt != 0 && rescueVoteCount >= REQUIRED_VOTES
+            && block.timestamp >= rescueInitiatedAt + RESCUE_DELAY && recoveryWallet != address(0)
+            && collateralToken.balanceOf(address(this)) > 0;
+    }
+
+    /// @notice Timestamp {executeRescue} becomes callable; 0 if not armed.
+    function rescueExecutableAt() external view returns (uint256) {
+        if (rescueInitiatedAt == 0) return 0;
+        return rescueInitiatedAt + RESCUE_DELAY;
     }
 
     // ============================================================

@@ -85,6 +85,40 @@ addPartner ×N  →  voteEmergency ×3  →  [paused, arb frozen]  →  +2 days 
                    emergency cancelled, contract stays paused
 ```
 
+## Emergency fund rescue
+
+A last-resort response to a suspected compromise: sweep the pool's remaining
+collateral to a pre-declared `recoveryWallet`. It is deliberately **not** a
+button the owner can press alone.
+
+| Guard | Effect |
+| --- | --- |
+| `REQUIRED_VOTES` (3) on `voteRescue` | A stolen owner key alone cannot arm it |
+| `RESCUE_DELAY` (7 days) | The sweep is announced on-chain a week ahead |
+| `EMERGENCY_DELAY` (2 days) | Stakers' own `emergencyWithdraw` opens 5 days *before* the sweep can fire |
+| `setRecoveryWallet` frozen while votes stand | The destination cannot be re-pointed after partners approved it |
+| `revokeRescueVote` never locks | Disarming is always available, right up to execution |
+
+Reaching rescue quorum also activates `emergencyMode` — arming a sweep must
+never leave stakers with a locked contract and a pending drain. Cancelling a
+rescue does **not** clear emergency mode: stakers keep the exit they were
+already promised.
+
+The rescue vote is tallied **separately** from the emergency vote. Winding
+the pool down and sweeping it to a recovery wallet are different decisions,
+and a partner who agreed to the first has not thereby agreed to the second.
+
+```
+voteRescue ×3  →  [armed, emergency on, paused]  →  +2d  stakers withdraw  →  +7d  executeRescue
+                        ↓ revokeRescueVote (always available)
+                   sweep disarmed, emergency mode stays on
+```
+
+> Set `recoveryWallet` before you need it — `executeRescue` reverts with
+> `NoRecoveryWallet` if it was never configured. A multisig is the right
+> destination here; an EOA reintroduces the single-key risk the mechanism
+> exists to mitigate.
+
 ## Arbitrage: where the money can and cannot go
 
 Every arbitrage path ends in **contract-held** positions or collateral. There
