@@ -233,3 +233,27 @@ forge verify-contract <deployed-address> src/ArbiSmartV2.sol:ArbiSmartV2 \
   durations, the referral tables, and the penalty schedule are carried over
   unchanged from the original contract. They are product parameters, not
   security fixes, and this repo does not assert they are sustainable.
+
+## Frontend: read-only dashboard
+
+`src/` (Vite + React + TypeScript + ethers v6) is a **read-only** monitoring
+UI, kept separate from the Foundry contract workspace above.
+
+```bash
+npm install
+npm run dev    # http://localhost:5173
+npm run build
+```
+
+It calls only `view` functions over a public Polygon RPC — no `stake`,
+`claim`, `topUp`, or admin transaction is ever sent from this app. Today
+`src/contract.ts` points at the original (unhardened) deployed contract,
+`0xdE8859444957B327F18f75E2C600d6Cc275Ea662`, for transparency/monitoring of
+that live deployment; update `CONTRACT_ADDRESS` (and the ABI, if the
+function set differs) once `ArbiSmartV2` above is deployed and you want the
+dashboard to track it instead.
+
+The dashboard also renders a risk banner summarizing why a fixed
+high-daily-yield + multi-level-referral design is structurally Ponzi/HYIP-like
+regardless of contract-level security — see "Known limitations" above for the
+same caveat from the contract side.
