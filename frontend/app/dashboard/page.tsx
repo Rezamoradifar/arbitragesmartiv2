@@ -29,7 +29,7 @@ const ZERO = "0x0000000000000000000000000000000000000000";
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<div className="py-20 text-center text-slate-500">Loading…</div>}>
+    <Suspense fallback={<div className="py-20 text-center text-ink-400">Loading…</div>}>
       <Dashboard />
     </Suspense>
   );
@@ -48,8 +48,8 @@ function Dashboard() {
   if (!isConnected) {
     return (
       <div className="py-20 text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-50">Your dashboard</h1>
-        <p className="mx-auto mt-3 max-w-md text-slate-400">
+        <h1 className="text-3xl font-bold tracking-tight text-white">Your dashboard</h1>
+        <p className="mx-auto mt-3 max-w-md text-ink-300">
           Connect a wallet on Polygon to stake, claim rewards, and track your referral team.
         </p>
         <div className="mt-8 flex justify-center">
@@ -70,7 +70,7 @@ function Dashboard() {
 
   return (
     <div className="space-y-6 py-4">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50">Your dashboard</h1>
+      <h1 className="text-3xl font-bold tracking-tight text-white">Your dashboard</h1>
 
       <StatusBanners protocol={protocol} user={user} />
 
@@ -158,36 +158,36 @@ function PositionCard({ user }: { user: ReturnType<typeof useUserPosition> }) {
     >
       <div className="grid gap-4 sm:grid-cols-3">
         <div>
-          <p className="text-sm text-slate-400">Staked principal</p>
-          <p className="mt-1 text-3xl font-bold tracking-tight text-slate-50">
+          <p className="text-sm text-ink-300">Staked principal</p>
+          <p className="mt-1 text-3xl font-bold tracking-tight text-white">
             {formatAmount(user.amount)}
-            <span className="ml-1 text-base font-medium text-slate-500">USDT</span>
+            <span className="ml-1 text-base font-medium text-ink-400">USDT</span>
           </p>
         </div>
         <div>
-          <p className="text-sm text-slate-400">Daily rate</p>
+          <p className="text-sm text-ink-300">Daily rate</p>
           <p className="mt-1 text-3xl font-bold tracking-tight text-brand-400">
             {formatBps(Number(user.rate ?? 0n))}
           </p>
         </div>
         <div>
-          <p className="text-sm text-slate-400">Claimed so far</p>
-          <p className="mt-1 text-3xl font-bold tracking-tight text-slate-50">
+          <p className="text-sm text-ink-300">Claimed so far</p>
+          <p className="mt-1 text-3xl font-bold tracking-tight text-white">
             {formatAmount(user.totalClaimed)}
-            <span className="ml-1 text-base font-medium text-slate-500">USDT</span>
+            <span className="ml-1 text-base font-medium text-ink-400">USDT</span>
           </p>
         </div>
       </div>
 
       <div className="mt-6">
         <div className="mb-2 flex justify-between text-sm">
-          <span className="text-slate-400">Term progress</span>
-          <span className="text-slate-300">
+          <span className="text-ink-300">Term progress</span>
+          <span className="text-ink-200">
             {Math.floor(elapsed / 86400)} / {plan.durationDays} days
           </span>
         </div>
         <Progress value={progress} max={100} />
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-ink-400">
           {progress >= 100 ? (
             "Term complete — rewards have stopped accruing."
           ) : (
@@ -279,7 +279,7 @@ function StakeCard({
             placeholder="500"
           />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <span className="text-slate-500">
+            <span className="text-ink-400">
               Wallet balance: {formatAmount(user.walletBalance)} USDT
             </span>
             <div className="flex gap-2">
@@ -288,7 +288,7 @@ function StakeCard({
                   key={p.name}
                   type="button"
                   onClick={() => setAmount(String(p.minStake))}
-                  className="rounded-lg border border-slate-700 px-2 py-1 text-slate-400 transition hover:border-brand-600 hover:text-brand-300"
+                  className="rounded-lg border border-white/10 px-2 py-1 text-ink-300 transition hover:border-brand-400/40 hover:text-brand-300"
                 >
                   {p.name}
                 </button>
@@ -314,26 +314,26 @@ function StakeCard({
         </div>
 
         {amountUnits >= MIN_STAKE_UNITS && (
-          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
-            <p className="text-sm font-medium text-slate-200">
+          <div className="rounded-xl border border-white/[.07] bg-ink-950/60 p-4">
+            <p className="text-sm font-medium text-ink-200">
               You will be placed in the {PLANS[planIndex].name} plan
             </p>
             <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
               <div>
-                <p className="text-slate-500">Daily</p>
+                <p className="text-ink-400">Daily</p>
                 <p className="font-semibold text-brand-400">
                   {formatBps(PLANS[planIndex].dailyBps)}
                 </p>
               </div>
               <div>
-                <p className="text-slate-500">Term</p>
-                <p className="font-semibold text-slate-200">
+                <p className="text-ink-400">Term</p>
+                <p className="font-semibold text-ink-200">
                   {PLANS[planIndex].durationDays} days
                 </p>
               </div>
               <div>
-                <p className="text-slate-500">Gross yield</p>
-                <p className="font-semibold text-slate-200">
+                <p className="text-ink-400">Gross yield</p>
+                <p className="font-semibold text-ink-200">
                   {projectedYield(Number(amountUnits) / 1e6, planIndex).toLocaleString("en-US", {
                     maximumFractionDigits: 2,
                   })}{" "}
@@ -341,7 +341,7 @@ function StakeCard({
                 </p>
               </div>
             </div>
-            <p className="mt-3 text-xs text-slate-500">
+            <p className="mt-3 text-xs text-ink-400">
               Before the 10% fee applied to each claim. Early exit before week 5 carries a penalty.
             </p>
           </div>
@@ -367,7 +367,7 @@ function StakeCard({
                 ? "Approving…"
                 : `Approve ${formatAmount(amountUnits)} USDT`}
             </button>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-ink-400">
               Step 1 of 2. Approval lets the contract move exactly this amount.
             </p>
             {approveReceipt.isSuccess && (
@@ -477,18 +477,18 @@ function ManagePosition({
               </button>
             )}
           </div>
-          <p className="mt-1.5 text-xs text-slate-500">
+          <p className="mt-1.5 text-xs text-ink-400">
             Minimum top-up is 10 USDT. New total must stay under 25,000 USDT.
           </p>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+        <div className="rounded-xl border border-white/[.07] bg-ink-950/60 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-medium text-slate-200">
+              <p className="text-sm font-medium text-ink-200">
                 Current plan: {PLANS[currentPlan].name}
               </p>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-ink-400">
                 {canUpgrade
                   ? `Your balance now qualifies for ${PLANS[eligiblePlan].name} (${formatBps(
                       PLANS[eligiblePlan].dailyBps,
@@ -525,13 +525,13 @@ function RewardsCard({
 
   return (
     <Section title="Yield rewards">
-      <p className="text-sm text-slate-400">Claimable now</p>
+      <p className="text-sm text-ink-300">Claimable now</p>
       <p className="mt-1 text-3xl font-bold tracking-tight text-brand-400">
         {user.isLoading ? <Skeleton /> : formatAmount(pending, 4)}
-        <span className="ml-1 text-base font-medium text-slate-500">USDT</span>
+        <span className="ml-1 text-base font-medium text-ink-400">USDT</span>
       </p>
       {pending > 0n && (
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-ink-400">
           You receive {formatAmount(pending - fee, 4)} after the 10% protocol fee.
         </p>
       )}
@@ -565,10 +565,10 @@ function ReferralCard({
 
   return (
     <Section title="Referral rewards" action={<Badge tone="brand">{tier.name}</Badge>}>
-      <p className="text-sm text-slate-400">Claimable now</p>
+      <p className="text-sm text-ink-300">Claimable now</p>
       <p className="mt-1 text-3xl font-bold tracking-tight text-brand-400">
         {formatAmount(user.refPending, 4)}
-        <span className="ml-1 text-base font-medium text-slate-500">USDT</span>
+        <span className="ml-1 text-base font-medium text-ink-400">USDT</span>
       </p>
       <button
         className="btn-primary mt-4 w-full"
@@ -588,7 +588,7 @@ function ReferralCard({
       </div>
 
       {next && (
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-ink-400">
           Reach {next.name} with {next.needRefs} active referrals and{" "}
           {next.needStake.toLocaleString("en-US")} USDT staked.
         </p>
@@ -656,7 +656,7 @@ function ExitCard({
             value={<span className="text-red-400">−{formatAmount(penalty)} USDT</span>}
           />
           <Row label="You receive" value={`${formatAmount(returned)} USDT`} />
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-ink-400">
             The penalty drops each week and reaches its 10% floor from week 5. Unclaimed yield is
             forfeited — claim before exiting.
           </p>
@@ -700,8 +700,8 @@ function ReferralTeam() {
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[28rem] text-left text-sm">
-            <thead className="text-slate-400">
-              <tr className="border-b border-slate-800">
+            <thead className="text-ink-300">
+              <tr className="border-b border-white/[.07]">
                 <th className="py-2.5 font-medium">Address</th>
                 <th className="py-2.5 font-medium">Plan</th>
                 <th className="py-2.5 text-right font-medium">Staked</th>
@@ -709,12 +709,12 @@ function ReferralTeam() {
             </thead>
             <tbody>
               {referrals.map((r) => (
-                <tr key={r.address} className="border-b border-slate-900">
-                  <td className="py-2.5 font-mono text-xs text-slate-300">
+                <tr key={r.address} className="border-b border-white/[.06]">
+                  <td className="py-2.5 font-mono text-xs text-ink-200">
                     {shortAddress(r.address)}
                   </td>
-                  <td className="py-2.5 text-slate-400">{PLANS[r.plan]?.name ?? "—"}</td>
-                  <td className="py-2.5 text-right text-slate-200">{formatAmount(r.amount)} USDT</td>
+                  <td className="py-2.5 text-ink-300">{PLANS[r.plan]?.name ?? "—"}</td>
+                  <td className="py-2.5 text-right text-ink-200">{formatAmount(r.amount)} USDT</td>
                 </tr>
               ))}
             </tbody>

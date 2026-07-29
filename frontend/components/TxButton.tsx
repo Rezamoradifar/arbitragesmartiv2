@@ -45,8 +45,8 @@ export function TxStatus({
   if (error) {
     return <p className="mt-2 text-sm text-red-400">{error.message.split("\n")[0]}</p>;
   }
-  if (isPending) return <p className="mt-2 text-sm text-slate-400">Confirm in your wallet…</p>;
-  if (isConfirming) return <p className="mt-2 text-sm text-slate-400">Waiting for confirmation…</p>;
+  if (isPending) return <p className="mt-2 text-sm text-ink-300">Confirm in your wallet…</p>;
+  if (isConfirming) return <p className="mt-2 text-sm text-ink-300">Waiting for confirmation…</p>;
   if (isConfirmed)
     return (
       <p className="mt-2 text-sm text-brand-400">

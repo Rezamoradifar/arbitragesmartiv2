@@ -49,10 +49,10 @@ export default function SecurityPage() {
   return (
     <div className="space-y-14 py-6">
       <section>
-        <h1 className="text-4xl font-bold tracking-tight text-slate-50">
+        <h1 className="text-4xl font-bold tracking-tight text-white">
           What the owner can and cannot do
         </h1>
-        <p className="mt-4 max-w-3xl text-lg text-slate-400">
+        <p className="mt-4 max-w-3xl text-lg text-ink-300">
           Most staking sites answer this with a promise. Here it is answered by the contract, and
           every claim below is checkable in the verified source.
         </p>
@@ -66,8 +66,8 @@ export default function SecurityPage() {
           <div className="space-y-4">
             {canDo.map((x) => (
               <div key={x.title} className="card">
-                <h3 className="font-semibold text-slate-100">{x.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-400">{x.body}</p>
+                <h3 className="font-semibold text-ink-50">{x.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-300">{x.body}</p>
               </div>
             ))}
           </div>
@@ -77,8 +77,8 @@ export default function SecurityPage() {
           <div className="space-y-4">
             {cannotDo.map((x) => (
               <div key={x.title} className="card">
-                <h3 className="font-semibold text-slate-100">{x.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-400">{x.body}</p>
+                <h3 className="font-semibold text-ink-50">{x.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-300">{x.body}</p>
               </div>
             ))}
           </div>
@@ -86,10 +86,10 @@ export default function SecurityPage() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-50">
+        <h2 className="text-2xl font-bold tracking-tight text-white">
           The race that protects you
         </h2>
-        <p className="mt-2 max-w-3xl text-sm text-slate-400">
+        <p className="mt-2 max-w-3xl text-sm text-ink-300">
           If the voting body ever moves to sweep the pool, stakers get a five-day head start. Both
           timers are enforced on-chain and start from the same vote.
         </p>
@@ -104,19 +104,19 @@ export default function SecurityPage() {
                 <div className="flex flex-col items-center">
                   <span
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                      i === 1 ? "bg-brand-500 text-slate-950" : "bg-slate-800 text-slate-300"
+                      i === 1 ? "bg-brand-500 text-ink-950" : "bg-ink-800 text-ink-200"
                     }`}
                   >
                     {i + 1}
                   </span>
-                  {i < 2 && <span className="mt-1 h-full w-px flex-1 bg-slate-800" />}
+                  {i < 2 && <span className="mt-1 h-full w-px flex-1 bg-ink-800" />}
                 </div>
                 <div className="pb-2">
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <p className="text-xs font-medium uppercase tracking-wide text-ink-400">
                     {step.day}
                   </p>
-                  <p className="mt-0.5 font-semibold text-slate-100">{step.title}</p>
-                  <p className="mt-1 text-sm text-slate-400">{step.body}</p>
+                  <p className="mt-0.5 font-semibold text-ink-50">{step.title}</p>
+                  <p className="mt-1 text-sm text-ink-300">{step.body}</p>
                 </div>
               </li>
             ))}
@@ -125,8 +125,8 @@ export default function SecurityPage() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-50">Known limitations</h2>
-        <p className="mt-2 max-w-3xl text-sm text-slate-400">
+        <h2 className="text-2xl font-bold tracking-tight text-white">Known limitations</h2>
+        <p className="mt-2 max-w-3xl text-sm text-ink-300">
           Stated plainly, because a security page that only lists strengths is marketing.
         </p>
         <div className="mt-6 space-y-4">
@@ -149,8 +149,8 @@ export default function SecurityPage() {
             },
           ].map((x) => (
             <div key={x.title} className="card">
-              <h3 className="font-semibold text-slate-100">{x.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400">{x.body}</p>
+              <h3 className="font-semibold text-ink-50">{x.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-300">{x.body}</p>
             </div>
           ))}
         </div>

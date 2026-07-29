@@ -24,8 +24,8 @@ export default function PartnersPage() {
   return (
     <div className="space-y-6 py-4">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-50">Partner governance</h1>
-        <p className="mt-2 max-w-3xl text-slate-400">
+        <h1 className="text-3xl font-bold tracking-tight text-white">Partner governance</h1>
+        <p className="mt-2 max-w-3xl text-ink-300">
           The voting body is the owner plus up to {Number(gov.maxPartners ?? 4n)} partners. Any{" "}
           {required} of them can freeze the protocol and open withdrawals — the owner holds one vote
           and cannot override the result.
@@ -34,7 +34,7 @@ export default function PartnersPage() {
 
       {!isConnected ? (
         <Section title="Connect to participate">
-          <p className="mb-4 text-sm text-slate-400">
+          <p className="mb-4 text-sm text-ink-300">
             Anyone can read this page. Casting a vote requires a wallet in the voting body.
           </p>
           <ConnectButton />
@@ -61,8 +61,8 @@ export default function PartnersPage() {
         >
           <div className="mb-4">
             <div className="mb-2 flex justify-between text-sm">
-              <span className="text-slate-400">Votes cast</span>
-              <span className="font-semibold text-slate-100">
+              <span className="text-ink-300">Votes cast</span>
+              <span className="font-semibold text-ink-50">
                 {emergencyVotes} / {required}
               </span>
             </div>
@@ -90,7 +90,7 @@ export default function PartnersPage() {
                 label="Votes revocable"
                 value={
                   gov.emergencyWithdrawOpen ? (
-                    <span className="text-slate-400">No — window closed</span>
+                    <span className="text-ink-300">No — window closed</span>
                   ) : (
                     <span className="text-amber-400">Yes, until withdrawals open</span>
                   )
@@ -126,8 +126,8 @@ export default function PartnersPage() {
         >
           <div className="mb-4">
             <div className="mb-2 flex justify-between text-sm">
-              <span className="text-slate-400">Votes cast</span>
-              <span className="font-semibold text-slate-100">
+              <span className="text-ink-300">Votes cast</span>
+              <span className="font-semibold text-ink-50">
                 {rescueVotes} / {required}
               </span>
             </div>
@@ -163,7 +163,7 @@ export default function PartnersPage() {
             />
           </div>
 
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-ink-400">
             Revoking a rescue vote is always available, right up until the sweep executes. Stakers&apos;
             own withdrawals open five days before it.
           </p>
@@ -180,8 +180,8 @@ export default function PartnersPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[32rem] text-left text-sm">
-              <thead className="text-slate-400">
-                <tr className="border-b border-slate-800">
+              <thead className="text-ink-300">
+                <tr className="border-b border-white/[.07]">
                   <th className="py-2.5 font-medium">Member</th>
                   <th className="py-2.5 font-medium">Role</th>
                   <th className="py-2.5 text-right font-medium">Emergency</th>
@@ -207,20 +207,20 @@ export default function PartnersPage() {
       <Section title="What is at stake" description="Balances the voting body is deciding over.">
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <p className="text-sm text-slate-400">Total assets</p>
-            <p className="mt-1 text-2xl font-bold text-slate-50">
+            <p className="text-sm text-ink-300">Total assets</p>
+            <p className="mt-1 text-2xl font-bold text-white">
               {formatAmount(protocol.totalAssets)} USDT
             </p>
           </div>
           <div>
-            <p className="text-sm text-slate-400">Liquid balance</p>
-            <p className="mt-1 text-2xl font-bold text-slate-50">
+            <p className="text-sm text-ink-300">Liquid balance</p>
+            <p className="mt-1 text-2xl font-bold text-white">
               {formatAmount(protocol.balance)} USDT
             </p>
           </div>
           <div>
-            <p className="text-sm text-slate-400">In Polymarket positions</p>
-            <p className="mt-1 text-2xl font-bold text-slate-50">
+            <p className="text-sm text-ink-300">In Polymarket positions</p>
+            <p className="mt-1 text-2xl font-bold text-white">
               {formatAmount(protocol.arbitrageDeployed)} USDT
             </p>
           </div>
@@ -240,12 +240,12 @@ function VoterRow({
   isYou: boolean;
 }) {
   return (
-    <tr className="border-b border-slate-900">
+    <tr className="border-b border-white/[.06]">
       <td className="py-2.5">
         <AddressLink address={address} />
         {isYou && <span className="ml-2 text-xs text-brand-400">you</span>}
       </td>
-      <td className="py-2.5 text-slate-400">{isOwner ? "Owner" : "Partner"}</td>
+      <td className="py-2.5 text-ink-300">{isOwner ? "Owner" : "Partner"}</td>
       <td className="py-2.5 text-right">
         <VoteCell address={address} fn="emergencyVotes" />
       </td>
@@ -267,7 +267,7 @@ function VoteCell({ address, fn }: { address: `0x${string}`; fn: string }) {
   return data ? (
     <span className="text-brand-400">Voted</span>
   ) : (
-    <span className="text-slate-600">—</span>
+    <span className="text-ink-400">—</span>
   );
 }
 
@@ -311,7 +311,7 @@ function VoteButtons({
           Cast my vote
         </button>
       )}
-      {disabledReason && <p className="mt-2 text-xs text-slate-500">{disabledReason}</p>}
+      {disabledReason && <p className="mt-2 text-xs text-ink-400">{disabledReason}</p>}
       <TxStatus {...tx} />
     </div>
   );

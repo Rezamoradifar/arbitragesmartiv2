@@ -202,8 +202,8 @@ export default function ActivityPage() {
   return (
     <div className="space-y-6 py-4">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-50">Activity</h1>
-        <p className="mt-2 max-w-3xl text-slate-400">
+        <h1 className="text-3xl font-bold tracking-tight text-white">Activity</h1>
+        <p className="mt-2 max-w-3xl text-ink-300">
           Every protocol action, decoded straight from on-chain events. Nothing here is written by a
           server — it is what the contract emitted.
         </p>
@@ -226,7 +226,7 @@ export default function ActivityPage() {
               className={`rounded-lg border px-3 py-1.5 text-sm capitalize transition ${
                 filter === f
                   ? "border-brand-600 bg-brand-950/60 text-brand-300"
-                  : "border-slate-700 text-slate-400 hover:text-slate-200"
+                  : "border-white/10 text-ink-300 hover:text-ink-200"
               }`}
             >
               {f}
@@ -268,11 +268,11 @@ export default function ActivityPage() {
             {shown.slice(0, 100).map((e) => (
               <div
                 key={e.key}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 px-4 py-3"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/[.07] px-4 py-3"
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <Badge tone={TONE[e.name] ?? "neutral"}>{humanName(e.name)}</Badge>
-                  <span className="truncate text-sm text-slate-400">{describe(e)}</span>
+                  <span className="truncate text-sm text-ink-300">{describe(e)}</span>
                 </div>
                 <a
                   className="shrink-0 font-mono text-xs text-brand-400 underline underline-offset-2"

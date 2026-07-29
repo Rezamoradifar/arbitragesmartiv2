@@ -21,8 +21,8 @@ export default function AdminPage() {
   if (!isConnected) {
     return (
       <div className="py-20 text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-50">Owner console</h1>
-        <p className="mx-auto mt-3 max-w-md text-slate-400">
+        <h1 className="text-3xl font-bold tracking-tight text-white">Owner console</h1>
+        <p className="mx-auto mt-3 max-w-md text-ink-300">
           Connect the owner wallet to manage the protocol.
         </p>
         <div className="mt-8 flex justify-center">
@@ -35,7 +35,7 @@ export default function AdminPage() {
   if (!gov.isOwner) {
     return (
       <div className="space-y-6 py-4">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-50">Owner console</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-white">Owner console</h1>
         <Alert tone="neutral" title="This wallet is not the contract owner">
           The owner is <AddressLink address={gov.owner} />. Every action on this page is gated
           on-chain, so a non-owner wallet cannot change anything here regardless of what the
@@ -48,7 +48,7 @@ export default function AdminPage() {
   return (
     <div className="space-y-6 py-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-50">Owner console</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-white">Owner console</h1>
         <div className="flex gap-2">
           {protocol.emergencyMode && <Badge tone="bad">Emergency mode</Badge>}
           {protocol.paused ? <Badge tone="warn">Paused</Badge> : <Badge tone="good">Live</Badge>}
@@ -177,12 +177,12 @@ function PartnerAdmin({
 
         <div className="mt-5 space-y-2">
           {partners.length === 0 ? (
-            <p className="text-sm text-slate-500">No partners registered yet.</p>
+            <p className="text-sm text-ink-400">No partners registered yet.</p>
           ) : (
             partners.map((p, i) => (
               <div
                 key={p}
-                className="flex items-center justify-between rounded-xl border border-slate-800 px-3 py-2"
+                className="flex items-center justify-between rounded-xl border border-white/[.07] px-3 py-2"
               >
                 <AddressLink address={p} />
                 <button
@@ -198,7 +198,7 @@ function PartnerAdmin({
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-slate-500">
+      <p className="mt-4 text-xs text-ink-400">
         Removal uses swap-and-pop, so the remaining partners may change index. The list above always
         reflects current on-chain order.
       </p>
@@ -280,7 +280,7 @@ function RescueAdmin({
       >
         Execute rescue — sweep {formatAmount(protocol.balance)} USDT
       </button>
-      <p className="mt-2 text-xs text-slate-500">
+      <p className="mt-2 text-xs text-ink-400">
         Requires partner quorum plus the full 7-day delay. Stakers&apos; own no-penalty withdrawals
         open five days earlier.
       </p>
@@ -414,7 +414,7 @@ function BlacklistAdmin({ onDone }: { onDone: () => void }) {
           Unblock
         </button>
       </div>
-      <p className="mt-3 text-xs text-slate-500">
+      <p className="mt-3 text-xs text-ink-400">
         A blocked address keeps access to early exit and emergency withdrawal, so principal is never
         trapped. Unclaimed yield is inaccessible while blocked.
       </p>
@@ -452,26 +452,26 @@ function ArbitrageAdmin({
     >
       <div className="grid gap-4 sm:grid-cols-4">
         <div>
-          <p className="text-sm text-slate-400">Deployed</p>
-          <p className="mt-1 text-xl font-bold text-slate-50">
+          <p className="text-sm text-ink-300">Deployed</p>
+          <p className="mt-1 text-xl font-bold text-white">
             {formatAmount(protocol.arbitrageDeployed)}
           </p>
         </div>
         <div>
-          <p className="text-sm text-slate-400">Ceiling</p>
-          <p className="mt-1 text-xl font-bold text-slate-50">
+          <p className="text-sm text-ink-300">Ceiling</p>
+          <p className="mt-1 text-xl font-bold text-white">
             {formatAmount(protocol.arbitrageCeiling)}
           </p>
         </div>
         <div>
-          <p className="text-sm text-slate-400">Available now</p>
+          <p className="text-sm text-ink-300">Available now</p>
           <p className="mt-1 text-xl font-bold text-brand-400">
             {formatAmount(protocol.arbitrageAvailable)}
           </p>
         </div>
         <div>
-          <p className="text-sm text-slate-400">Realized profit</p>
-          <p className="mt-1 text-xl font-bold text-slate-50">
+          <p className="text-sm text-ink-300">Realized profit</p>
+          <p className="mt-1 text-xl font-bold text-white">
             {formatAmount(protocol.arbitrageProfit)}
           </p>
         </div>
@@ -541,12 +541,12 @@ function ArbitrageAdmin({
           Redeem
         </button>
       </div>
-      <p className="mt-2 text-xs text-slate-500">
+      <p className="mt-2 text-xs text-ink-400">
         Split is blocked while paused or in emergency mode. Merge and redeem stay available so
         positions can always be unwound for stakers.
       </p>
 
-      <div className="mt-6 border-t border-slate-800 pt-5">
+      <div className="mt-6 border-t border-white/[.07] pt-5">
         <label className="label" htmlFor="profit">
           Return external profit to the pool (USDT)
         </label>
@@ -567,7 +567,7 @@ function ArbitrageAdmin({
             Deposit
           </button>
         </div>
-        <p className="mt-1.5 text-xs text-slate-500">
+        <p className="mt-1.5 text-xs text-ink-400">
           Requires an ERC-20 approval from the owner wallet first. Credits the measured balance
           delta, so a fee-on-transfer token cannot inflate the budget.
         </p>

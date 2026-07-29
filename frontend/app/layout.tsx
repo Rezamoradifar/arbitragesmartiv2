@@ -1,7 +1,19 @@
 import type { Metadata } from "next";
+import { Inter, Sora } from "next/font/google";
 import "./globals.css";
 import { Web3Providers } from "@/lib/wagmi";
 import { NavBar } from "@/components/NavBar";
+
+// Sora for headlines and figures — it has the geometric confidence the old
+// system-font build was missing. Inter for body copy, where legibility at
+// small sizes matters more than character.
+const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const display = Sora({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://arbhub.site";
 const TITLE = "ArbiSmart — Polygon Staking & Referral Platform";
@@ -33,17 +45,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${sans.variable} ${display.variable}`}>
       <body>
         <Web3Providers>
           <NavBar />
-          <main className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 lg:px-8">{children}</main>
-          <footer className="border-t border-slate-900 py-8 text-center text-sm text-slate-500">
+          <main className="layer mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 lg:px-8">{children}</main>
+          <footer className="layer mt-10 border-t border-white/[.06] py-10 text-center text-sm text-ink-400">
             <p>
               ArbiSmart runs on an open-source smart contract on Polygon, published with an exact
               bytecode match.{" "}
               <a
-                className="text-brand-400 underline underline-offset-2"
+                className="text-brand-400 underline decoration-brand-400/40 underline-offset-4 transition hover:text-brand-300"
                 href={`https://polygon.blockscout.com/address/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}?tab=contract`}
                 target="_blank"
                 rel="noreferrer"
@@ -52,7 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </a>{" "}
               ·{" "}
               <a
-                className="text-brand-400 underline underline-offset-2"
+                className="text-brand-400 underline decoration-brand-400/40 underline-offset-4 transition hover:text-brand-300"
                 href={`https://repo.sourcify.dev/137/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}`}
                 target="_blank"
                 rel="noreferrer"
@@ -61,7 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </a>{" "}
               ·{" "}
               <a
-                className="text-brand-400 underline underline-offset-2"
+                className="text-brand-400 underline decoration-brand-400/40 underline-offset-4 transition hover:text-brand-300"
                 href={`https://polygonscan.com/address/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}`}
                 target="_blank"
                 rel="noreferrer"
@@ -69,7 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 PolygonScan
               </a>
             </p>
-            <p className="mx-auto mt-3 max-w-2xl px-4 text-xs text-slate-600">
+            <p className="mx-auto mt-4 max-w-2xl px-4 text-xs leading-relaxed text-ink-400/80">
               Staking returns are contract parameters, not a guarantee. Read the{" "}
               <a className="underline underline-offset-2" href="/security">
                 security page

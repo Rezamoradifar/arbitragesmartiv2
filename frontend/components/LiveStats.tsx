@@ -12,7 +12,7 @@ export function LiveStats() {
   const deployedPct = assets > 0n ? Number((deployed * 10000n) / assets) / 100 : 0;
 
   const items = [
-    { label: "Total value locked", value: p.totalAssets, sub: "Liquid + deployed" },
+    { label: "Total value locked", value: p.totalAssets, sub: "Liquid + deployed", lead: true },
     { label: "Principal staked", value: p.totalStaked, sub: "Across all active positions" },
     { label: "Paid out to stakers", value: p.totalPaidOut, sub: "Lifetime yield claimed" },
     { label: "Realized arbitrage profit", value: p.arbitrageProfit, sub: "Net of performance fee" },
@@ -20,8 +20,13 @@ export function LiveStats() {
 
   return (
     <section>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-2xl font-bold tracking-tight text-slate-50">Protocol at a glance</h2>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <span className="eyebrow">Live</span>
+          <h2 className="mt-4 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            Protocol at a glance
+          </h2>
+        </div>
         <div className="flex flex-wrap gap-2">
           {p.emergencyMode ? (
             <Badge tone="bad">Emergency mode</Badge>
@@ -38,34 +43,49 @@ export function LiveStats() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((it) => (
-          <div key={it.label} className="card">
-            <p className="text-sm text-slate-400">{it.label}</p>
-            <p className="mt-1 text-2xl font-bold tracking-tight text-slate-50">
-              {p.isLoading ? <Skeleton /> : `${formatAmount(it.value)} USDT`}
+          <div
+            key={it.label}
+            className={`card card-hover ${
+              it.lead ? "bg-gradient-to-br from-brand-900/30 to-ink-900/70" : ""
+            }`}
+          >
+            <p className="text-sm text-ink-300">{it.label}</p>
+            <p className="stat-value mt-2">
+              {p.isLoading ? (
+                <Skeleton className="h-9 w-28" />
+              ) : (
+                <>
+                  <span className={it.lead ? "text-gradient-brand" : ""}>
+                    {formatAmount(it.value)}
+                  </span>
+                  <span className="ml-1.5 text-base font-medium text-ink-400">USDT</span>
+                </>
+              )}
             </p>
-            <p className="mt-1 text-xs text-slate-500">{it.sub}</p>
+            <p className="mt-2 text-xs text-ink-400">{it.sub}</p>
           </div>
         ))}
       </div>
 
       <div className="card mt-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <p className="text-sm font-medium text-slate-300">Arbitrage capital deployed</p>
-          <p className="text-sm text-slate-400">
-            <span className="font-semibold text-slate-100">{formatAmount(deployed)}</span> of{" "}
-            {formatAmount(p.arbitrageCeiling)} USDT ceiling
+          <p className="text-sm font-medium text-ink-200">Arbitrage capital deployed</p>
+          <p className="text-sm tabular-nums text-ink-300">
+            <span className="font-semibold text-white">{formatAmount(deployed)}</span>
+            <span className="text-ink-400"> / {formatAmount(p.arbitrageCeiling)} USDT ceiling</span>
           </p>
         </div>
-        <div className="mt-3">
+        <div className="mt-4">
           <Progress
             value={Number(deployed / 1_000000n)}
             max={Math.max(1, Number((p.arbitrageCeiling ?? 1n) / 1_000000n))}
             tone={deployedPct > 18 ? "warn" : "brand"}
           />
         </div>
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-3 text-xs leading-relaxed text-ink-400">
           Capped cumulatively at 20% of total assets plus realized profit. The remaining{" "}
-          {formatAmount(p.balance)} USDT stays liquid for withdrawals.
+          <span className="text-ink-200">{formatAmount(p.balance)} USDT</span> stays liquid for
+          withdrawals.
         </p>
       </div>
     </section>
