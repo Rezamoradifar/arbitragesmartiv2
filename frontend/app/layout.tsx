@@ -24,14 +24,33 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 lg:px-8">{children}</main>
           <footer className="border-t border-slate-900 py-8 text-center text-sm text-slate-500">
             <p>
-              ArbiSmart runs on a verified, open-source smart contract on Polygon.{" "}
+              ArbiSmart runs on an open-source smart contract on Polygon, published with an exact
+              bytecode match.{" "}
+              <a
+                className="text-brand-400 underline underline-offset-2"
+                href={`https://polygon.blockscout.com/address/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}?tab=contract`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Read the verified source
+              </a>{" "}
+              ·{" "}
+              <a
+                className="text-brand-400 underline underline-offset-2"
+                href={`https://repo.sourcify.dev/137/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Sourcify
+              </a>{" "}
+              ·{" "}
               <a
                 className="text-brand-400 underline underline-offset-2"
                 href={`https://polygonscan.com/address/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}`}
                 target="_blank"
                 rel="noreferrer"
               >
-                View contract on PolygonScan
+                PolygonScan
               </a>
             </p>
             <p className="mx-auto mt-3 max-w-2xl px-4 text-xs text-slate-600">
