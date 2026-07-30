@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LiveStats } from "@/components/LiveStats";
+import { PolymarketMarkets } from "@/components/PolymarketMarkets";
 import { Aurora, LiveDot } from "@/components/Aurora";
 import { PLANS, PENALTY_SCHEDULE, REFERRAL_LEVELS, formatBps } from "@/lib/contract";
 
@@ -84,6 +85,9 @@ export default function HomePage() {
 
       {/* ---------- Live stats ---------- */}
       <LiveStats />
+
+      {/* ---------- Live Polymarket markets ---------- */}
+      <PolymarketMarkets />
 
       {/* ---------- Plans ---------- */}
       <section>
