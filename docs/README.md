@@ -1,5 +1,19 @@
 # ArbiSmart documentation
 
+## Getting Started (new users, no technical background needed)
+
+| | |
+| --- | --- |
+| 🇬🇧 English | [**ArbiSmart-Getting-Started-EN.pdf**](./ArbiSmart-Getting-Started-EN.pdf) |
+| 🇮🇷 فارسی | [**ArbiSmart-Getting-Started-FA.pdf**](./ArbiSmart-Getting-Started-FA.pdf) |
+
+A short, illustrated walkthrough with real screenshots: what you need,
+connecting a wallet, picking a plan, staking, claiming rewards, the referral
+bonus, the Portfolio page, and leaving early. No contract internals, no
+jargon — just the steps.
+
+## Complete guide (full reference)
+
 | | |
 | --- | --- |
 | 🇬🇧 English | [**ArbiSmart-Guide-EN.pdf**](./ArbiSmart-Guide-EN.pdf) |
@@ -12,9 +26,9 @@ owner can and cannot do), partner governance (emergency and rescue votes),
 the on-chain activity feed, contract/deployment reference, known limitations,
 an FAQ, and a glossary.
 
-Both documents describe the same deployed contract and are kept in sync —
-neither is a translation of the other; each was written directly in its own
-language.
+Each language pair (Getting Started EN/FA, Guide EN/FA) describes the same
+deployed contract and is kept in sync — neither half of a pair is a
+translation of the other; each was written directly in its own language.
 
 ## Regenerating these PDFs
 
