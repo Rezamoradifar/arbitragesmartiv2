@@ -622,19 +622,28 @@ function ReferralCard({
 
       <div className="mt-5">
         <p className="label">Your referral link</p>
-        <div className="flex gap-2">
-          <input className="input min-w-0 flex-1 font-mono text-xs" readOnly value={link} />
-          <button
-            className="btn-secondary shrink-0"
-            onClick={() => {
-              navigator.clipboard.writeText(link);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }}
-          >
-            {copied ? "Copied" : "Copy"}
-          </button>
-        </div>
+        <button
+          type="button"
+          className="input block w-full overflow-x-auto whitespace-nowrap text-left font-mono text-xs"
+          onClick={() => {
+            navigator.clipboard.writeText(link);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          }}
+        >
+          {link}
+        </button>
+        <button
+          type="button"
+          className="btn-secondary mt-2 w-full"
+          onClick={() => {
+            navigator.clipboard.writeText(link);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          }}
+        >
+          {copied ? "Copied ✓" : "Copy link"}
+        </button>
       </div>
     </Section>
   );
