@@ -90,15 +90,15 @@ export default function SecurityPage() {
           The race that protects you
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-ink-300">
-          If the voting body ever moves to sweep the pool, stakers get a five-day head start. Both
+          If the voting body ever moves to sweep the pool, stakers get a 36-hour head start. Both
           timers are enforced on-chain and start from the same vote.
         </p>
         <div className="card mt-6">
           <ol className="space-y-5">
             {[
-              { day: "Day 0", title: "Quorum reached", body: "Three of five vote. The protocol pauses immediately and new arbitrage deployments stop." },
-              { day: "Day 2", title: "Your withdrawal opens", body: "Emergency withdrawal unlocks for every staker — full principal, no penalty, no permission needed." },
-              { day: "Day 7", title: "Earliest possible sweep", body: "Only now can a rescue execute, and only to the recovery wallet frozen at vote time." },
+              { day: "Hour 0", title: "Quorum reached", body: "Three of five vote. The protocol pauses immediately and new arbitrage deployments stop." },
+              { day: "Hour 12", title: "Your withdrawal opens", body: "Emergency withdrawal unlocks for every staker — full principal, no penalty, no permission needed." },
+              { day: "Hour 48", title: "Earliest possible sweep", body: "Only now can a rescue execute, and only to the recovery wallet frozen at vote time." },
             ].map((step, i) => (
               <li key={step.day} className="flex gap-4">
                 <div className="flex flex-col items-center">
@@ -153,6 +153,65 @@ export default function SecurityPage() {
               <p className="mt-2 text-sm leading-relaxed text-ink-300">{x.body}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-2xl font-bold tracking-tight text-white">Bug bounty</h2>
+        <p className="mt-2 max-w-3xl text-sm text-ink-300">
+          Found a real vulnerability? Report it privately before doing anything else, and get paid
+          for it. Independently of the automated Slither static-analysis pass and the 76-test /
+          8-invariant suite already run against this contract, a genuine bug found by a human is
+          worth a real reward.
+        </p>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              tier: "Critical",
+              reward: "$500",
+              body: "Any path that moves staked principal to an address other than the staker who owns it — a drain, a theft, an unauthorized sweep.",
+            },
+            {
+              tier: "High",
+              reward: "$150",
+              body: "Freezing user funds, bypassing a security control (partner quorum, the emergency-withdraw delay, blacklist boundaries), or breaking an accounting invariant.",
+            },
+            {
+              tier: "Medium",
+              reward: "$50",
+              body: "Incorrect accounting or logic errors that don't directly move funds but could compound into a real issue.",
+            },
+            {
+              tier: "Low / info",
+              reward: "Credit",
+              body: "Gas inefficiencies, style issues, or anything already listed on this page as a known limitation.",
+            },
+          ].map((t) => (
+            <div key={t.tier} className="card">
+              <div className="flex items-baseline justify-between">
+                <h3 className="font-semibold text-ink-50">{t.tier}</h3>
+                <span className="font-display text-lg font-bold text-brand-400">{t.reward}</span>
+              </div>
+              <p className="mt-2 text-sm leading-relaxed text-ink-300">{t.body}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="card mt-6">
+          <h3 className="font-semibold text-ink-50">How to report</h3>
+          <p className="mt-2 text-sm leading-relaxed text-ink-300">
+            Email{" "}
+            <a className="text-brand-400 underline underline-offset-2" href="mailto:Moradi5024@gmail.com">
+              Moradi5024@gmail.com
+            </a>{" "}
+            with a description and, ideally, a proof-of-concept against a fork — not mainnet.
+            Report privately first; public disclosure or on-chain exploitation before a fix ships
+            forfeits the reward. First valid report wins if more than one person finds the same
+            issue. Scope is the deployed contract at{" "}
+            <span className="font-mono text-ink-200">0xDCcc0561b36809454584ED1038824ca06B86c1d6</span>{" "}
+            and this frontend; known limitations listed above are out of scope.
+          </p>
         </div>
       </section>
     </div>
