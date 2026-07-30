@@ -59,10 +59,12 @@ export function Row({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-white/[.06] py-2.5 last:border-0">
-      <span className="text-sm text-ink-300">{label}</span>
-      <span className="text-right text-sm font-medium text-ink-50">
-        {value}
-        {hint && <span className="ml-1.5 text-xs font-normal text-ink-400">{hint}</span>}
+      <span className="shrink-0 text-sm text-ink-300">{label}</span>
+      <span className="min-w-0 text-right text-sm font-medium text-ink-50">
+        <span className="break-words">{value}</span>
+        {hint && (
+          <span className="ml-1.5 whitespace-nowrap text-xs font-normal text-ink-400">{hint}</span>
+        )}
       </span>
     </div>
   );
