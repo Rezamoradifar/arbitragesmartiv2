@@ -197,27 +197,11 @@ Verified with an **exact bytecode match** on both creation and runtime code:
 | --- | --- | --- |
 | Sourcify | `exact_match` | [repo entry](https://repo.sourcify.dev/137/0xDCcc0561b36809454584ED1038824ca06B86c1d6) |
 | Blockscout | Fully verified | [contract page](https://polygon.blockscout.com/address/0xDCcc0561b36809454584ED1038824ca06B86c1d6?tab=contract) |
-| PolygonScan | Not verified yet | needs `POLYGONSCAN_API_KEY` |
+| PolygonScan | Verified | [contract page](https://polygonscan.com/address/0xDCcc0561b36809454584ED1038824ca06B86c1d6#code) |
 
 An exact match means the deployed bytecode was reproduced byte-for-byte from
 this repository's source, including metadata — so the code on chain is provably
 the code here.
-
-PolygonScan is still outstanding because Sourcify's relayed submission hit its
-daily quota. To do it directly:
-
-```bash
-export POLYGONSCAN_API_KEY=<your key>
-forge verify-contract 0xDCcc0561b36809454584ED1038824ca06B86c1d6 \
-  src/ArbiSmartV2.sol:ArbiSmartV2 --chain 137 --watch \
-  --constructor-args $(cast abi-encode \
-    "constructor(address,address,address,address,address)" \
-    0xc2132D05D31c914a87C6611C10748AEb04B58e8F \
-    0x0C52DDb2F4147A4FD8A749F988Ab41A6E201669A \
-    0x0C52DDb2F4147A4FD8A749F988Ab41A6E201669A \
-    0x0C52DDb2F4147A4FD8A749F988Ab41A6E201669A \
-    0x0C52DDb2F4147A4FD8A749F988Ab41A6E201669A)
-```
 
 > **The collateral token is USDT, not the USDC.e that Polymarket markets are
 > collateralized in.** `collateralToken` is immutable, so this is fixed for the
