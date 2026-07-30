@@ -360,7 +360,7 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     ///         {emergencyWithdraw} opens. Also the window during which a vote
     ///         can still be revoked — once it passes, the escape hatch is
     ///         irrevocable.
-    uint256 public constant EMERGENCY_DELAY = 2 days;
+    uint256 public constant EMERGENCY_DELAY = 12 hours;
 
     /// @notice Registered partners. Only the first {partnerCount} entries are
     ///         meaningful; the tail is zeroed on removal.
@@ -386,10 +386,10 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     /// @notice How long after {rescueInitiatedAt} the sweep may execute.
     ///         Deliberately longer than {EMERGENCY_DELAY}: reaching rescue
     ///         quorum also activates emergency mode, so stakers' own
-    ///         {emergencyWithdraw} opens at 2 days while the sweep cannot
-    ///         fire until day 7. Stakers get a 5-day head start on their own
-    ///         principal, and only the remainder is ever swept.
-    uint256 public constant RESCUE_DELAY = 7 days;
+    ///         {emergencyWithdraw} opens at 12 hours while the sweep cannot
+    ///         fire until hour 48. Stakers get a 36-hour head start on their
+    ///         own principal, and only the remainder is ever swept.
+    uint256 public constant RESCUE_DELAY = 48 hours;
 
     /// @notice Destination of {executeRescue}. Owner-settable, but frozen for
     ///         as long as any rescue vote is outstanding, so the destination
@@ -1059,7 +1059,7 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     /// @dev This is the last-resort response to a compromise. Three things
     ///      keep it from being a unilateral drain: it needs partner quorum,
     ///      it is announced on-chain {RESCUE_DELAY} in advance, and stakers'
-    ///      {emergencyWithdraw} opens 5 days before it can fire. A stolen
+    ///      {emergencyWithdraw} opens 36 hours before it can fire. A stolen
     ///      owner key alone cannot reach it.
     function executeRescue() external onlyOwner nonReentrant {
         if (rescueInitiatedAt == 0) revert RescueNotArmed();
@@ -1294,7 +1294,7 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     ///         1. The contract has been continuously paused for at least
     ///            {EMERGENCY_GRACE_PERIOD} (30 days) — the owner-inaction path.
     ///         2. {REQUIRED_VOTES} of the voting body flipped {emergencyMode}
-    ///            and {EMERGENCY_DELAY} (2 days) has since elapsed — the
+    ///            and {EMERGENCY_DELAY} (12 hours) has since elapsed — the
     ///            partner-override path, which does not depend on the owner.
     ///
     ///         No penalty is applied on either path.
