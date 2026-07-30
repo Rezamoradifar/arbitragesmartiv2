@@ -26,7 +26,7 @@ DOMAIN="arbhub.site"
 # arbhub.site must be added there.
 #
 # Override any of them by exporting the variable before running.
-CONTRACT="${CONTRACT:-0x1Eb07993f2842dc9BB0B69dADE1d033324246768}"
+CONTRACT="${CONTRACT:-0xDCcc0561b36809454584ED1038824ca06B86c1d6}"
 COLLATERAL="${COLLATERAL:-0xc2132D05D31c914a87C6611C10748AEb04B58e8F}"
 APP_URL="${APP_URL:-https://arbhub.site}"
 WALLETCONNECT_ID="${WALLETCONNECT_ID:-00a6d669500a837d18aa4adeb86fc783}"

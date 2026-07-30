@@ -173,14 +173,21 @@ Live on **Polygon mainnet** (chain id 137):
 
 | | |
 | --- | --- |
-| Contract | [`0x1Eb07993f2842dc9BB0B69dADE1d033324246768`](https://polygonscan.com/address/0x1Eb07993f2842dc9BB0B69dADE1d033324246768) |
-| Deploy tx | [`0x1945a997e43cb7bedd7eafdb3dde0280cb0a2d5ab9e6e9d7937a13316526aec6`](https://polygonscan.com/tx/0x1945a997e43cb7bedd7eafdb3dde0280cb0a2d5ab9e6e9d7937a13316526aec6) |
-| Block | 91081649 |
+| Contract | [`0xDCcc0561b36809454584ED1038824ca06B86c1d6`](https://polygonscan.com/address/0xDCcc0561b36809454584ED1038824ca06B86c1d6) |
+| Deploy tx | [`0x1e55f508efdba55dcbc22b97c0f4a6b7e05c472b69a62c995adef290a7ffcf8c`](https://polygonscan.com/tx/0x1e55f508efdba55dcbc22b97c0f4a6b7e05c472b69a62c995adef290a7ffcf8c) |
+| Block | 91151731 |
 | Owner | `0x0C52DDb2F4147A4FD8A749F988Ab41A6E201669A` |
 | Collateral | `0xc2132D05D31c914a87C6611C10748AEb04B58e8F` (Tether on Polygon, on-chain symbol `USDT0`) |
 | Fee wallets / profit recipient | All three set to the owner address; changeable via `setFeeWallets` / `setProfitRecipient` |
 
 Constructor state was read back from chain after deployment and matches.
+
+This is a redeployment. The prior instance at
+[`0x1Eb07993f2842dc9BB0B69dADE1d033324246768`](https://polygonscan.com/address/0x1Eb07993f2842dc9BB0B69dADE1d033324246768)
+is superseded — it never received a real stake (`totalStaked` was `0`
+throughout its life) — because `RESCUE_DELAY`/`EMERGENCY_DELAY` are
+`immutable`/`constant` and shortening them (168h/48h → 48h/12h, keeping the
+same 36-hour staker head start) required a new deployment.
 
 ### Source verification
 
@@ -188,8 +195,8 @@ Verified with an **exact bytecode match** on both creation and runtime code:
 
 | Verifier | Status | Link |
 | --- | --- | --- |
-| Sourcify | `exact_match` | [repo entry](https://repo.sourcify.dev/137/0x1Eb07993f2842dc9BB0B69dADE1d033324246768) |
-| Blockscout | Fully verified | [contract page](https://polygon.blockscout.com/address/0x1Eb07993f2842dc9BB0B69dADE1d033324246768?tab=contract) |
+| Sourcify | `exact_match` | [repo entry](https://repo.sourcify.dev/137/0xDCcc0561b36809454584ED1038824ca06B86c1d6) |
+| Blockscout | Fully verified | [contract page](https://polygon.blockscout.com/address/0xDCcc0561b36809454584ED1038824ca06B86c1d6?tab=contract) |
 | PolygonScan | Not verified yet | needs `POLYGONSCAN_API_KEY` |
 
 An exact match means the deployed bytecode was reproduced byte-for-byte from
@@ -201,7 +208,7 @@ daily quota. To do it directly:
 
 ```bash
 export POLYGONSCAN_API_KEY=<your key>
-forge verify-contract 0x1Eb07993f2842dc9BB0B69dADE1d033324246768 \
+forge verify-contract 0xDCcc0561b36809454584ED1038824ca06B86c1d6 \
   src/ArbiSmartV2.sol:ArbiSmartV2 --chain 137 --watch \
   --constructor-args $(cast abi-encode \
     "constructor(address,address,address,address,address)" \
