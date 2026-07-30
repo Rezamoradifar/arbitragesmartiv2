@@ -1,11 +1,28 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useProtocol } from "@/lib/hooks";
 import { formatAmount } from "@/lib/contract";
 import { Badge, Progress, Skeleton } from "@/components/ui";
+import { LiveDot } from "@/components/Aurora";
+
+function useSecondsSince(timestamp: number | undefined) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+  if (!timestamp) return undefined;
+  return Math.max(0, Math.round((Date.now() - timestamp) / 1000));
+}
 
 export function LiveStats() {
   const p = useProtocol();
+  const [lastUpdated, setLastUpdated] = useState<number | undefined>(undefined);
+  useEffect(() => {
+    if (!p.isLoading) setLastUpdated(Date.now());
+  }, [p.isLoading, p.totalAssets, p.totalStaked, p.totalPaidOut]);
+  const secondsAgo = useSecondsSince(lastUpdated);
 
   const deployed = p.arbitrageDeployed ?? 0n;
   const assets = p.totalAssets ?? 0n;
@@ -22,10 +39,18 @@ export function LiveStats() {
     <section>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <span className="eyebrow">Live</span>
+          <span className="eyebrow flex items-center gap-2">
+            <LiveDot />
+            Live
+          </span>
           <h2 className="mt-4 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
             Protocol at a glance
           </h2>
+          {secondsAgo !== undefined && (
+            <p className="mt-1.5 text-xs text-ink-400">
+              Read straight from the contract · updated {secondsAgo}s ago
+            </p>
+          )}
         </div>
         <div className="flex flex-wrap gap-2">
           {p.emergencyMode ? (
