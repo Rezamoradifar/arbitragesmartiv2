@@ -6,10 +6,21 @@
   html {
     color-scheme: dark;
     -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-ink-950 text-ink-50 antialiased;
+    /* A transient wide element (a long unwrapped string, a modal briefly
+       measured at its natural width) can push scrollWidth past the
+       viewport on mobile; some mobile browsers then leave the page
+       scrolled right afterwards, clipping content on the left edge.
+       Blocking horizontal scroll outright is the standard guard — nothing
+       on this site relies on it, and any content that's genuinely wider
+       than its container (tables, addresses) already wraps itself in its
+       own overflow-x-auto. */
+    overflow-x: hidden;
+    max-width: 100vw;
     /* Two wide colour washes rather than a flat fill — this is most of what
        separates "dark theme" from "grey rectangle". */
     background-image:
