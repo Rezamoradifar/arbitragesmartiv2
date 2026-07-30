@@ -612,6 +612,14 @@ function ReferralCard({
         </p>
       )}
 
+      {!user.active && (
+        <Alert tone="warn" title="Your link won't work yet">
+          The contract only credits a referral if you already have an active stake at the moment
+          your friend stakes. Stake first — anyone who used this link before that point was staked
+          normally, but was never linked to you, and that can&apos;t be fixed after the fact.
+        </Alert>
+      )}
+
       <div className="mt-5">
         <p className="label">Your referral link</p>
         <div className="flex gap-2">
