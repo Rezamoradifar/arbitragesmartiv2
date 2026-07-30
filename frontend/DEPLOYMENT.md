@@ -74,7 +74,7 @@ connect button will not work until certbot has run.
 
 ```bash
 npm run build
-npm run start   # listens on :3000
+npm run start   # listens on :3001
 ```
 
 ## 3. Run under PM2
@@ -94,7 +94,7 @@ server {
     server_name arbhub.site www.arbhub.site;
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';

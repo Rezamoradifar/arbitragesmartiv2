@@ -13,6 +13,7 @@ REPO="https://github.com/Rezamoradifar/arbitragesmartiv2.git"
 BRANCH="claude/arbismartv2-contract-setup-qz72zv"
 APP_DIR="$HOME/arbitragesmartiv2"
 DOMAIN="arbhub.site"
+PORT="${PORT:-3001}"
 
 # --- Values baked from the live deployment -------------------------------
 #
@@ -82,10 +83,27 @@ npm run build
 # --- 5. PM2 ---------------------------------------------------------------
 command -v pm2 >/dev/null 2>&1 || sudo npm install -g pm2
 
+say "Writing ecosystem.config.js for port $PORT"
+cat > ecosystem.config.js <<EOF
+module.exports = {
+  apps: [
+    {
+      name: "arbismart-frontend",
+      cwd: __dirname,
+      script: "node_modules/next/dist/bin/next",
+      args: "start -p $PORT",
+      env: {
+        NODE_ENV: "production",
+      },
+    },
+  ],
+};
+EOF
+
 say "Starting under PM2"
 pm2 delete arbismart-frontend >/dev/null 2>&1 || true
 pm2 start ecosystem.config.js
-pm2 save
+pm2 save --force
 say "Run the command pm2 prints below once, so the app survives reboots:"
 pm2 startup | tail -2 || true
 
@@ -99,7 +117,7 @@ server {
     server_name $DOMAIN www.$DOMAIN;
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:$PORT;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -147,5 +165,5 @@ else
 fi
 
 say "Done. Local check:"
-curl -s -o /dev/null -w "  http://127.0.0.1:3000  ->  %{http_code}\n" http://127.0.0.1:3000/ || true
+curl -s -o /dev/null -w "  http://127.0.0.1:$PORT  ->  %{http_code}\n" http://127.0.0.1:$PORT/ || true
 pm2 status arbismart-frontend || true
