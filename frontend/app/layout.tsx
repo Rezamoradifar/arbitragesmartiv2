@@ -43,10 +43,23 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "ArbiSmart",
+  url: SITE_URL,
+  description: DESCRIPTION,
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${display.variable}`}>
       <body>
+        {/* eslint-disable-next-line react/no-danger */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Web3Providers>
           <NavBar />
           <main className="layer mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 lg:px-8">{children}</main>
