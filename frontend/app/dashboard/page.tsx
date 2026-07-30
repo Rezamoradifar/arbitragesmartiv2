@@ -623,7 +623,7 @@ function ReferralCard({
       <div className="mt-5">
         <p className="label">Your referral link</p>
         <div className="flex gap-2">
-          <input className="input font-mono text-xs" readOnly value={link} />
+          <input className="input min-w-0 flex-1 font-mono text-xs" readOnly value={link} />
           <button
             className="btn-secondary shrink-0"
             onClick={() => {
