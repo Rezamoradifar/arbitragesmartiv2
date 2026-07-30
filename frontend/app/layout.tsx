@@ -41,6 +41,7 @@ export const metadata: Metadata = {
       "Staking with an exit you don't have to trust anyone for, on Polygon.",
   },
   robots: { index: true, follow: true },
+  verification: { google: "Gw7b-maMBB243jbr8ksUV-HbbrQrKwu1IbSTawhughI" },
 };
 
 const jsonLd = {
