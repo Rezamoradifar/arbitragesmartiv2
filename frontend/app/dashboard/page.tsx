@@ -583,8 +583,16 @@ function ReferralCard({
         <Row label="Lifetime earned" value={`${formatAmount(user.refTotalEarned)} USDT`} />
         <Row label="Active referrals" value={(user.activeReferrals ?? 0n).toString()} />
         <Row label="Team volume" value={`${formatAmount(user.teamVolume)} USDT`} />
-        <Row label="Direct (F1) rate" value={formatBps(tier.f1Bps)} />
-        <Row label="Second (F2) rate" value={formatBps(tier.f2Bps)} />
+        <Row
+          label="— direct (F1)"
+          value={`${formatAmount(user.f1Volume)} USDT`}
+          hint={`earns ${formatBps(tier.f1Bps)}`}
+        />
+        <Row
+          label="— second level (F2)"
+          value={`${formatAmount(user.f2Volume)} USDT`}
+          hint={`earns ${formatBps(tier.f2Bps)}`}
+        />
       </div>
 
       {next && (
@@ -687,9 +695,18 @@ function ExitCard({
 
 function ReferralTeam() {
   const { referrals, isLoading } = useReferralTree();
+  const totalStaked = referrals.reduce((sum, r) => sum + r.amount, 0n);
 
   return (
-    <Section title="Your team" description="Direct referrals and the positions they hold.">
+    <Section
+      title="Your team"
+      description="Every direct referral and the position they hold — pulled live from the contract, not a spreadsheet."
+      action={
+        referrals.length > 0 ? (
+          <Badge tone="neutral">{referrals.length} member{referrals.length === 1 ? "" : "s"}</Badge>
+        ) : undefined
+      }
+    >
       {isLoading ? (
         <Skeleton className="h-20 w-full" />
       ) : referrals.length === 0 ? (
@@ -698,28 +715,39 @@ function ReferralTeam() {
           hint="Share your referral link to start earning from your team's claims."
         />
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[28rem] text-left text-sm">
-            <thead className="text-ink-300">
-              <tr className="border-b border-white/[.07]">
-                <th className="py-2.5 font-medium">Address</th>
-                <th className="py-2.5 font-medium">Plan</th>
-                <th className="py-2.5 text-right font-medium">Staked</th>
-              </tr>
-            </thead>
-            <tbody>
-              {referrals.map((r) => (
-                <tr key={r.address} className="border-b border-white/[.06]">
-                  <td className="py-2.5 font-mono text-xs text-ink-200">
-                    {shortAddress(r.address)}
-                  </td>
-                  <td className="py-2.5 text-ink-300">{PLANS[r.plan]?.name ?? "—"}</td>
-                  <td className="py-2.5 text-right text-ink-200">{formatAmount(r.amount)} USDT</td>
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[28rem] text-left text-sm">
+              <thead className="text-ink-300">
+                <tr className="border-b border-white/[.07]">
+                  <th className="py-2.5 font-medium">Address</th>
+                  <th className="py-2.5 font-medium">Plan</th>
+                  <th className="py-2.5 text-right font-medium">Staked</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {referrals.map((r) => (
+                  <tr key={r.address} className="border-b border-white/[.06]">
+                    <td className="py-2.5 font-mono text-xs text-ink-200">
+                      {shortAddress(r.address)}
+                    </td>
+                    <td className="py-2.5">
+                      {r.amount > 0n ? (
+                        <Badge tone="brand">{PLANS[r.plan]?.name ?? "—"}</Badge>
+                      ) : (
+                        <Badge tone="neutral">inactive</Badge>
+                      )}
+                    </td>
+                    <td className="py-2.5 text-right text-ink-200">{formatAmount(r.amount)} USDT</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-xs text-ink-400">
+            {formatAmount(totalStaked)} USDT combined, currently staked by your direct team.
+          </p>
+        </>
       )}
     </Section>
   );

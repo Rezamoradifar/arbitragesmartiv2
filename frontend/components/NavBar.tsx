@@ -4,20 +4,23 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useGovernance } from "@/lib/hooks";
 
-const links = [
+const baseLinks = [
   { href: "/", label: "Home" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/security", label: "Security" },
   { href: "/partners", label: "Governance" },
   { href: "/activity", label: "Activity" },
-  { href: "/admin", label: "Admin" },
 ];
 
 export function NavBar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const gov = useGovernance();
+
+  const links = gov.isOwner ? [...baseLinks, { href: "/admin", label: "Admin" }] : baseLinks;
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/[.06] bg-ink-950/60 backdrop-blur-xl supports-[backdrop-filter]:bg-ink-950/45">

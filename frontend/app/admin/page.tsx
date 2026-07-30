@@ -281,8 +281,8 @@ function RescueAdmin({
         Execute rescue — sweep {formatAmount(protocol.balance)} USDT
       </button>
       <p className="mt-2 text-xs text-ink-400">
-        Requires partner quorum plus the full 7-day delay. Stakers&apos; own no-penalty withdrawals
-        open five days earlier.
+        Requires partner quorum plus the full 48-hour delay. Stakers&apos; own no-penalty withdrawals
+        open 36 hours earlier.
       </p>
       <TxStatus {...tx} />
     </Section>

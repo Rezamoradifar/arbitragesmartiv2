@@ -37,7 +37,7 @@ const cannotDo = [
   },
   {
     title: "Sweep funds without partners and a delay",
-    body: "Fund rescue needs three of five votes plus a seven-day on-chain delay, and the destination is frozen while any vote is outstanding.",
+    body: "Fund rescue needs three of five votes plus a 48-hour on-chain delay, and the destination is frozen while any vote is outstanding.",
   },
   {
     title: "Override a partner vote",

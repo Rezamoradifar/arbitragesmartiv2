@@ -48,11 +48,22 @@ export function Badge({ children, tone = "neutral" }: { children: ReactNode; ton
   );
 }
 
-export function Row({ label, value }: { label: string; value: ReactNode }) {
+export function Row({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: ReactNode;
+  hint?: ReactNode;
+}) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-white/[.06] py-2.5 last:border-0">
       <span className="text-sm text-ink-300">{label}</span>
-      <span className="text-right text-sm font-medium text-ink-50">{value}</span>
+      <span className="text-right text-sm font-medium text-ink-50">
+        {value}
+        {hint && <span className="ml-1.5 text-xs font-normal text-ink-400">{hint}</span>}
+      </span>
     </div>
   );
 }

@@ -14,7 +14,7 @@ const securityPoints = [
   },
   {
     title: "Stakers exit before any sweep",
-    body: "Emergency fund rescue needs partner quorum plus a seven-day on-chain delay. Stakers' own no-penalty withdrawal opens on day two, five full days before a sweep can execute.",
+    body: "Emergency fund rescue needs partner quorum plus a 48-hour on-chain delay. Stakers' own no-penalty withdrawal opens after 12 hours, a full 36-hour head start before a sweep can execute.",
   },
   {
     title: "Blacklisting cannot trap principal",

@@ -115,7 +115,7 @@ export default function PartnersPage() {
 
         <Section
           title="Fund rescue"
-          description="Sweeps remaining collateral to the recovery wallet after a 7-day delay."
+          description="Sweeps remaining collateral to the recovery wallet after a 48-hour delay."
           action={
             gov.rescueInitiatedAt && Number(gov.rescueInitiatedAt) > 0 ? (
               <Badge tone="warn">Armed</Badge>
@@ -165,7 +165,7 @@ export default function PartnersPage() {
 
           <p className="mt-3 text-xs text-ink-400">
             Revoking a rescue vote is always available, right up until the sweep executes. Stakers&apos;
-            own withdrawals open five days before it.
+            own withdrawals open 36 hours before it.
           </p>
         </Section>
       </div>
