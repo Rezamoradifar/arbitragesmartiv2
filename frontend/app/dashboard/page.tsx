@@ -238,7 +238,6 @@ function StakeCard({
     }
   }, [amount]);
 
-  const needsApproval = (user.allowance ?? 0n) < amountUnits;
   const planIndex = planForAmount(amountUnits);
 
   const approve = useWriteContract();
@@ -247,8 +246,14 @@ function StakeCard({
 
   const belowMin = amountUnits < MIN_STAKE_UNITS;
   const aboveMax = amountUnits > MAX_STAKE_UNITS;
-  const insufficient = amountUnits > (user.walletBalance ?? 0n);
   const freeMismatch = Boolean(protocol.isFreePeriod) && amountUnits !== MIN_STAKE_UNITS;
+  // A free stake never calls transferFrom on-chain — the contract skips it
+  // entirely — so neither an allowance nor a wallet balance is required.
+  // (This card only renders when the user has no active stake, so a fresh
+  // free stake is always available while the free period is still open.)
+  const isFreeStake = Boolean(protocol.isFreePeriod) && amountUnits === MIN_STAKE_UNITS;
+  const insufficient = !isFreeStake && amountUnits > (user.walletBalance ?? 0n);
+  const needsApproval = !isFreeStake && (user.allowance ?? 0n) < amountUnits;
 
   const problem = belowMin
     ? "Minimum stake is 10 USDT."
@@ -295,6 +300,11 @@ function StakeCard({
               ))}
             </div>
           </div>
+          {isFreeStake && (
+            <p className="mt-2 text-xs text-brand-400">
+              Free-stake position — no USDT balance or approval needed. One tap below.
+            </p>
+          )}
         </div>
 
         <div>
