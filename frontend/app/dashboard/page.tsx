@@ -75,7 +75,7 @@ function Dashboard() {
       <StatusBanners protocol={protocol} user={user} />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+        <div className="min-w-0 space-y-6 lg:col-span-2">
           {user.active ? (
             <PositionCard user={user} />
           ) : (
@@ -85,7 +85,7 @@ function Dashboard() {
           <ReferralTeam />
         </div>
 
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <RewardsCard user={user} onDone={refreshAll} />
           <ReferralCard user={user} onDone={refreshAll} />
           <ExitCard user={user} onDone={refreshAll} />
