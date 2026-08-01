@@ -202,8 +202,8 @@ export default function SecurityPage() {
           <h3 className="font-semibold text-ink-50">How to report</h3>
           <p className="mt-2 text-sm leading-relaxed text-ink-300">
             Email{" "}
-            <a className="text-brand-400 underline underline-offset-2" href="mailto:Moradi5024@gmail.com">
-              Moradi5024@gmail.com
+            <a className="text-brand-400 underline underline-offset-2" href="mailto:EnjoyingEnjoying@gmail.com">
+              EnjoyingEnjoying@gmail.com
             </a>{" "}
             with a description and, ideally, a proof-of-concept against a fork — not mainnet.
             Report privately first; public disclosure or on-chain exploitation before a fix ships
