@@ -74,20 +74,26 @@ interface IConditionalTokens {
  *      WHAT CHANGED VS. V2 — READ THIS FIRST
  *      ============================================================
  *
- *      V3 adds ONE thing to V2: a disclosed, up-front MEMBERSHIP FEE charged
- *      on deposits, funding growth, marketing and operations.
+ *      V3 adds ONE thing to V2: a disclosed, up-front DEVELOPMENT FEE charged
+ *      on deposits, funding development, advertising and running costs.
+ *
+ *      The name is deliberately literal. This fee buys the depositor no
+ *      coverage, no equity and no claim on anything — it pays to build and
+ *      promote the platform. Labelling it as insurance or a share would
+ *      describe a protection that does not exist, so it is named for what
+ *      it actually is.
  *
  *      The distinction that makes this safe rather than a hidden skim is
  *      the accounting, and it is the whole point of this version:
  *
- *        - A 100 USDT deposit at a 10% membership fee records a stake of
+ *        - A 100 USDT deposit at a 10% development fee records a stake of
  *          **90**, not 100. The contract's liability to that user is 90 from
  *          the first block. It never books a 100 stake it cannot honour.
- *        - The 10 is booked to `membershipFeesCollected*` the moment it
+ *        - The 10 is booked to `developmentFeesCollected*` the moment it
  *          arrives and is excluded from {totalAssets}, so it can never be
  *          counted as pool capital, lent against, or deployed into
  *          arbitrage.
- *        - {withdrawMembershipFees} is hard-capped at
+ *        - {withdrawDevelopmentFees} is hard-capped at
  *          `collected - withdrawn`, per wallet. There is no code path by
  *          which the owner can reach staker principal, and the cap is
  *          arithmetic, not a policy the owner can raise.
@@ -372,36 +378,36 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     // Site growth fee — disclosed, up-front, taken once per deposit
     // ============================================================
 
-    /// @notice Platform fee on deposits, in basis points, split across two
-    ///         independent marketing/operations budgets. Both are fixed at
+    /// @notice Development fee on deposits, in basis points, split across two
+    ///         independent development/advertising budgets. Both are fixed at
     ///         deployment and **immutable**: unlike an owner-settable rate, no
     ///         governance action, key compromise or later decision can raise
     ///         what a depositor is charged after they have read it.
-    uint256 public immutable MEMBERSHIP_FEE_BPS_1;
-    uint256 public immutable MEMBERSHIP_FEE_BPS_2;
+    uint256 public immutable DEVELOPMENT_FEE_BPS_1;
+    uint256 public immutable DEVELOPMENT_FEE_BPS_2;
 
     /// @notice Upper bound on the COMBINED fee, enforced at construction. A
     ///         fee above this could not honestly be described as a platform
     ///         fee, so the contract refuses to deploy with one.
-    uint256 public constant MEMBERSHIP_FEE_MAX_BPS = 2000;
+    uint256 public constant DEVELOPMENT_FEE_MAX_BPS = 2000;
 
     /// @notice Destinations for withdrawn platform fees. Distinct from
     ///         {feeWallet1}/{feeWallet2} (yield-claim fees) and
     ///         {profitRecipient} (arbitrage performance fee), so every revenue
     ///         stream is separately attributable on-chain.
-    address public membershipFeeWallet1;
-    address public membershipFeeWallet2;
+    address public developmentFeeWallet1;
+    address public developmentFeeWallet2;
 
     /// @notice Cumulative platform fees ever charged, per budget. Monotonic.
-    uint256 public membershipFeesCollected1;
-    uint256 public membershipFeesCollected2;
+    uint256 public developmentFeesCollected1;
+    uint256 public developmentFeesCollected2;
 
     /// @notice Cumulative platform fees ever paid out, per budget. Monotonic,
     ///         and can never exceed the matching `collected` figure. The two
     ///         budgets are tracked separately so one wallet can never spend
     ///         the other's allocation.
-    uint256 public membershipFeesWithdrawn1;
-    uint256 public membershipFeesWithdrawn2;
+    uint256 public developmentFeesWithdrawn1;
+    uint256 public developmentFeesWithdrawn2;
 
     /// @notice Cumulative gross (pre-fee) deposits. Reporting only — no
     ///         accounting decision is ever taken against this figure.
@@ -618,16 +624,16 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     /// @notice Emitted on every deposit, carrying the full split so the gross
     ///         amount, the fee and the recorded stake are all independently
     ///         auditable from logs alone.
-    event MembershipFeeCharged(
+    event DevelopmentFeeCharged(
         address indexed user, uint256 grossAmount, uint256 fee1, uint256 fee2, uint256 netStake
     );
 
     /// @notice Emitted when platform fees are paid out. `budget` is 1 or 2.
-    event MembershipFeeWithdrawn(
+    event DevelopmentFeeWithdrawn(
         uint256 indexed budget, address indexed to, uint256 amount, uint256 remainingUnwithdrawn
     );
 
-    event MembershipFeeWalletUpdated(uint256 indexed budget, address indexed newWallet);
+    event DevelopmentFeeWalletUpdated(uint256 indexed budget, address indexed newWallet);
 
     // ============================================================
     // Custom errors
@@ -671,7 +677,7 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     error NoRecoveryWallet();
     error NothingToRescue();
 
-    error MembershipFeeTooHigh();
+    error DevelopmentFeeTooHigh();
     error ExceedsCollectedFees();
     error InsufficientLiquidityForFees();
 
@@ -719,12 +725,12 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     /// @param _profitRecipient Initial recipient of the performance fee on
     ///        realized Polymarket arbitrage profit (see {profitFeeBPS}).
     ///        Distinct wallet from the two above — never hardcoded.
-    /// @param _membershipFeeWallet1 First marketing/operations fee destination.
-    /// @param _membershipFeeWallet2 Second marketing/operations fee destination.
-    /// @param _membershipFeeBps1 First budget's share of each deposit, in bps.
-    /// @param _membershipFeeBps2 Second budget's share of each deposit, in bps.
+    /// @param _developmentFeeWallet1 First marketing/operations fee destination.
+    /// @param _developmentFeeWallet2 Second marketing/operations fee destination.
+    /// @param _developmentFeeBps1 First budget's share of each deposit, in bps.
+    /// @param _developmentFeeBps2 Second budget's share of each deposit, in bps.
     ///        The two are fixed permanently at deployment and their sum is
-    ///        capped at {MEMBERSHIP_FEE_MAX_BPS}. Publish the combined figure
+    ///        capped at {DEVELOPMENT_FEE_MAX_BPS}. Publish the combined figure
     ///        wherever users deposit; the contract cannot change it
     ///        afterwards, which is the point.
     constructor(
@@ -733,28 +739,28 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
         address _feeWallet1,
         address _feeWallet2,
         address _profitRecipient,
-        address _membershipFeeWallet1,
-        address _membershipFeeWallet2,
-        uint256 _membershipFeeBps1,
-        uint256 _membershipFeeBps2
+        address _developmentFeeWallet1,
+        address _developmentFeeWallet2,
+        uint256 _developmentFeeBps1,
+        uint256 _developmentFeeBps2
     ) Ownable(initialOwner) {
         if (
             _collateralToken == address(0) || _feeWallet1 == address(0) || _feeWallet2 == address(0)
-                || _profitRecipient == address(0) || _membershipFeeWallet1 == address(0)
-                || _membershipFeeWallet2 == address(0)
+                || _profitRecipient == address(0) || _developmentFeeWallet1 == address(0)
+                || _developmentFeeWallet2 == address(0)
         ) {
             revert ZeroAddress();
         }
-        if (_membershipFeeBps1 + _membershipFeeBps2 > MEMBERSHIP_FEE_MAX_BPS) revert MembershipFeeTooHigh();
+        if (_developmentFeeBps1 + _developmentFeeBps2 > DEVELOPMENT_FEE_MAX_BPS) revert DevelopmentFeeTooHigh();
 
         collateralToken = IERC20(_collateralToken);
         feeWallet1 = _feeWallet1;
         feeWallet2 = _feeWallet2;
         profitRecipient = _profitRecipient;
-        membershipFeeWallet1 = _membershipFeeWallet1;
-        membershipFeeWallet2 = _membershipFeeWallet2;
-        MEMBERSHIP_FEE_BPS_1 = _membershipFeeBps1;
-        MEMBERSHIP_FEE_BPS_2 = _membershipFeeBps2;
+        developmentFeeWallet1 = _developmentFeeWallet1;
+        developmentFeeWallet2 = _developmentFeeWallet2;
+        DEVELOPMENT_FEE_BPS_1 = _developmentFeeBps1;
+        DEVELOPMENT_FEE_BPS_2 = _developmentFeeBps2;
         profitFeeBPS = 1000; // 10% default, owner-adjustable up to PROFIT_FEE_MAX_BPS
         deployTime = block.timestamp;
 
@@ -802,14 +808,14 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
 
     /// @notice Platform fees collected but not yet paid out. This collateral
     ///         sits in the contract but is NOT pool capital.
-    function pendingMembershipFees() public view returns (uint256) {
-        return (membershipFeesCollected1 - membershipFeesWithdrawn1) + (membershipFeesCollected2 - membershipFeesWithdrawn2);
+    function pendingDevelopmentFees() public view returns (uint256) {
+        return (developmentFeesCollected1 - developmentFeesWithdrawn1) + (developmentFeesCollected2 - developmentFeesWithdrawn2);
     }
 
     /// @notice Total POOL assets under management: liquid collateral plus
     ///         whatever is currently committed to open Polymarket positions,
     ///         minus platform fees that have been charged but not yet swept.
-    /// @dev Subtracting {pendingMembershipFees} is not cosmetic. Fees sit in
+    /// @dev Subtracting {pendingDevelopmentFees} is not cosmetic. Fees sit in
     ///      the same ERC-20 balance as pool capital until withdrawn, so
     ///      without this they would inflate the arbitrage deployment ceiling
     ///      and every solvency figure the front-end reports — the pool would
@@ -817,7 +823,7 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     ///      the line that keeps user funds and platform revenue from mixing.
     function totalAssets() public view returns (uint256) {
         uint256 gross = collateralToken.balanceOf(address(this)) + totalArbitrageDeployed;
-        uint256 fees = pendingMembershipFees();
+        uint256 fees = pendingDevelopmentFees();
         return gross > fees ? gross - fees : 0;
     }
 
@@ -987,28 +993,28 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     ///         call, so the three figures can never be assembled from
     ///         inconsistent block heights.
     /// @return grossDeposits Cumulative pre-fee deposits ever received.
-    /// @return membershipFees Cumulative platform fees ever charged.
+    /// @return developmentFees Cumulative platform fees ever charged.
     /// @return userNetStakes Principal currently owed to stakers.
     /// @return mainPoolBalance Pool capital held now, excluding unswept fees.
-    /// @return membershipFeeBalance Fees charged but not yet swept.
+    /// @return developmentFeeBalance Fees charged but not yet swept.
     /// @return deployedToArbitrage Pool capital in open Polymarket positions.
     function dashboard()
         external
         view
         returns (
             uint256 grossDeposits,
-            uint256 membershipFees,
+            uint256 developmentFees,
             uint256 userNetStakes,
             uint256 mainPoolBalance,
-            uint256 membershipFeeBalance,
+            uint256 developmentFeeBalance,
             uint256 deployedToArbitrage
         )
     {
         grossDeposits = totalGrossDeposits;
-        membershipFees = membershipFeesCollected1 + membershipFeesCollected2;
+        developmentFees = developmentFeesCollected1 + developmentFeesCollected2;
         userNetStakes = totalStaked;
         mainPoolBalance = totalAssets();
-        membershipFeeBalance = pendingMembershipFees();
+        developmentFeeBalance = pendingDevelopmentFees();
         deployedToArbitrage = totalArbitrageDeployed;
     }
 
@@ -1176,19 +1182,19 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     ///           nets out pending fees.
     ///      There is no path here to staker principal: the ceiling is set by
     ///      fees actually charged on deposits, and the owner cannot raise the
-    ///      rate that produced them ({MEMBERSHIP_FEE_BPS_1}/{MEMBERSHIP_FEE_BPS_2}
+    ///      rate that produced them ({DEVELOPMENT_FEE_BPS_1}/{DEVELOPMENT_FEE_BPS_2}
     ///      are immutable).
-    function withdrawMembershipFees(uint256 budget, uint256 amount) external onlyOwner nonReentrant {
+    function withdrawDevelopmentFees(uint256 budget, uint256 amount) external onlyOwner nonReentrant {
         if (amount == 0) revert ZeroAmount();
 
         uint256 available;
         address destination;
         if (budget == 1) {
-            available = membershipFeesCollected1 - membershipFeesWithdrawn1;
-            destination = membershipFeeWallet1;
+            available = developmentFeesCollected1 - developmentFeesWithdrawn1;
+            destination = developmentFeeWallet1;
         } else if (budget == 2) {
-            available = membershipFeesCollected2 - membershipFeesWithdrawn2;
-            destination = membershipFeeWallet2;
+            available = developmentFeesCollected2 - developmentFeesWithdrawn2;
+            destination = developmentFeeWallet2;
         } else {
             revert ExceedsCollectedFees();
         }
@@ -1197,22 +1203,22 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
         if (amount > collateralToken.balanceOf(address(this))) revert InsufficientLiquidityForFees();
 
         // Effects before the interaction (strict CEI).
-        if (budget == 1) membershipFeesWithdrawn1 += amount;
-        else membershipFeesWithdrawn2 += amount;
+        if (budget == 1) developmentFeesWithdrawn1 += amount;
+        else developmentFeesWithdrawn2 += amount;
 
         collateralToken.safeTransfer(destination, amount);
-        emit MembershipFeeWithdrawn(budget, destination, amount, available - amount);
+        emit DevelopmentFeeWithdrawn(budget, destination, amount, available - amount);
     }
 
     /// @notice Repoints a fee budget's destination wallet.
     /// @dev Changes where future fees are paid; it cannot change how much is
     ///      owed, and cannot reach pool capital.
-    function setMembershipFeeWallet(uint256 budget, address newWallet) external onlyOwner {
+    function setDevelopmentFeeWallet(uint256 budget, address newWallet) external onlyOwner {
         if (newWallet == address(0)) revert ZeroAddress();
-        if (budget == 1) membershipFeeWallet1 = newWallet;
-        else if (budget == 2) membershipFeeWallet2 = newWallet;
+        if (budget == 1) developmentFeeWallet1 = newWallet;
+        else if (budget == 2) developmentFeeWallet2 = newWallet;
         else revert ExceedsCollectedFees();
-        emit MembershipFeeWalletUpdated(budget, newWallet);
+        emit DevelopmentFeeWalletUpdated(budget, newWallet);
     }
 
     // ============================================================
@@ -1451,22 +1457,22 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     ///      percentage, so integer truncation can never make the three parts
     ///      sum to more than `grossAmount`.
     function _splitDeposit(uint256 grossAmount) private view returns (uint256 fee1, uint256 fee2, uint256 net) {
-        fee1 = (grossAmount * MEMBERSHIP_FEE_BPS_1) / BPS_DENOMINATOR;
-        fee2 = (grossAmount * MEMBERSHIP_FEE_BPS_2) / BPS_DENOMINATOR;
+        fee1 = (grossAmount * DEVELOPMENT_FEE_BPS_1) / BPS_DENOMINATOR;
+        fee2 = (grossAmount * DEVELOPMENT_FEE_BPS_2) / BPS_DENOMINATOR;
         net = grossAmount - fee1 - fee2;
     }
 
     /// @dev Books a deposit's fee split. Called after the transfer has been
-    ///      verified, so `membershipFeesCollected*` only ever grows against
+    ///      verified, so `developmentFeesCollected*` only ever grows against
     ///      collateral the contract demonstrably received.
     function _recordDeposit(address user, uint256 grossAmount, uint256 fee1, uint256 fee2, uint256 net) private {
-        membershipFeesCollected1 += fee1;
-        membershipFeesCollected2 += fee2;
+        developmentFeesCollected1 += fee1;
+        developmentFeesCollected2 += fee2;
         totalGrossDeposits += grossAmount;
         grossDeposited[user] += grossAmount;
         platformFeePaid[user] += fee1 + fee2;
         netStaked[user] += net;
-        emit MembershipFeeCharged(user, grossAmount, fee1, fee2, net);
+        emit DevelopmentFeeCharged(user, grossAmount, fee1, fee2, net);
     }
 
     /// @notice What a `grossAmount` deposit would actually buy: the fee taken

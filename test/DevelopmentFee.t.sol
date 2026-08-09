@@ -48,7 +48,7 @@ contract MockConditionalTokens {
 /// stake is recorded, never out of one afterwards — so the contract's
 /// liability equals what it actually holds at every point, and the owner's
 /// reach is bounded by fees genuinely charged rather than by policy.
-contract MembershipFeeTest is Test {
+contract DevelopmentFeeTest is Test {
     ArbiSmartV3 internal arbi;
     TestUSDC internal usdc;
     MockConditionalTokens internal ctf;
@@ -59,8 +59,8 @@ contract MembershipFeeTest is Test {
     address internal feeWallet1 = makeAddr("feeWallet1");
     address internal feeWallet2 = makeAddr("feeWallet2");
     address internal profitRecipient = makeAddr("profitRecipient");
-    address internal growth1 = makeAddr("membershipFee1");
-    address internal growth2 = makeAddr("membershipFee2");
+    address internal growth1 = makeAddr("devFee1");
+    address internal growth2 = makeAddr("devFee2");
     address internal alice = makeAddr("alice");
     address internal bob = makeAddr("bob");
 
@@ -109,8 +109,8 @@ contract MembershipFeeTest is Test {
         (,,, uint256 activeStake) = arbi.userDepositBreakdown(alice);
         assertEq(activeStake, expNet, "stake must be recorded NET, never gross");
         assertEq(arbi.totalStaked(), expNet, "liability is the net figure");
-        assertEq(arbi.membershipFeesCollected1(), expFee1, "budget 1 accrual");
-        assertEq(arbi.membershipFeesCollected2(), expFee2, "budget 2 accrual");
+        assertEq(arbi.developmentFeesCollected1(), expFee1, "budget 1 accrual");
+        assertEq(arbi.developmentFeesCollected2(), expFee2, "budget 2 accrual");
         assertEq(arbi.totalGrossDeposits(), gross, "gross tracked for reporting only");
 
         // The decisive invariant: the pool is never short against what it booked.
@@ -162,25 +162,25 @@ contract MembershipFeeTest is Test {
         vm.prank(alice, alice);
         arbi.stake(1000_000000, address(0));
 
-        uint256 fee1 = arbi.membershipFeesCollected1();
+        uint256 fee1 = arbi.developmentFeesCollected1();
         assertEq(fee1, 50_000000, "5% of 1000");
 
         vm.prank(owner);
-        arbi.withdrawMembershipFees(1, fee1);
+        arbi.withdrawDevelopmentFees(1, fee1);
 
         assertEq(usdc.balanceOf(growth1), fee1, "budget 1 wallet funded");
-        assertEq(arbi.membershipFeesWithdrawn1(), fee1);
-        assertEq(arbi.pendingMembershipFees(), arbi.membershipFeesCollected2(), "only budget 2 remains");
+        assertEq(arbi.developmentFeesWithdrawn1(), fee1);
+        assertEq(arbi.pendingDevelopmentFees(), arbi.developmentFeesCollected2(), "only budget 2 remains");
     }
 
     function test_cannotWithdrawMoreThanCollected() public {
         vm.prank(alice, alice);
         arbi.stake(1000_000000, address(0));
 
-        uint256 collected = arbi.membershipFeesCollected1();
+        uint256 collected = arbi.developmentFeesCollected1();
         vm.prank(owner);
         vm.expectRevert(ArbiSmartV3.ExceedsCollectedFees.selector);
-        arbi.withdrawMembershipFees(1, collected + 1);
+        arbi.withdrawDevelopmentFees(1, collected + 1);
     }
 
     function test_budgetsAreIsolatedFromEachOther() public {
@@ -190,14 +190,14 @@ contract MembershipFeeTest is Test {
         // Drain budget 1 entirely, then try to take one more unit from it
         // while budget 2 still holds funds — the shared ERC-20 balance must
         // not let one budget spend the other's allocation.
-        uint256 c1 = arbi.membershipFeesCollected1();
+        uint256 c1 = arbi.developmentFeesCollected1();
         vm.startPrank(owner);
-        arbi.withdrawMembershipFees(1, c1);
+        arbi.withdrawDevelopmentFees(1, c1);
         vm.expectRevert(ArbiSmartV3.ExceedsCollectedFees.selector);
-        arbi.withdrawMembershipFees(1, 1);
+        arbi.withdrawDevelopmentFees(1, 1);
         vm.stopPrank();
 
-        assertGt(arbi.membershipFeesCollected2(), 0, "budget 2 still funded");
+        assertGt(arbi.developmentFeesCollected2(), 0, "budget 2 still funded");
     }
 
     function test_ownerCannotReachStakerPrincipal() public {
@@ -205,16 +205,16 @@ contract MembershipFeeTest is Test {
         arbi.stake(10_000_000000, address(0));
 
         uint256 principal = arbi.totalStaked();
-        uint256 feesEver = arbi.membershipFeesCollected1() + arbi.membershipFeesCollected2();
+        uint256 feesEver = arbi.developmentFeesCollected1() + arbi.developmentFeesCollected2();
 
         vm.startPrank(owner);
-        arbi.withdrawMembershipFees(1, arbi.membershipFeesCollected1());
-        arbi.withdrawMembershipFees(2, arbi.membershipFeesCollected2());
+        arbi.withdrawDevelopmentFees(1, arbi.developmentFeesCollected1());
+        arbi.withdrawDevelopmentFees(2, arbi.developmentFeesCollected2());
         // Everything owed to the platform is now paid. Anything further reverts.
         vm.expectRevert(ArbiSmartV3.ExceedsCollectedFees.selector);
-        arbi.withdrawMembershipFees(1, 1);
+        arbi.withdrawDevelopmentFees(1, 1);
         vm.expectRevert(ArbiSmartV3.ExceedsCollectedFees.selector);
-        arbi.withdrawMembershipFees(2, 1);
+        arbi.withdrawDevelopmentFees(2, 1);
         vm.stopPrank();
 
         // The pool is untouched and still fully backs the recorded stake.
@@ -229,7 +229,7 @@ contract MembershipFeeTest is Test {
 
         vm.prank(bob);
         vm.expectRevert();
-        arbi.withdrawMembershipFees(1, 1_000000);
+        arbi.withdrawDevelopmentFees(1, 1_000000);
     }
 
     // ---------------------------------------------------------------
@@ -243,7 +243,7 @@ contract MembershipFeeTest is Test {
         uint256 rawBalance = usdc.balanceOf(address(arbi));
         assertEq(rawBalance, 1000_000000, "contract holds the whole gross deposit");
         assertEq(arbi.totalAssets(), 900_000000, "but only the net counts as pool capital");
-        assertEq(arbi.pendingMembershipFees(), 100_000000, "the rest is earmarked platform revenue");
+        assertEq(arbi.pendingDevelopmentFees(), 100_000000, "the rest is earmarked platform revenue");
     }
 
     /// @dev Without netting fees out of {totalAssets}, unswept fees would
@@ -263,8 +263,8 @@ contract MembershipFeeTest is Test {
 
         uint256 before = arbi.totalAssets();
         vm.startPrank(owner);
-        arbi.withdrawMembershipFees(1, arbi.membershipFeesCollected1());
-        arbi.withdrawMembershipFees(2, arbi.membershipFeesCollected2());
+        arbi.withdrawDevelopmentFees(1, arbi.developmentFeesCollected1());
+        arbi.withdrawDevelopmentFees(2, arbi.developmentFeesCollected2());
         vm.stopPrank();
 
         assertEq(arbi.totalAssets(), before, "sweeping fees must not move pool capital");
@@ -337,7 +337,7 @@ contract MembershipFeeTest is Test {
     // ---------------------------------------------------------------
 
     function test_deploymentRejectsFeeAboveCap() public {
-        vm.expectRevert(ArbiSmartV3.MembershipFeeTooHigh.selector);
+        vm.expectRevert(ArbiSmartV3.DevelopmentFeeTooHigh.selector);
         new ArbiSmartV3(
             address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, 1500, 600
         );
@@ -347,20 +347,20 @@ contract MembershipFeeTest is Test {
     ///      is no setter at all, so a depositor's disclosed fee cannot be
     ///      raised under them after the fact.
     function test_feeRateIsImmutable() public view {
-        assertEq(arbi.MEMBERSHIP_FEE_BPS_1(), BPS1);
-        assertEq(arbi.MEMBERSHIP_FEE_BPS_2(), BPS2);
+        assertEq(arbi.DEVELOPMENT_FEE_BPS_1(), BPS1);
+        assertEq(arbi.DEVELOPMENT_FEE_BPS_2(), BPS2);
     }
 
-    function test_setMembershipFeeWalletMovesFutureFeesOnly() public {
+    function test_setDevelopmentFeeWalletMovesFutureFeesOnly() public {
         vm.prank(alice, alice);
         arbi.stake(1000_000000, address(0));
 
         address newWallet = makeAddr("newGrowth1");
-        uint256 collected = arbi.membershipFeesCollected1();
+        uint256 collected = arbi.developmentFeesCollected1();
 
         vm.startPrank(owner);
-        arbi.setMembershipFeeWallet(1, newWallet);
-        arbi.withdrawMembershipFees(1, collected);
+        arbi.setDevelopmentFeeWallet(1, newWallet);
+        arbi.withdrawDevelopmentFees(1, collected);
         vm.stopPrank();
         assertEq(usdc.balanceOf(newWallet), 50_000000, "paid to the new destination");
         assertEq(usdc.balanceOf(growth1), 0, "old destination unfunded");
@@ -369,7 +369,7 @@ contract MembershipFeeTest is Test {
     function test_nonOwnerCannotRepointWallet() public {
         vm.prank(bob);
         vm.expectRevert();
-        arbi.setMembershipFeeWallet(1, bob);
+        arbi.setDevelopmentFeeWallet(1, bob);
     }
 
     // ---------------------------------------------------------------
@@ -408,16 +408,16 @@ contract MembershipFeeTest is Test {
         vm.prank(alice, alice);
         arbi.stake(1000_000000, address(0));
 
-        uint256 depositFeesBefore = arbi.pendingMembershipFees();
+        uint256 depositFeesBefore = arbi.pendingDevelopmentFees();
         vm.warp(block.timestamp + 1 days);
         vm.prank(alice, alice);
         arbi.claim();
-        assertEq(arbi.pendingMembershipFees(), depositFeesBefore, "claiming must not touch deposit-fee accounting");
+        assertEq(arbi.pendingDevelopmentFees(), depositFeesBefore, "claiming must not touch deposit-fee accounting");
 
         uint256 claimWallet1Before = usdc.balanceOf(feeWallet1);
-        uint256 c1 = arbi.membershipFeesCollected1();
+        uint256 c1 = arbi.developmentFeesCollected1();
         vm.prank(owner);
-        arbi.withdrawMembershipFees(1, c1);
+        arbi.withdrawDevelopmentFees(1, c1);
         assertEq(usdc.balanceOf(feeWallet1), claimWallet1Before, "sweeping deposit fees must not pay claim wallets");
         assertEq(usdc.balanceOf(growth1), c1, "it pays the growth wallet instead");
     }
@@ -466,7 +466,7 @@ contract MembershipFeeTest is Test {
 
         (,,, uint256 active) = free.userDepositBreakdown(alice);
         assertEq(active, 1000_000000, "no fee, no haircut");
-        assertEq(free.pendingMembershipFees(), 0);
+        assertEq(free.pendingDevelopmentFees(), 0);
     }
 
     // ---------------------------------------------------------------
@@ -487,7 +487,7 @@ contract MembershipFeeTest is Test {
         assertEq(arbi.totalStaked(), net);
         assertGe(arbi.totalAssets(), arbi.totalStaked(), "pool fully backs recorded stakes");
         assertEq(
-            usdc.balanceOf(address(arbi)), arbi.totalAssets() + arbi.pendingMembershipFees(), "balance decomposes"
+            usdc.balanceOf(address(arbi)), arbi.totalAssets() + arbi.pendingDevelopmentFees(), "balance decomposes"
         );
     }
 }
