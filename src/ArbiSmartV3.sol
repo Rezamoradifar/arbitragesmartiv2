@@ -539,8 +539,13 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     uint256[8] public referralRates = [800, 400, 1200, 600, 1500, 800, 2000, 1000];
     uint256[3] public f3Rates = [200, 400, 500];
 
-    uint256 private constant FEE1_BPS = 750;
-    uint256 private constant FEE2_BPS = 250;
+    /// @dev Yield-claim fee, split evenly between {feeWallet1} and
+    ///      {feeWallet2}. The COMBINED rate is 10% and is what a user
+    ///      actually pays; V2's uneven 7.5/2.5 split totalled the same. Both
+    ///      are `constant`, so this is the one fee on the contract that not
+    ///      even the owner can raise.
+    uint256 private constant FEE1_BPS = 500;
+    uint256 private constant FEE2_BPS = 500;
     uint256 private constant MAX_DAILY_BPS = 20000;
     uint256 private constant MAX_STAKE = 25_000_000000;
     uint256 private constant MIN_STAKE = 10_000000;

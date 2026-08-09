@@ -373,6 +373,56 @@ contract SiteGrowthFeeTest is Test {
     }
 
     // ---------------------------------------------------------------
+    // Withdrawal (yield-claim) fee — separate system from the deposit fee
+    // ---------------------------------------------------------------
+
+    /// @dev The claim fee is split 5/5 and totals 10%. Asserting the split
+    ///      and the total separately means a future change to one wallet's
+    ///      share cannot silently change what the user pays.
+    function test_claimFeeSplitIsFiveAndFive() public {
+        vm.prank(alice, alice);
+        arbi.stake(1000_000000, address(0)); // net 900, plan 1 (1.8%/day)
+
+        vm.warp(block.timestamp + 1 days);
+        uint256 reward = arbi.getReward(alice);
+        assertEq(reward, 16_200000, "1.8% of the 900 net stake");
+
+        uint256 aliceBefore = usdc.balanceOf(alice);
+        vm.prank(alice, alice);
+        arbi.claim();
+
+        uint256 fee1 = usdc.balanceOf(feeWallet1);
+        uint256 fee2 = usdc.balanceOf(feeWallet2);
+
+        assertEq(fee1, reward * 500 / 10_000, "feeWallet1 takes 5%");
+        assertEq(fee2, reward * 500 / 10_000, "feeWallet2 takes 5%");
+        assertEq(fee1, fee2, "the two shares are equal");
+        assertEq(fee1 + fee2, reward / 10, "combined claim fee is 10%");
+        assertEq(usdc.balanceOf(alice) - aliceBefore, reward - fee1 - fee2, "user keeps 90%");
+    }
+
+    /// @dev The two fee systems must not interact: claiming yield moves no
+    ///      deposit-fee accounting, and sweeping deposit fees pays nothing to
+    ///      the claim-fee wallets.
+    function test_claimFeeAndDepositFeeAreIndependent() public {
+        vm.prank(alice, alice);
+        arbi.stake(1000_000000, address(0));
+
+        uint256 depositFeesBefore = arbi.pendingSiteGrowthFees();
+        vm.warp(block.timestamp + 1 days);
+        vm.prank(alice, alice);
+        arbi.claim();
+        assertEq(arbi.pendingSiteGrowthFees(), depositFeesBefore, "claiming must not touch deposit-fee accounting");
+
+        uint256 claimWallet1Before = usdc.balanceOf(feeWallet1);
+        uint256 c1 = arbi.siteGrowthCollected1();
+        vm.prank(owner);
+        arbi.withdrawSiteGrowthFees(1, c1);
+        assertEq(usdc.balanceOf(feeWallet1), claimWallet1Before, "sweeping deposit fees must not pay claim wallets");
+        assertEq(usdc.balanceOf(growth1), c1, "it pays the growth wallet instead");
+    }
+
+    // ---------------------------------------------------------------
     // Dashboard
     // ---------------------------------------------------------------
 
