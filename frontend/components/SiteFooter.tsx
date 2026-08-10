@@ -3,6 +3,10 @@ import { BrandMark } from "@/components/NavBar";
 
 const CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 
+/** Operating base, and the address users should write to. */
+const BASED_IN = "Malaysia";
+const CONTACT_EMAIL = "support@arbhub.site";
+
 const columns: Array<{ title: string; links: Array<{ label: string; href: string; external?: boolean }> }> = [
   {
     title: "Platform",
@@ -26,6 +30,7 @@ const columns: Array<{ title: string; links: Array<{ label: string; href: string
     title: "Community",
     links: [
       { label: "Telegram", href: "https://t.me/arbhub_site", external: true },
+      { label: "Contact us", href: "mailto:support@arbhub.site", external: true },
       { label: "Blockscout", href: `https://polygon.blockscout.com/address/${CONTRACT}?tab=contract`, external: true },
     ],
   },
@@ -47,6 +52,23 @@ export function SiteFooter() {
               Staking infrastructure on Polygon. The source is open, the deployed code is verified
               against it, and you can withdraw without asking us.
             </p>
+            <p className="mt-4 flex items-center gap-2 text-sm text-graphite-400">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                <path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z" />
+                <circle cx="12" cy="10" r="2.4" />
+              </svg>
+              Operating from {BASED_IN}
+            </p>
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="mt-2 inline-flex items-center gap-2 text-sm text-graphite-300 transition hover:text-gold-300"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                <rect x="2.5" y="4.5" width="19" height="15" rx="2.4" />
+                <path d="m3 6 9 7 9-7" />
+              </svg>
+              {CONTACT_EMAIL}
+            </a>
           </div>
 
           {columns.map((col) => (
@@ -94,7 +116,7 @@ export function SiteFooter() {
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
           <p className="text-xs text-graphite-500">
-            © {new Date().getFullYear()} ArbiSmart · Polygon mainnet
+            © {new Date().getFullYear()} ArbiSmart · {BASED_IN} · Polygon mainnet
           </p>
           <p className="font-mono text-[11px] text-graphite-600">{CONTRACT}</p>
         </div>
