@@ -15,29 +15,25 @@ APP_DIR="$HOME/arbitragesmartiv2"
 DOMAIN="arbhub.site"
 PORT="${PORT:-3001}"
 
-# --- Values baked from the live deployment -------------------------------
+# --- Configuration --------------------------------------------------------
 #
-# Every one of these is a NEXT_PUBLIC_* value, meaning it is compiled into the
-# client bundle and readable by anyone who opens devtools. None of them are
-# secrets, so committing them costs nothing and saves a manual step.
+# The live values live in frontend/.env.production, which is committed and
+# which Next.js loads automatically. This script does NOT duplicate them.
 #
-# The WalletConnect project id in particular is public by design — it
-# identifies the project to the relay, it does not authenticate anything. What
-# protects it is the allowed-domains list in the Reown dashboard, which is why
-# arbhub.site must be added there.
+# That is deliberate and was learned the hard way: this script used to write
+# an .env.local containing a hardcoded contract address, and .env.local wins
+# over .env.production. So a deploy that pulled a corrected address happily
+# rebuilt the site with the stale one and reported success. A second copy of a
+# value is not a convenience, it is a way to be wrong quietly.
 #
-# Override any of them by exporting the variable before running.
-CONTRACT="${CONTRACT:-0xDCcc0561b36809454584ED1038824ca06B86c1d6}"
-COLLATERAL="${COLLATERAL:-0xc2132D05D31c914a87C6611C10748AEb04B58e8F}"
-APP_URL="${APP_URL:-https://arbhub.site}"
-WALLETCONNECT_ID="${WALLETCONNECT_ID:-00a6d669500a837d18aa4adeb86fc783}"
-POLYGON_RPC="${POLYGON_RPC:-https://polygon.gateway.tenderly.co}"
-
+# To override for a particular server, export the variable before running —
+# only then is an .env.local written, and only with what you overrode.
 say() { printf "\n\033[1;32m==>\033[0m %s\n" "$1"; }
 die() { printf "\n\033[1;31mERROR:\033[0m %s\n" "$1" >&2; exit 1; }
 
-[[ "$WALLETCONNECT_ID" =~ ^[0-9a-fA-F]{32}$ ]] || \
+if [ -n "${WALLETCONNECT_ID:-}" ] && ! [[ "$WALLETCONNECT_ID" =~ ^[0-9a-fA-F]{32}$ ]]; then
   die "WALLETCONNECT_ID must be 32 hex characters (got: '${WALLETCONNECT_ID}'). The app would fall back to MetaMask-only."
+fi
 
 # --- 1. Node 20 -----------------------------------------------------------
 if ! command -v node >/dev/null 2>&1 || [ "$(node -v | cut -c2-3)" -lt 20 ] 2>/dev/null; then
@@ -63,15 +59,49 @@ fi
 cd "$APP_DIR/frontend"
 
 # --- 3. Environment -------------------------------------------------------
-say "Writing .env.local"
-cat > .env.local <<EOF
-NEXT_PUBLIC_APP_URL=$APP_URL
-NEXT_PUBLIC_CONTRACT_ADDRESS=$CONTRACT
-NEXT_PUBLIC_COLLATERAL_ADDRESS=$COLLATERAL
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=$WALLETCONNECT_ID
-NEXT_PUBLIC_POLYGON_RPC_URL=$POLYGON_RPC
-EOF
-chmod 600 .env.local
+#
+# Nothing is written unless something was actually overridden. A leftover
+# .env.local from an earlier deploy is removed rather than left to shadow the
+# committed values — that shadowing is the single most confusing failure this
+# script can produce, because the build succeeds and serves the wrong data.
+# Written as a loop rather than `[ -n x ] && VAR=...` lines: under `set -e` a
+# false test at the end of such a line exits non-zero and kills the script, so
+# not overriding anything would abort the deploy.
+OVERRIDES=""
+for pair in \
+  "APP_URL:NEXT_PUBLIC_APP_URL" \
+  "CONTRACT:NEXT_PUBLIC_CONTRACT_ADDRESS" \
+  "COLLATERAL:NEXT_PUBLIC_COLLATERAL_ADDRESS" \
+  "WALLETCONNECT_ID:NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID" \
+  "POLYGON_RPC:NEXT_PUBLIC_POLYGON_RPC_URL"
+do
+  src="${pair%%:*}"
+  dest="${pair##*:}"
+  val="${!src:-}"
+  if [ -n "$val" ]; then
+    OVERRIDES="${OVERRIDES}${dest}=${val}"$'\n'
+  fi
+done
+
+if [ -n "$OVERRIDES" ]; then
+  say "Writing .env.local with your overrides"
+  printf '%s' "$OVERRIDES" > .env.local
+  chmod 600 .env.local
+  cat .env.local
+else
+  if [ -f .env.local ]; then
+    say "Removing stale .env.local so .env.production is what ships"
+    rm -f .env.local
+  fi
+  say "Using committed .env.production"
+fi
+
+# Print what the build will actually use, so a wrong address is visible here
+# rather than three screens into a browser session.
+say "Effective configuration"
+# `|| true`: grep exits 2 when .env.local is absent, which is the normal case
+# and must not abort the deploy under `set -e`.
+grep -E '^NEXT_PUBLIC_' .env.local .env.production 2>/dev/null | sed 's/^/  /' || true
 
 # --- 4. Build -------------------------------------------------------------
 say "Installing dependencies"
