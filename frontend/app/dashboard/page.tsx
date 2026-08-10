@@ -30,9 +30,11 @@ import {
   PLANS,
   PROTOCOL_WALLET_STAKE_UNITS,
   REFERRAL_LEVELS,
+  claimFeeBpsFor,
   formatAmount,
   formatBps,
   parseUnits6,
+  grossForNet,
   planForAmount,
   projectedYield,
   shortAddress,
@@ -504,8 +506,9 @@ function StakeCard({
   const netForMin = freePeriodNet(quote.netStake, amountUnits, protocol.isFreePeriod);
   const belowMin = netForMin < MIN_STAKE_UNITS;
   const aboveMax = amountUnits > MAX_STAKE_UNITS;
-  // Smallest deposit whose net still clears the minimum, rounded up.
-  const minGross = minGrossDeposit(protocol.devFeeBpsTotal);
+  // Smallest deposit whose net still clears the minimum. The smallest deposits
+  // fall in the 12% band, so this is not simply the minimum stake.
+  const minGross = parseUnits6(String(grossForNet(10)));
   const freeMismatch = freePeriod && amountUnits !== MIN_STAKE_UNITS;
   const protocolWalletAmountWrong =
     isProtocolWallet && !freePeriod && amountUnits !== PROTOCOL_WALLET_STAKE_UNITS;
@@ -635,7 +638,7 @@ function StakeCard({
             gross={amountUnits}
             quote={quote}
             planIndex={planIndex}
-            feeBps={protocol.devFeeBpsTotal}
+            feeBps={quote.feeBps}
           />
         )}
 
@@ -789,20 +792,6 @@ function DepositBreakdown({
   );
 }
 
-/**
- * The smallest deposit whose recorded stake still clears the contract's 10
- * USDT minimum. The fee is taken first, so the floor on what you send is
- * strictly above the floor on what gets staked.
- */
-function minGrossDeposit(feeBps?: bigint): bigint {
-  const net = 10000n - (feeBps ?? 1000n);
-  if (net <= 0n) return MIN_STAKE_UNITS;
-  // Round up, then up again to whole cents so the quoted figure is one a user
-  // can actually type.
-  const exact = (MIN_STAKE_UNITS * 10000n + net - 1n) / net;
-  return ((exact + 9999n) / 10000n) * 10000n;
-}
-
 /** Net stake to compare against the minimum, with gross as the fallback while
  *  the quote is still in flight. */
 function freePeriodNet(net: bigint | undefined, gross: bigint, freePeriod?: boolean): bigint {
@@ -954,8 +943,16 @@ function RewardsCard({
 }) {
   const tx = useContractTx(onDone);
   const pending = user.pendingReward ?? 0n;
-  const feeBps = protocol.profitFeeBps ?? 1000n;
+  // The claim fee is halved for the two upper plans, so it is read per plan
+  // rather than assumed.
+  const feeBps = BigInt(claimFeeBpsFor(Number(user.plan ?? 0n)));
   const fee = (pending * feeBps) / 10000n;
+
+  // A giveaway position earns from day one but cannot withdraw until it has
+  // been funded. Saying so here is the difference between a locked button and
+  // an unexplained revert.
+  const needed = protocol.minActivationDeposit ?? MIN_STAKE_UNITS;
+  const locked = Boolean(user.freeStake) && (user.grossDeposited ?? 0n) < needed;
 
   return (
     <Section title="Yield rewards">
@@ -971,9 +968,19 @@ function RewardsCard({
           You receive {formatAmount(pending - fee, 4)} USDT after the {formatBps(feeBps)} claim fee.
         </p>
       )}
+      {locked && (
+        <div className="mt-4">
+          <Alert tone="warn" title="Fund your position to unlock claiming">
+            This is a free launch position. It earns from the moment it was opened, but the contract
+            will not pay out until you have deposited at least {formatAmount(needed)} USDT of your
+            own. Top up below and this unlocks immediately.
+          </Alert>
+        </div>
+      )}
+
       <button
         className="btn-primary mt-5 w-full"
-        disabled={pending === 0n || tx.isPending || tx.isConfirming}
+        disabled={locked || pending === 0n || tx.isPending || tx.isConfirming}
         onClick={() => tx.call("claim")}
       >
         Claim rewards

@@ -68,19 +68,27 @@ export const PLANS = [
 
 export const PLAN_NAMES = PLANS.map((p) => p.name);
 
-/** Referral payout table, mirroring referralRates / f3Rates. */
+/**
+ * Referral payouts and tier requirements, mirroring `referralRate` and
+ * `levelRequirement`.
+ *
+ * V4 gates a tier on direct VOLUME as well as headcount. V3 counted wallets
+ * only, which priced Platinum in throwaway accounts rather than in capital.
+ * `needVolume` is the condition that actually binds.
+ */
 export const REFERRAL_LEVELS = [
-  { level: 0, name: "Base", f1Bps: 800, f2Bps: 400, f3Bps: 0, needRefs: 0, needStake: 0 },
-  { level: 1, name: "Silver", f1Bps: 1200, f2Bps: 600, f3Bps: 200, needRefs: 5, needStake: 500 },
-  { level: 2, name: "Gold", f1Bps: 1500, f2Bps: 800, f3Bps: 400, needRefs: 25, needStake: 2_500 },
+  { level: 0, name: "Base", f1Bps: 800, f2Bps: 400, f3Bps: 0, needRefs: 0, needStake: 0, needVolume: 0 },
+  { level: 1, name: "Silver", f1Bps: 1200, f2Bps: 600, f3Bps: 200, needRefs: 3, needStake: 500, needVolume: 2_500 },
+  { level: 2, name: "Gold", f1Bps: 1500, f2Bps: 800, f3Bps: 400, needRefs: 10, needStake: 2_500, needVolume: 15_000 },
   {
     level: 3,
     name: "Platinum",
     f1Bps: 2000,
     f2Bps: 1000,
     f3Bps: 500,
-    needRefs: 100,
+    needRefs: 25,
     needStake: 10_000,
+    needVolume: 75_000,
   },
 ] as const;
 
@@ -105,25 +113,42 @@ export const MAX_STAKE_UNITS = 25_000_000000n;
 export const PROTOCOL_WALLET_STAKE_UNITS = 1000_000000n;
 
 /**
- * The deposit fee, mirroring DEVELOPMENT_FEE_BPS_1 + DEVELOPMENT_FEE_BPS_2.
+ * The deposit fee bands, mirroring `depositFeeBps` in the contract.
  *
- * Both are immutable constructor parameters, so this cannot drift the way a
- * settable parameter could. It is used only for static marketing copy — every
- * figure a user actually transacts against comes from `quoteDeposit` on the
- * contract, never from this constant.
+ * A sliding scale rather than one rate, so nothing in the UI may assume a
+ * single number. Used only for static marketing copy; every figure a user
+ * transacts against comes from `quoteDeposit` on the contract.
  */
-export const DEPOSIT_FEE_BPS = 1000;
+export const DEPOSIT_FEE_BANDS = [
+  { from: 10_000, bps: 500 },
+  { from: 2_500, bps: 700 },
+  { from: 500, bps: 1000 },
+  { from: 0, bps: 1200 },
+] as const;
+
+export function depositFeeBpsFor(gross: number): number {
+  return DEPOSIT_FEE_BANDS.find((b) => gross >= b.from)!.bps;
+}
+
+/** The claim fee for a plan. Advanced and Elite pay half. */
+export function claimFeeBpsFor(planIndex: number): number {
+  return planIndex >= 2 ? 500 : 1000;
+}
 
 /**
  * The deposit needed for a given amount to survive the fee and be recorded.
  *
- * Plan tiers are decided by the *recorded* stake, so a depositor who sends
- * exactly a tier's minimum lands one tier below it. Rounding up matters: the
- * contract floors each fee share, and being a cent short of a threshold is
- * indistinguishable from being far short of it.
+ * Plan tiers are decided by the *recorded* stake, so someone sending exactly a
+ * tier's minimum lands one tier below it. The band is chosen by the gross, and
+ * the gross is what we are solving for, so this iterates: assume a band, solve,
+ * then check the answer still falls inside it.
  */
 export function grossForNet(net: number): number {
-  return Math.ceil((net * 10000) / (10000 - DEPOSIT_FEE_BPS) * 100) / 100;
+  for (const band of [...DEPOSIT_FEE_BANDS].reverse()) {
+    const gross = Math.ceil((net * 10000) / (10000 - band.bps) * 100) / 100;
+    if (depositFeeBpsFor(gross) === band.bps) return gross;
+  }
+  return net;
 }
 
 export function formatUnits6(value: bigint): string {

@@ -25,14 +25,11 @@ export function useProtocol() {
       call("getTimeLeft"),
       call("owner"),
       call("profitFeeBPS"),
-      // --- V3 ---
+      // --- V4 ---
       call("dashboard"),
-      call("DEVELOPMENT_FEE_BPS_1"),
-      call("DEVELOPMENT_FEE_BPS_2"),
       call("freeStakeCount"),
       call("MAX_FREE_STAKES"),
-      call("migrationOpen"),
-      call("totalMigrated"),
+      call("MIN_ACTIVATION_DEPOSIT"),
       call("totalGranted"),
       call("arbitrageTokenBalance"),
       call("totalGrossDeposits"),
@@ -47,8 +44,6 @@ export function useProtocol() {
     | readonly [bigint, bigint, bigint, bigint, bigint, bigint]
     | undefined;
 
-  const feeBps1 = data?.[13]?.result as bigint | undefined;
-  const feeBps2 = data?.[14]?.result as bigint | undefined;
 
   return {
     isLoading,
@@ -69,23 +64,20 @@ export function useProtocol() {
     owner: data?.[10]?.result as `0x${string}` | undefined,
     profitFeeBps: data?.[11]?.result as bigint | undefined,
 
-    // --- V3 ---
+    // --- V4 balance sheet ---
     grossDeposits: sheet?.[0],
     developmentFees: sheet?.[1],
     userNetStakes: sheet?.[2],
     mainPoolBalance: sheet?.[3],
     developmentFeeBalance: sheet?.[4],
     deployedToArbitrage: sheet?.[5],
-    devFeeBps1: feeBps1,
-    devFeeBps2: feeBps2,
-    devFeeBpsTotal: feeBps1 !== undefined && feeBps2 !== undefined ? feeBps1 + feeBps2 : undefined,
-    freeStakeCount: data?.[15]?.result as bigint | undefined,
-    maxFreeStakes: data?.[16]?.result as bigint | undefined,
-    migrationOpen: data?.[17]?.result as boolean | undefined,
-    totalMigrated: data?.[18]?.result as bigint | undefined,
-    totalGranted: data?.[19]?.result as bigint | undefined,
-    arbitrageTokenBalance: data?.[20]?.result as bigint | undefined,
-    totalGrossDeposits: data?.[21]?.result as bigint | undefined,
+    freeStakeCount: data?.[13]?.result as bigint | undefined,
+    maxFreeStakes: data?.[14]?.result as bigint | undefined,
+    /** Real collateral a giveaway position must deposit before it can claim. */
+    minActivationDeposit: data?.[15]?.result as bigint | undefined,
+    totalGranted: data?.[16]?.result as bigint | undefined,
+    arbitrageTokenBalance: data?.[17]?.result as bigint | undefined,
+    totalGrossDeposits: data?.[18]?.result as bigint | undefined,
   };
 }
 
@@ -99,14 +91,19 @@ export function useProtocol() {
  * transaction runs, so what is shown and what is charged cannot disagree.
  */
 export function useDepositQuote(grossAmount: bigint) {
-  const { data, isLoading } = useReadContract({
-    ...base,
-    functionName: "quoteDeposit",
-    args: [grossAmount],
-    query: { enabled: grossAmount > 0n },
+  const enabled = grossAmount > 0n;
+
+  const { data, isLoading } = useReadContracts({
+    contracts: [
+      call("quoteDeposit", [grossAmount]),
+      // V4's fee is a band chosen by deposit size, not a single constant, so
+      // the rate that applied has to be read for this amount specifically.
+      call("depositFeeBps", [grossAmount]),
+    ],
+    query: { enabled },
   });
 
-  const q = data as readonly [bigint, bigint, bigint, bigint] | undefined;
+  const q = data?.[0]?.result as readonly [bigint, bigint, bigint, bigint] | undefined;
 
   return {
     isLoading,
@@ -115,6 +112,34 @@ export function useDepositQuote(grossAmount: bigint) {
     totalFee: q?.[2],
     /** What actually gets recorded as the user's stake. */
     netStake: q?.[3],
+    /** The band that applied to THIS amount, in basis points. */
+    feeBps: data?.[1]?.result as bigint | undefined,
+  };
+}
+
+/** The claim fee for a plan, which V4 halves for the two upper tiers. */
+export function useClaimFeeBps(plan: number | undefined) {
+  const { data } = useReadContract({
+    ...base,
+    functionName: "claimFeeBps",
+    args: [BigInt(plan ?? 0)],
+    query: { enabled: plan !== undefined },
+  });
+  return data as bigint | undefined;
+}
+
+/** Second- and third-level downlines by address, which V3 could not report. */
+export function useDownline() {
+  const { address } = useAccount();
+  const { data, isLoading, refetch } = useReadContracts({
+    contracts: [call("getF2List", [address]), call("getF3List", [address])],
+    query: { enabled: Boolean(address), refetchInterval: 30_000 },
+  });
+  return {
+    isLoading,
+    refetch,
+    f2: (data?.[0]?.result as readonly `0x${string}`[] | undefined) ?? [],
+    f3: (data?.[1]?.result as readonly `0x${string}`[] | undefined) ?? [],
   };
 }
 
@@ -139,7 +164,7 @@ export function useUserPosition() {
         functionName: "allowance",
         args: [address, CONTRACT_ADDRESS],
       },
-      // --- V3 ---
+      // --- V4 ---
       call("userDepositBreakdown", [address]),
       call("isProtocolWallet", [address]),
     ],
@@ -179,7 +204,7 @@ export function useUserPosition() {
     walletBalance: data?.[7]?.result as bigint | undefined,
     allowance: data?.[8]?.result as bigint | undefined,
 
-    // --- V3 --- lifetime deposit accounting, so a user can always reconcile
+    // --- V4 --- lifetime deposit accounting, so a user can always reconcile
     // what they sent against what was recorded.
     grossDeposited: deposit?.[0],
     platformFeePaid: deposit?.[1],

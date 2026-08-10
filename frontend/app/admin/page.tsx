@@ -85,10 +85,7 @@ export default function AdminPage() {
 
       <DevelopmentFeeAdmin protocol={protocol} onDone={refresh} />
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <MigrationAdmin protocol={protocol} onDone={refresh} />
-        <GrantAdmin protocol={protocol} onDone={refresh} />
-      </div>
+      <GrantAdmin protocol={protocol} onDone={refresh} />
 
       <ArbitrageAdmin protocol={protocol} onDone={refresh} />
 
@@ -462,8 +459,8 @@ function DevelopmentFeeAdmin({
   const tx = useContractTx(onDone);
 
   const budgets = [
-    { n: 1 as const, amount: amount1, setAmount: setAmount1, bps: protocol.devFeeBps1 },
-    { n: 2 as const, amount: amount2, setAmount: setAmount2, bps: protocol.devFeeBps2 },
+    { n: 1 as const, amount: amount1, setAmount: setAmount1 },
+    { n: 2 as const, amount: amount2, setAmount: setAmount2 },
   ];
 
   return (
@@ -477,9 +474,7 @@ function DevelopmentFeeAdmin({
           <div key={b.n} className="rounded-xl border border-white/[.07] bg-graphite-925/70 p-4">
             <div className="flex items-baseline justify-between gap-2">
               <p className="font-display text-sm font-semibold text-white">Budget {b.n}</p>
-              {b.bps !== undefined && (
-                <span className="text-xs text-graphite-400">{formatBps(b.bps)} of each deposit</span>
-              )}
+              <span className="text-xs text-graphite-400">half of each deposit fee</span>
             </div>
             <div className="mt-2">
               <BudgetTotals budget={b.n} />
@@ -571,82 +566,6 @@ function BudgetTotals({ budget }: { budget: 1 | 2 }) {
         value={<span className="font-semibold text-gold-300">{formatAmount(c - w)} USDT</span>}
       />
     </div>
-  );
-}
-
-/** Brings V2 positions across. Migration is one-way and can be closed for good. */
-function MigrationAdmin({
-  protocol,
-  onDone,
-}: {
-  protocol: ReturnType<typeof useProtocol>;
-  onDone: () => void;
-}) {
-  const [user, setUser] = useState("");
-  const [amount, setAmount] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const tx = useContractTx(onDone);
-
-  const open = protocol.migrationOpen !== false;
-
-  return (
-    <Section
-      title="V2 migration"
-      description="Recreates a position from the previous contract. Rewards start accruing again at the migration block, so an old start date cannot pay out yield for time that was never staked here."
-      action={open ? <Badge tone="good">Open</Badge> : <Badge tone="neutral">Closed</Badge>}
-    >
-      <Row label="Migrated so far" value={`${formatAmount(protocol.totalMigrated)} USDT`} />
-
-      <div className={`mt-4 space-y-3 ${open ? "" : "pointer-events-none opacity-50"}`}>
-        <input
-          className="input font-mono text-sm"
-          placeholder="User address (0x…)"
-          value={user}
-          onChange={(e) => setUser(e.target.value.trim())}
-          aria-label="User address"
-        />
-        <div className="grid gap-2 sm:grid-cols-2">
-          <input
-            className="input"
-            inputMode="decimal"
-            placeholder="Amount (USDT)"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
-            aria-label="Amount"
-          />
-          <input
-            className="input"
-            inputMode="numeric"
-            placeholder="Original start (unix)"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value.replace(/[^0-9]/g, ""))}
-            aria-label="Original start timestamp"
-          />
-        </div>
-        <button
-          className="btn-primary w-full"
-          disabled={
-            user.length !== 42 || !amount || !startTime || tx.isPending || tx.isConfirming
-          }
-          onClick={() => tx.call("migrateStake", [user, parseUnits6(amount), BigInt(startTime)])}
-        >
-          Migrate position
-        </button>
-      </div>
-
-      <button
-        className="btn-secondary mt-3 w-full"
-        disabled={!open || tx.isPending || tx.isConfirming}
-        onClick={() => tx.call("closeMigration")}
-      >
-        Close migration permanently
-      </button>
-      <p className="mt-2 text-xs text-graphite-400">
-        Closing this is permanent. Migrated positions are recorded at full value with no deposit
-        fee, since they were already charged once on the old contract.
-      </p>
-      <TxStatus {...tx} />
-    </Section>
   );
 }
 

@@ -15,11 +15,11 @@ const CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "";
 const canDo = [
   {
     title: "Take a disclosed fee on every deposit",
-    body: "Two development wallets each take 5% of a deposit, 10% together, before the stake is recorded. You see the exact split on the deposit screen before you sign, and your stake is credited after the fee. The rate was set at deployment and there is no function to raise it.",
+    body: "The fee falls with deposit size: 12% under 500 USDT, 10% from 500, 7% from 2,500, 5% from 10,000. It is split evenly between two development wallets and taken before the stake is recorded, so your stake is credited net. The deposit screen shows the exact split before you sign, and the schedule is compiled into the contract with no function to change it.",
   },
   {
     title: "Collect protocol fees on claims",
-    body: "10% of every yield claim goes to two fee wallets, and a capped share of any strategy profit goes to a third. The owner chooses those addresses. This is how the project makes money, and the contract caps how much it can take.",
+    body: "10% of every yield claim goes to two fee wallets, halved to 5% on the Advanced and Elite plans, plus a capped share of any strategy profit. The owner chooses those addresses but the owner address itself receives nothing. This is how the project makes money, and the contract caps how much it can take.",
   },
   {
     title: "Deploy up to 20% into Polymarket",

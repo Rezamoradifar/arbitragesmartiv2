@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useProtocol } from "@/lib/hooks";
-import { formatAmount, formatBps } from "@/lib/contract";
+import { formatAmount } from "@/lib/contract";
 import { Badge, Progress, StatCard } from "@/components/ui";
 import { LiveDot } from "@/components/Aurora";
 import { Icon } from "@/components/Icon";
@@ -203,9 +203,7 @@ function BalanceSheet({ p }: { p: ReturnType<typeof useProtocol> }) {
     <div className="glass p-5 sm:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p className="text-sm font-semibold text-graphite-100">Where the money sits</p>
-        {p.devFeeBpsTotal !== undefined && (
-          <Badge tone="brand">{formatBps(p.devFeeBpsTotal)} deposit fee</Badge>
-        )}
+        <Badge tone="brand">12–5% deposit fee</Badge>
       </div>
 
       <dl className="mt-4 space-y-0">
@@ -227,8 +225,9 @@ function BalanceSheet({ p }: { p: ReturnType<typeof useProtocol> }) {
       </dl>
 
       <p className="mt-3.5 text-xs leading-relaxed text-graphite-400">
-        Fees are counted separately and subtracted from total assets, so fee income never gets
-        mistaken for pool capital or withdrawn as though it were.
+        The deposit fee falls with size — 12% under 500 USDT, 5% from 10,000 — and the exact split
+        is shown before you sign. Fees are counted separately and subtracted from total assets, so
+        fee income never gets mistaken for pool capital or withdrawn as though it were.
       </p>
     </div>
   );

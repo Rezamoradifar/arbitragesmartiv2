@@ -14,7 +14,14 @@ import { VisualFrame } from "@/components/visuals/primitives";
 import { Reveal } from "@/components/ui";
 import { Icon, type IconName } from "@/components/Icon";
 import { FaqList } from "@/components/FaqList";
-import { PLANS, PENALTY_SCHEDULE, REFERRAL_LEVELS, formatBps, grossForNet } from "@/lib/contract";
+import {
+  PLANS,
+  PENALTY_SCHEDULE,
+  REFERRAL_LEVELS,
+  DEPOSIT_FEE_BANDS,
+  formatBps,
+  grossForNet,
+} from "@/lib/contract";
 
 /* ------------------------------------------------------------------
    Section shell — one wrapper so vertical rhythm is identical
@@ -152,11 +159,11 @@ const features: Array<{
 const faqs = [
   {
     q: "What does the fee cost me?",
-    a: "Every deposit is charged 10%, split between two development wallets. It comes off before your stake is recorded, so 1,000 USDT in means 900 USDT staked. That also moves the floor: the smallest stake the contract accepts is 10 USDT, so the smallest deposit is 11.12. You see the exact split on the deposit screen before you sign, and the rate was set when the contract was deployed with no function to raise it later.",
+    a: "It depends on size, and it falls as the deposit grows: 12% under 500 USDT, 10% from 500, 7% from 2,500, and 5% from 10,000. It comes off before your stake is recorded, so 1,000 USDT in means 900 USDT staked. That also moves the floor — the smallest stake the contract accepts is 10 USDT, so the smallest deposit is 11.37. The deposit screen shows the exact split before you sign, and the schedule is fixed in the contract with no function to change it.",
   },
   {
     q: "Can the owner take my deposit?",
-    a: "No. Nothing in the contract sends staked principal to an owner address. The owner earns the deposit fee, 10% of your yield when you claim, and a capped share of strategy profit. That is the whole list. The one path that can move pooled funds needs 3 of 5 partner votes and then a 48-hour wait, and your own penalty-free withdrawal opens 36 hours before that wait is over.",
+    a: "No. Nothing in the contract sends staked principal to an owner address — and the owner address itself receives nothing at all. Fees go to four named wallets: the deposit fee, a claim fee of 10% (5% on the two upper plans), and a capped share of strategy profit. That is the whole list. The one path that can move pooled funds needs 3 of 5 partner votes and then a 48-hour wait, and your own penalty-free withdrawal opens 36 hours before that wait is over.",
   },
   {
     q: "What if I want to leave early?",
@@ -168,7 +175,7 @@ const faqs = [
   },
   {
     q: "How do referrals pay?",
-    a: "Nothing is taken from the person you referred. They receive exactly the same amount whether or not somebody referred them. The reward is credited on top, out of the pool, each time they claim their yield: 8% to 20% of that claim to you, 4% to 10% to whoever referred you, and 2% to 5% one level above that. Your link only counts if you already have an active stake when they stake, so stake before you share it.",
+    a: "Each time someone you referred claims their yield, a share of that claim goes up the chain: 8% to 20% to you depending on your tier, 4% to 10% to whoever referred you, and 2% to 5% one level above that. It is taken out of the claim rather than added on top, so the pool never pays out more than the yield that was actually earned. Your link only counts if you already have an active stake when they stake, and you keep earning only while that stake stays open."
   },
   {
     q: "How do I check any of this myself?",
@@ -367,8 +374,36 @@ export default function Home() {
           })}
         </div>
 
+        <Reveal delay={150}>
+          <div className="glass mt-8 p-6">
+            <h3 className="font-display text-base font-semibold text-white">Deposit fee</h3>
+            <p className="mt-2 text-sm leading-relaxed text-graphite-400">
+              Charged once, before the stake is recorded. It falls as the deposit grows, so the
+              figures below are what reaches your position.
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-4">
+              {DEPOSIT_FEE_BANDS.slice().reverse().map((b, i, arr) => {
+                const next = arr[i + 1];
+                return (
+                  <div key={b.bps} className="rounded-lg border border-white/[.06] bg-white/[.02] px-3.5 py-3">
+                    <p className="text-xs text-graphite-500">
+                      {next ? `${b.from.toLocaleString("en-US")}–${(next.from - 1).toLocaleString("en-US")}` : `${b.from.toLocaleString("en-US")}+`}
+                    </p>
+                    <p className="mt-1 font-display text-xl font-bold text-gold-300">
+                      {formatBps(b.bps)}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-4 text-xs leading-relaxed text-graphite-500">
+              Claiming carries a separate fee of 10%, halved to 5% on Advanced and Elite.
+            </p>
+          </div>
+        </Reveal>
+
         <Reveal delay={200}>
-          <div className="mt-8 grid gap-5 lg:grid-cols-2">
+          <div className="mt-5 grid gap-5 lg:grid-cols-2">
             <div className="glass-panel">
               <h3 className="font-display text-base font-semibold text-white">Referral tiers</h3>
               <p className="mt-2 text-sm text-graphite-400">
