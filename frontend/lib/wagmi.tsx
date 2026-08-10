@@ -11,6 +11,7 @@ import {
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { hashFn } from "wagmi/query";
 import { WagmiProvider, createConfig, http, fallback } from "wagmi";
 import { polygon } from "wagmi/chains";
 import { useState, type ReactNode } from "react";
@@ -107,6 +108,23 @@ export function Web3Providers({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
+            /**
+             * REQUIRED, not a preference.
+             *
+             * A wagmi query key contains the contract call's arguments, and on
+             * this chain amounts are `bigint`. TanStack's default key hash is
+             * JSON.stringify, which throws outright on a BigInt — so the first
+             * hook that passes an amount as an argument (quoteDeposit, on the
+             * deposit form) took down the entire dashboard with "Application
+             * error: a client-side exception has occurred".
+             *
+             * It stayed hidden until a wallet was connected, because the form
+             * that issues that call only renders for a connected address.
+             * wagmi ships a BigInt-aware replacer for exactly this; installing
+             * it here covers every present and future call rather than the one
+             * that happened to expose it.
+             */
+            queryKeyHashFn: hashFn,
             // Chain reads are cheap and the UI is state-heavy; refetching on
             // every window focus produced visible flicker on the dashboard.
             refetchOnWindowFocus: false,
