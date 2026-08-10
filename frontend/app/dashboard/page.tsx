@@ -1012,6 +1012,18 @@ function ReferralCard({
         />
       </div>
 
+      {/* The contract pays a third level too, but only once the direct
+          referrer has reached Silver. Showing 0% at Base is more useful than
+          leaving the level out and letting it appear from nowhere later. */}
+      <p className="mt-3 text-xs leading-relaxed text-graphite-400">
+        Third level (F3) pays{" "}
+        <span className="text-graphite-200">
+          {tier.f3Bps === 0 ? "nothing at Base tier" : formatBps(tier.f3Bps)}
+        </span>
+        . All three levels are credited when your referral claims their yield, and come from the
+        pool rather than out of their payout.
+      </p>
+
       {next && (
         <p className="mt-3 text-xs leading-relaxed text-graphite-400">
           Reach {next.name} with {next.needRefs} active referrals and{" "}
@@ -1022,9 +1034,9 @@ function ReferralCard({
       {!user.active && (
         <div className="mt-4">
           <Alert tone="warn" title="Your link won't work yet">
-            A referral only counts if you already have an active stake when your friend stakes. So
-            stake first. Anyone who used this link before that staked normally, but was never linked
-            to you, and there is no way to fix that afterwards.
+            A referral only counts if you already have an active stake at the moment your friend
+            stakes. So stake first. Anyone who used this link before that staked normally, but was
+            never linked to you, and there is no way to fix that afterwards.
           </Alert>
         </div>
       )}

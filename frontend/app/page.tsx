@@ -168,7 +168,7 @@ const faqs = [
   },
   {
     q: "How do referrals pay?",
-    a: "Referral rewards come out of protocol fees. Nothing is taken from the person you referred, so their position is identical either way. It pays across two levels and four tiers. Your link only counts while you have an active stake, so stake before you share it.",
+    a: "Nothing is taken from the person you referred. They receive exactly the same amount whether or not somebody referred them. The reward is credited on top, out of the pool, each time they claim their yield: 8% to 20% of that claim to you, 4% to 10% to whoever referred you, and 2% to 5% one level above that. Your link only counts if you already have an active stake when they stake, so stake before you share it.",
   },
   {
     q: "How do I check any of this myself?",
@@ -372,8 +372,8 @@ export default function Home() {
             <div className="glass-panel">
               <h3 className="font-display text-base font-semibold text-white">Referral tiers</h3>
               <p className="mt-2 text-sm text-graphite-400">
-                Paid out of protocol fees, across two levels. Nothing is taken from the person you
-                referred.
+                Paid from the pool each time the person you referred claims, down three levels.
+                Their own payout is not reduced.
               </p>
               <div className="mt-5 space-y-2.5">
                 {REFERRAL_LEVELS.map((l) => (
