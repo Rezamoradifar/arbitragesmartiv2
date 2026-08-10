@@ -570,6 +570,82 @@ contract DevelopmentFeeTest is Test {
     }
 
     // ---------------------------------------------------------------
+    // Free-stake cap
+    // ---------------------------------------------------------------
+
+    /// @dev A free stake is the one position with no collateral behind it, so
+    ///      the cap is the protocol's entire exposure to the launch window.
+    function test_freeStakes_areCappedAtThree() public {
+        ArbiSmartV3 fresh = new ArbiSmartV3(
+            address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, BPS1, BPS2
+        );
+        assertTrue(fresh.isFreePeriod());
+        assertEq(fresh.MAX_FREE_STAKES(), 3);
+
+        address[4] memory takers =
+            [makeAddr("f1"), makeAddr("f2"), makeAddr("f3"), makeAddr("f4")];
+
+        for (uint256 i = 0; i < 3; i++) {
+            vm.prank(takers[i], takers[i]);
+            fresh.stake(10_000000, address(0));
+        }
+        assertEq(fresh.freeStakeCount(), 3);
+
+        // The fourth is refused even though the window is still open.
+        vm.prank(takers[3], takers[3]);
+        vm.expectRevert(ArbiSmartV3.FreeStakeLimitReached.selector);
+        fresh.stake(10_000000, address(0));
+
+        // Total unbacked liability is bounded to three positions.
+        assertEq(fresh.totalStaked(), 0, "free stakes are never counted as principal");
+    }
+
+    /// @dev Exiting must not return a slot to the pool, or the cap could be
+    ///      cycled indefinitely by one address after another.
+    function test_freeStakeSlotIsNotReclaimedByExiting() public {
+        ArbiSmartV3 fresh = new ArbiSmartV3(
+            address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, BPS1, BPS2
+        );
+
+        address[3] memory takers = [makeAddr("g1"), makeAddr("g2"), makeAddr("g3")];
+        for (uint256 i = 0; i < 3; i++) {
+            vm.prank(takers[i], takers[i]);
+            fresh.stake(10_000000, address(0));
+        }
+
+        vm.prank(takers[0], takers[0]);
+        fresh.earlyExit();
+        assertEq(fresh.freeStakeCount(), 3, "count never decreases");
+
+        address late = makeAddr("late");
+        vm.prank(late, late);
+        vm.expectRevert(ArbiSmartV3.FreeStakeLimitReached.selector);
+        fresh.stake(10_000000, address(0));
+    }
+
+    /// @dev The cap applies only to free stakes; paid deposits are unaffected.
+    function test_freeStakeCapDoesNotBlockPaidDeposits() public {
+        ArbiSmartV3 fresh = new ArbiSmartV3(
+            address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, BPS1, BPS2
+        );
+        for (uint256 i = 0; i < 3; i++) {
+            address a = makeAddr(string(abi.encodePacked("free", i)));
+            vm.prank(a, a);
+            fresh.stake(10_000000, address(0));
+        }
+
+        // Once the window closes, ordinary paid staking works normally.
+        vm.warp(block.timestamp + 25 hours);
+        vm.startPrank(alice, alice);
+        usdc.approve(address(fresh), type(uint256).max);
+        fresh.stake(1000_000000, address(0));
+        vm.stopPrank();
+
+        (uint256 amt,,,,,,,,) = fresh.stakes(alice);
+        assertEq(amt, 900_000000, "paid deposits unaffected by the cap");
+    }
+
+    // ---------------------------------------------------------------
     // Funded promotional grants
     // ---------------------------------------------------------------
 

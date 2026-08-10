@@ -441,6 +441,20 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     ///         fee on it exactly as any other depositor does.
     uint256 public constant PROTOCOL_WALLET_STAKE = 1000_000000;
 
+    /// @notice How many free stakes the launch window will ever issue.
+    /// @dev A free stake is the one position in this contract with no
+    ///      collateral behind it: the holder deposits nothing, but the yield
+    ///      they claim is paid in real collateral out of the pool. Left
+    ///      uncapped that is an unbounded liability which grows precisely
+    ///      when the promotion succeeds. Three is the entire exposure, fixed
+    ///      at compile time so it cannot be raised once users are relying on
+    ///      it. For funded giveaways with no such limit, use {grantStake}.
+    uint256 public constant MAX_FREE_STAKES = 3;
+
+    /// @notice Free stakes issued so far. Never decreases, so closing and
+    ///         reopening a position cannot reclaim a slot.
+    uint256 public freeStakeCount;
+
     /// @notice Timestamp at which the contract was last paused; 0 while unpaused.
     uint256 public pausedAt;
     /// @notice How long the contract must remain continuously paused before
@@ -717,6 +731,7 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     error MigrationClosed();
     error InvalidMigrationStart();
     error ProtocolWalletStakeInvalid();
+    error FreeStakeLimitReached();
 
     // ============================================================
     // Modifiers
@@ -1612,6 +1627,10 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
 
         if (free) {
             if (grossAmount != MIN_STAKE) revert InvalidFreeStakeAmount();
+            // Counted before the stake is written, and never decremented, so
+            // the cap holds across exits and re-entries.
+            if (freeStakeCount >= MAX_FREE_STAKES) revert FreeStakeLimitReached();
+            freeStakeCount++;
         }
         if (amount < MIN_STAKE) revert BelowMinStake();
         if (amount > MAX_STAKE) revert AboveMaxStake();
