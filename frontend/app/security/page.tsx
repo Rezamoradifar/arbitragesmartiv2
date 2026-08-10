@@ -12,6 +12,10 @@ export const metadata: Metadata = {
 
 const CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "";
 
+/** Where vulnerability reports go. On the project's own domain, so a
+ *  researcher can tell it apart from someone impersonating the project. */
+const SECURITY_EMAIL = "security@arbhub.site";
+
 const canDo = [
   {
     title: "Take a disclosed fee on every deposit",
@@ -282,9 +286,9 @@ export default function SecurityPage() {
             Email{" "}
             <a
               className="text-gold-300 underline underline-offset-2 hover:text-gold-200"
-              href="mailto:EnjoyingEnjoying@gmail.com"
+              href={`mailto:${SECURITY_EMAIL}`}
             >
-              EnjoyingEnjoying@gmail.com
+              {SECURITY_EMAIL}
             </a>{" "}
             with a description and, if you can, a proof of concept against a fork rather than
             mainnet. Tell us privately first. Posting it publicly or exploiting it on-chain before a
