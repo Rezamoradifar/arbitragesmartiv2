@@ -119,8 +119,33 @@ export function Web3Providers({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
+        {/* The connect button is the most prominent control on every page, so
+            it has to be the palette's primary action rather than RainbowKit's
+            default teal — an off-brand accent there reads as a third-party
+            widget bolted onto the design. Gold on near-black, matching
+            .btn-primary, with the modal surfaces pulled down to the same
+            graphite the rest of the app sits on. */}
         <RainbowKitProvider
-          theme={darkTheme({ accentColor: "#1aab84", borderRadius: "large" })}
+          theme={{
+            ...darkTheme({
+              accentColor: "#e0ad3c",
+              accentColorForeground: "#05060b",
+              borderRadius: "large",
+              overlayBlur: "small",
+            }),
+            colors: {
+              ...darkTheme().colors,
+              accentColor: "#e0ad3c",
+              accentColorForeground: "#05060b",
+              modalBackground: "#0d0f18",
+              modalBorder: "rgba(255,255,255,.07)",
+              profileForeground: "#131622",
+              connectButtonBackground: "#131622",
+              connectButtonInnerBackground: "#191d2c",
+              menuItemBackground: "#191d2c",
+              generalBorder: "rgba(255,255,255,.07)",
+            },
+          }}
           appInfo={{ appName: APP_NAME }}
           initialChain={polygon}
         >

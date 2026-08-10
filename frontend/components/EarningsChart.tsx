@@ -9,10 +9,12 @@ import { useMemo, useRef, useState } from "react";
  * y-axis. Never a second axis: both series are USDT, so they belong on the
  * same scale and are directly comparable.
  *
- * Series colours are brand-500 and iris-500, validated against the dark chart
- * surface (#0d1120) for lightness band, chroma, CVD separation, normal-vision
- * separation, and contrast. Do not substitute the lighter -400 steps: they sit
- * above the dark-mode lightness band.
+ * Series colours are gold-500 and volt-500 — the palette's own two hues, which
+ * happen to be the strongest pair available here: a warm yellow against a cool
+ * blue separates under every common form of colour-vision deficiency, where
+ * the more usual green/indigo pairing collapses. Both sit inside the dark-mode
+ * lightness band against the chart surface; do not substitute the lighter -400
+ * steps, which sit above it.
  *
  * Identity is never colour-alone — a legend is always present, and each line
  * is direct-labelled at its end.
@@ -20,9 +22,11 @@ import { useMemo, useRef, useState } from "react";
 
 export type Point = { t: number; yield: number; referral: number };
 
+const SURFACE = "#0d0f18"; // graphite-900 — the marker halo colour
+
 const SERIES = [
-  { key: "yield" as const, label: "Staking yield", color: "#1aab84" },
-  { key: "referral" as const, label: "Referral", color: "#6366f1" },
+  { key: "yield" as const, label: "Staking yield", color: "#d0932a" },
+  { key: "referral" as const, label: "Referral", color: "#3384fb" },
 ];
 
 export function EarningsChart({ data, height = 260 }: { data: Point[]; height?: number }) {
@@ -63,7 +67,7 @@ export function EarningsChart({ data, height = 260 }: { data: Point[]; height?: 
   if (!geom || data.length < 2) {
     return (
       <div
-        className="flex items-center justify-center rounded-xl border border-dashed border-white/[.07] text-sm text-ink-400"
+        className="flex items-center justify-center rounded-xl border border-dashed border-white/[.07] text-sm text-graphite-400"
         style={{ height }}
       >
         Not enough history yet — your first claim starts this chart.
@@ -96,7 +100,7 @@ export function EarningsChart({ data, height = 260 }: { data: Point[]; height?: 
       {/* Legend — always present at two series, never colour-alone. */}
       <figcaption className="mb-3 flex flex-wrap items-center gap-4">
         {SERIES.map((s) => (
-          <span key={s.key} className="flex items-center gap-2 text-xs text-ink-300">
+          <span key={s.key} className="flex items-center gap-2 text-xs text-graphite-300">
             <span className="h-2.5 w-2.5 rounded-sm" style={{ background: s.color }} />
             {s.label}
           </span>
@@ -137,7 +141,7 @@ export function EarningsChart({ data, height = 260 }: { data: Point[]; height?: 
               x={PAD.left - 10}
               y={geom.py(v) + 4}
               textAnchor="end"
-              className="fill-ink-400"
+              className="fill-graphite-400"
               style={{ fontSize: 11 }}
             >
               {formatTick(v)}
@@ -167,7 +171,7 @@ export function EarningsChart({ data, height = 260 }: { data: Point[]; height?: 
               key={s.key}
               x={W - PAD.right + 8}
               y={geom.py(last[s.key]) + 4}
-              className="fill-ink-200"
+              className="fill-graphite-200"
               style={{ fontSize: 11, fontWeight: 600 }}
             >
               {formatTick(last[s.key])}
@@ -194,7 +198,7 @@ export function EarningsChart({ data, height = 260 }: { data: Point[]; height?: 
                 cy={geom.py(active[s.key])}
                 r="5"
                 fill={s.color}
-                stroke="#0d1120"
+                stroke={SURFACE}
                 strokeWidth="2"
               />
             ))}
@@ -204,7 +208,7 @@ export function EarningsChart({ data, height = 260 }: { data: Point[]; height?: 
         <text
           x={PAD.left}
           y={H - 8}
-          className="fill-ink-400"
+          className="fill-graphite-400"
           style={{ fontSize: 11 }}
         >
           {formatDate(geom.minX)}
@@ -213,7 +217,7 @@ export function EarningsChart({ data, height = 260 }: { data: Point[]; height?: 
           x={W - PAD.right}
           y={H - 8}
           textAnchor="end"
-          className="fill-ink-400"
+          className="fill-graphite-400"
           style={{ fontSize: 11 }}
         >
           {formatDate(geom.maxX)}
@@ -221,12 +225,12 @@ export function EarningsChart({ data, height = 260 }: { data: Point[]; height?: 
       </svg>
 
       {active && (
-        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 rounded-xl border border-white/[.07] bg-ink-950/80 px-4 py-2.5 text-sm backdrop-blur">
-          <span className="text-ink-400">{formatDate(active.t, true)}</span>
+        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 rounded-xl border border-white/[.07] bg-graphite-950/80 px-4 py-2.5 text-sm backdrop-blur">
+          <span className="text-graphite-400">{formatDate(active.t, true)}</span>
           {SERIES.map((s) => (
             <span key={s.key} className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-sm" style={{ background: s.color }} />
-              <span className="text-ink-300">{s.label}</span>
+              <span className="text-graphite-300">{s.label}</span>
               <span className="font-semibold tabular-nums text-white">
                 {active[s.key].toLocaleString("en-US", { maximumFractionDigits: 2 })}
               </span>

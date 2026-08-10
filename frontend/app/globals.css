@@ -7,55 +7,54 @@
     color-scheme: dark;
     -webkit-tap-highlight-color: transparent;
     overflow-x: hidden;
-    /* A device with a larger-than-default system font/display size, or a
-       browser zoom above 100%, renders every string bigger without any
-       extra width to put it in. Without this, text just keeps its
-       intrinsic layout width and gets clipped by overflow-x:hidden above
-       instead of wrapping — this makes wrapping the default everywhere,
-       so oversized text degrades by taking more vertical space instead
-       of running off the edge of the screen. */
+    /* A device with a larger-than-default system font, or browser zoom above
+       100%, renders every string wider with no extra room to put it in.
+       Wrapping by default means oversized text costs vertical space instead
+       of running off the edge — and because the flexbox automatic-minimum-size
+       algorithm respects this, it prevents overflow inside flex rows too, not
+       just in plain paragraphs. */
     overflow-wrap: break-word;
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-ink-950 text-ink-50 antialiased;
-    /* A transient wide element (a long unwrapped string, a modal briefly
-       measured at its natural width) can push scrollWidth past the
-       viewport on mobile; some mobile browsers then leave the page
-       scrolled right afterwards, clipping content on the left edge.
-       Blocking horizontal scroll outright is the standard guard — nothing
-       on this site relies on it, and any content that's genuinely wider
-       than its container (tables, addresses) already wraps itself in its
-       own overflow-x-auto. */
+    @apply bg-graphite-950 text-graphite-50 antialiased;
+    /* A transient wide element can push scrollWidth past the viewport on
+       mobile; some browsers then leave the page scrolled right, clipping the
+       left edge. Nothing here relies on horizontal scroll — anything genuinely
+       wider than its container carries its own overflow-x-auto. */
     overflow-x: hidden;
     max-width: 100vw;
-    /* Two wide colour washes rather than a flat fill — this is most of what
-       separates "dark theme" from "grey rectangle". */
+    /* Two cool washes and one warm, so the page has a light source rather
+       than a flat fill. The warm one is small and low — gold reads as
+       reflected light, not as a colour cast. */
     background-image:
-      radial-gradient(80rem 40rem at 12% -10%, rgba(26, 171, 132, 0.13), transparent 60%),
-      radial-gradient(70rem 38rem at 92% 4%, rgba(99, 102, 241, 0.11), transparent 62%);
+      radial-gradient(72rem 40rem at 8% -12%, rgba(29, 99, 240, 0.14), transparent 62%),
+      radial-gradient(56rem 32rem at 96% 2%, rgba(224, 173, 60, 0.09), transparent 60%),
+      radial-gradient(64rem 40rem at 50% 108%, rgba(51, 132, 251, 0.07), transparent 64%);
     background-attachment: fixed;
   }
 
-  /* Film grain. Without it, large flat gradients band visibly on OLED and
-     cheap panels. */
+  /* Film grain. Without it, wide flat gradients band visibly on OLED and on
+     cheap panels — the single cheapest thing that separates "rendered" from
+     "photographed". */
   body::after {
     content: "";
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.5;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+    opacity: 0.45;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
   }
 
   ::selection {
-    @apply bg-brand-500/35 text-white;
+    @apply bg-gold-400/30 text-white;
   }
 
-  /* Focus rings are on purpose: several flows here move money. */
+  /* Focus rings are deliberate: several flows here move money. */
   :focus-visible {
-    @apply outline-none ring-2 ring-brand-400/70 ring-offset-2 ring-offset-ink-950;
+    @apply outline-none ring-2 ring-gold-400/70 ring-offset-2 ring-offset-graphite-950;
   }
 
   ::-webkit-scrollbar {
@@ -63,13 +62,13 @@
     height: 10px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-ink-950;
+    @apply bg-graphite-950;
   }
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full border-2 border-ink-950 bg-ink-700;
+    @apply rounded-full border-2 border-graphite-950 bg-graphite-700;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-ink-600;
+    @apply bg-graphite-600;
   }
 }
 
@@ -79,19 +78,24 @@
     @apply relative z-10;
   }
 
-  /* Card: a 1px gradient hairline via border-box masking, so the top edge
-     catches "light" and the shape reads as a raised surface rather than an
-     outlined box. */
-  .card {
-    @apply relative rounded-2xl border border-white/[.07] bg-ink-900/70 p-6 shadow-lift backdrop-blur-xl;
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
   }
-  .card::before {
+
+  /* ---------- Glass surfaces ----------
+     One primitive, three weights. The gradient hairline is drawn with a
+     border-box mask rather than a plain border so the top edge catches
+     "light" and the panel reads as raised instead of outlined. */
+  .glass {
+    @apply relative rounded-2xl border border-white/[.06] bg-graphite-850/60 shadow-glass backdrop-blur-xl;
+  }
+  .glass::before {
     content: "";
     position: absolute;
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.16), transparent 42%);
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.14), transparent 46%);
     -webkit-mask:
       linear-gradient(#000 0 0) content-box,
       linear-gradient(#000 0 0);
@@ -100,88 +104,144 @@
     pointer-events: none;
   }
 
-  .card-hover {
-    @apply transition duration-300 hover:-translate-y-1 hover:border-brand-400/25 hover:shadow-glow;
+  .glass-panel {
+    @apply glass p-6 sm:p-7;
   }
 
-  .card-accent {
-    @apply border-iris-500/20 bg-iris-950/40;
+  .glass-raised {
+    @apply glass bg-graphite-800/70 shadow-glass-lg;
   }
 
+  /* Interactive lift. Kept small — a card that leaps is a card that looks
+     cheap. */
+  .glass-hover {
+    @apply transition duration-500 hover:-translate-y-1 hover:border-gold-400/20 hover:shadow-gold;
+  }
+
+  /* Card whose top edge is lit gold rather than white — reserved for the
+     one surface per view that holds the headline number. */
+  .glass-gold::before {
+    background: linear-gradient(160deg, rgba(224, 173, 60, 0.45), transparent 44%);
+  }
+  .glass-volt::before {
+    background: linear-gradient(160deg, rgba(51, 132, 251, 0.45), transparent 44%);
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-xl px-6 py-3
+      text-sm font-semibold tracking-tight transition duration-200
+      disabled:pointer-events-none disabled:opacity-40;
+  }
+
+  /* Primary is gold-on-black: the single highest-contrast element on any
+     screen, so the money action is never ambiguous. */
   .btn-primary {
-    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl
-      bg-gradient-to-b from-brand-400 to-brand-600 px-6 py-3 font-semibold text-ink-950
-      shadow-glow transition duration-200
-      hover:from-brand-300 hover:to-brand-500 hover:shadow-glow-lg
-      active:translate-y-px
-      disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none disabled:hover:translate-y-0;
+    @apply btn relative overflow-hidden bg-gold-sheen text-graphite-950 shadow-gold
+      hover:shadow-gold-lg active:translate-y-px;
+  }
+  /* Sweep on hover — one pass, no loop. */
+  .btn-primary::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.5) 50%, transparent 80%);
+    transform: translateX(-120%);
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn-primary:hover::after {
+    transform: translateX(120%);
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/10
-      bg-white/[.04] px-6 py-3 font-semibold text-ink-50 backdrop-blur transition duration-200
-      hover:border-white/20 hover:bg-white/[.08]
-      active:translate-y-px
-      disabled:cursor-not-allowed disabled:opacity-40;
+    @apply btn border border-white/10 bg-white/[.03] text-graphite-50 backdrop-blur
+      hover:border-white/20 hover:bg-white/[.07] active:translate-y-px;
+  }
+
+  .btn-volt {
+    @apply btn bg-volt-sheen text-white shadow-volt hover:brightness-110 active:translate-y-px;
   }
 
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm
-      text-ink-300 transition hover:bg-white/5 hover:text-ink-50;
+      text-graphite-300 transition hover:bg-white/5 hover:text-graphite-50;
   }
 
+  .btn-danger {
+    @apply btn border border-danger-500/30 bg-danger-500/10 text-danger-400
+      hover:border-danger-500/50 hover:bg-danger-500/20;
+  }
+
+  /* ---------- Form ---------- */
   .input {
-    @apply w-full rounded-xl border border-white/10 bg-ink-950/70 px-4 py-3 text-ink-50
-      placeholder:text-ink-400 transition
-      focus:border-brand-500/60 focus:bg-ink-950 focus:outline-none focus:ring-2 focus:ring-brand-500/25;
+    @apply w-full rounded-xl border border-white/10 bg-graphite-925/80 px-4 py-3 text-graphite-50
+      placeholder:text-graphite-400 transition
+      focus:border-gold-400/50 focus:bg-graphite-925 focus:outline-none focus:ring-2 focus:ring-gold-400/20;
   }
 
   .label {
-    @apply mb-2 block text-sm font-medium text-ink-300;
+    @apply mb-2 block text-xs font-medium uppercase tracking-[.12em] text-graphite-400;
   }
 
-  /* Section eyebrow. */
+  /* ---------- Type ---------- */
   .eyebrow {
-    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04]
-      px-3 py-1 text-xs font-medium uppercase tracking-[.14em] text-ink-300 backdrop-blur;
+    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.03]
+      px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[.16em] text-graphite-300 backdrop-blur;
+  }
+
+  .h-display {
+    @apply font-display text-4xl font-bold leading-[1.08] tracking-[-.02em] text-white
+      sm:text-5xl lg:text-6xl;
+  }
+
+  .h-section {
+    @apply font-display text-3xl font-bold tracking-[-.02em] text-white sm:text-4xl;
   }
 
   .stat-value {
     @apply font-display text-3xl font-bold tracking-tight text-white tabular-nums sm:text-4xl;
   }
 
-  /* Gradient text — reserved for hero and headline numbers. Used everywhere
-     it just becomes noise. */
-  .text-gradient {
-    @apply bg-gradient-to-br from-white via-white to-brand-300 bg-clip-text text-transparent;
+  /* Gradient text is reserved for the hero word and headline numbers. Used
+     everywhere it stops signifying anything. */
+  .text-gold-gradient {
+    @apply bg-gold-sheen bg-clip-text text-transparent;
   }
-
-  .text-gradient-brand {
-    @apply bg-gradient-to-br from-brand-200 via-brand-400 to-brand-600 bg-clip-text text-transparent;
+  .text-volt-gradient {
+    @apply bg-volt-sheen bg-clip-text text-transparent;
   }
 
   .divider {
     @apply h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent;
   }
+
+  /* Bottom navigation sits above the home indicator on iOS. */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
 
 @layer utilities {
-  .animate-delay-100 {
-    animation-delay: 0.1s;
+  .animate-delay-100 { animation-delay: 0.1s; }
+  .animate-delay-200 { animation-delay: 0.2s; }
+  .animate-delay-300 { animation-delay: 0.3s; }
+  .animate-delay-500 { animation-delay: 0.5s; }
+  .animate-delay-700 { animation-delay: 0.7s; }
+
+  /* Mask a decorative edge into nothing rather than cutting it hard. */
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
   }
-  .animate-delay-200 {
-    animation-delay: 0.2s;
-  }
-  .animate-delay-300 {
-    animation-delay: 0.3s;
-  }
-  .animate-delay-500 {
-    animation-delay: 0.5s;
+  .mask-fade-r {
+    -webkit-mask-image: linear-gradient(to right, #000 70%, transparent 100%);
+    mask-image: linear-gradient(to right, #000 70%, transparent 100%);
   }
 }
 
 /* Respect the OS setting: several elements here float and pulse indefinitely. */
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *,
   *::before,
   *::after {

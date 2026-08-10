@@ -96,6 +96,28 @@ export const PENALTY_SCHEDULE = [
 export const MIN_STAKE_UNITS = 10_000000n;
 export const MAX_STAKE_UNITS = 25_000_000000n;
 
+/**
+ * The deposit fee, mirroring DEVELOPMENT_FEE_BPS_1 + DEVELOPMENT_FEE_BPS_2.
+ *
+ * Both are immutable constructor parameters, so this cannot drift the way a
+ * settable parameter could. It is used only for static marketing copy — every
+ * figure a user actually transacts against comes from `quoteDeposit` on the
+ * contract, never from this constant.
+ */
+export const DEPOSIT_FEE_BPS = 1000;
+
+/**
+ * The deposit needed for a given amount to survive the fee and be recorded.
+ *
+ * Plan tiers are decided by the *recorded* stake, so a depositor who sends
+ * exactly a tier's minimum lands one tier below it. Rounding up matters: the
+ * contract floors each fee share, and being a cent short of a threshold is
+ * indistinguishable from being far short of it.
+ */
+export function grossForNet(net: number): number {
+  return Math.ceil((net * 10000) / (10000 - DEPOSIT_FEE_BPS) * 100) / 100;
+}
+
 export function formatUnits6(value: bigint): string {
   const negative = value < 0n;
   const v = negative ? -value : value;

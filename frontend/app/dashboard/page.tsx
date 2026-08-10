@@ -5,8 +5,20 @@ import { useSearchParams } from "next/navigation";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useContractTx, TxStatus } from "@/components/TxButton";
-import { Alert, Badge, Countdown, EmptyState, Progress, Row, Section, Skeleton } from "@/components/ui";
-import { useProtocol, useUserPosition, useReferralTree } from "@/lib/hooks";
+import {
+  Alert,
+  Badge,
+  Countdown,
+  EmptyState,
+  Progress,
+  Row,
+  Section,
+  Skeleton,
+  StatCard,
+} from "@/components/ui";
+import { Icon } from "@/components/Icon";
+import { HeroVisual } from "@/components/visuals/HeroVisual";
+import { useProtocol, useUserPosition, useReferralTree, useDepositQuote } from "@/lib/hooks";
 import { hasWalletConnect } from "@/lib/wagmi";
 import {
   COLLATERAL_ADDRESS,
@@ -29,14 +41,28 @@ const ZERO = "0x0000000000000000000000000000000000000000";
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<div className="py-20 text-center text-ink-400">Loading…</div>}>
+    <Suspense fallback={<DashboardSkeleton />}>
       <Dashboard />
     </Suspense>
   );
 }
 
+function DashboardSkeleton() {
+  return (
+    <div className="container-page space-y-5 py-10">
+      <Skeleton className="h-10 w-56" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-32 w-full rounded-2xl" />
+        ))}
+      </div>
+      <Skeleton className="h-80 w-full rounded-2xl" />
+    </div>
+  );
+}
+
 function Dashboard() {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const protocol = useProtocol();
   const user = useUserPosition();
 
@@ -45,37 +71,21 @@ function Dashboard() {
     protocol.refetch();
   }
 
-  if (!isConnected) {
-    return (
-      <div className="py-20 text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Your dashboard</h1>
-        <p className="mx-auto mt-3 max-w-md text-ink-300">
-          Connect a wallet on Polygon to stake, claim rewards, and track your referral team.
-        </p>
-        <div className="mt-8 flex justify-center">
-          <ConnectButton />
-        </div>
-        {!hasWalletConnect && (
-          <div className="mx-auto mt-8 max-w-lg">
-            <Alert tone="warn" title="Mobile and QR wallet connections are disabled">
-              No WalletConnect project id is configured, so only browser-extension wallets such as
-              MetaMask can connect. Set <code>NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID</code> and
-              rebuild to enable Trust Wallet, Rainbow, and mobile QR sign-in.
-            </Alert>
-          </div>
-        )}
-      </div>
-    );
-  }
+  if (!isConnected) return <ConnectGate />;
 
   return (
-    <div className="space-y-6 py-4">
-      <h1 className="text-3xl font-bold tracking-tight text-white">Your dashboard</h1>
+    <div className="container-page space-y-6 py-8 sm:py-10">
+      <DashboardHeader address={address} user={user} />
 
       <StatusBanners protocol={protocol} user={user} />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="min-w-0 space-y-6 lg:col-span-2">
+      <SummaryGrid user={user} />
+
+      {/* Two columns on desktop; on a phone this collapses to a single stack
+          ordered by what a user actually needs first — position, then money
+          out, then the team. */}
+      <div className="grid gap-5 lg:grid-cols-3 lg:gap-6">
+        <div className="order-1 min-w-0 space-y-5 lg:col-span-2 lg:gap-6">
           {user.active ? (
             <PositionCard user={user} />
           ) : (
@@ -85,8 +95,8 @@ function Dashboard() {
           <ReferralTeam />
         </div>
 
-        <div className="min-w-0 space-y-6">
-          <RewardsCard user={user} onDone={refreshAll} />
+        <div className="order-2 min-w-0 space-y-5">
+          <RewardsCard user={user} protocol={protocol} onDone={refreshAll} />
           <ReferralCard user={user} onDone={refreshAll} />
           <ExitCard user={user} onDone={refreshAll} />
         </div>
@@ -95,6 +105,85 @@ function Dashboard() {
   );
 }
 
+/* ------------------------------------------------------------------ header */
+
+function DashboardHeader({
+  address,
+  user,
+}: {
+  address?: `0x${string}`;
+  user: ReturnType<typeof useUserPosition>;
+}) {
+  const level = Number(user.level ?? 0n);
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="min-w-0">
+        <p className="eyebrow">
+          <span className="h-1.5 w-1.5 rounded-full bg-success-400 shadow-[0_0_10px_2px_rgba(52,211,153,.6)]" />
+          Polygon mainnet
+        </p>
+        <h1 className="h-section mt-3">Dashboard</h1>
+        <p className="mt-2 font-mono text-xs text-graphite-400">{shortAddress(address)}</p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge tone={user.active ? "good" : "neutral"}>
+          {user.active ? "Position active" : "No active position"}
+        </Badge>
+        <Badge tone="brand">{REFERRAL_LEVELS[level].name} tier</Badge>
+      </div>
+    </div>
+  );
+}
+
+function ConnectGate() {
+  return (
+    <div className="container-page py-10 sm:py-16">
+      <div className="glass overflow-hidden">
+        <div className="grid items-center gap-8 p-7 sm:p-10 lg:grid-cols-2 lg:gap-12">
+          <div className="min-w-0">
+            <p className="eyebrow">Wallet required</p>
+            <h1 className="h-section mt-4">Connect to open your dashboard</h1>
+            <p className="mt-3 max-w-md text-[15px] leading-relaxed text-graphite-300">
+              Everything here is read straight from the contract on Polygon — your position, your
+              accrued yield, and your team. Connecting a wallet only lets the page read your
+              address; nothing moves until you sign a transaction.
+            </p>
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <ConnectButton />
+            </div>
+            <ul className="mt-8 space-y-2.5">
+              {[
+                "Your deposit split is shown in full before you sign",
+                "Exit is permissionless — no approval required to leave",
+                "Contract source is verified byte-for-byte on-chain",
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-2.5 text-sm text-graphite-300">
+                  <Icon name="check" className="mt-0.5 h-4 w-4 shrink-0 text-gold-400" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+            {!hasWalletConnect && (
+              <div className="mt-7">
+                <Alert tone="warn" title="Mobile and QR wallet connections are disabled">
+                  No WalletConnect project id is configured, so only browser-extension wallets such
+                  as MetaMask can connect. Set <code>NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID</code> and
+                  rebuild to enable Trust Wallet, Rainbow, and mobile QR sign-in.
+                </Alert>
+              </div>
+            )}
+          </div>
+          <div className="hidden lg:block">
+            <HeroVisual />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ----------------------------------------------------------------- banners */
+
 function StatusBanners({
   protocol,
   user,
@@ -102,6 +191,15 @@ function StatusBanners({
   protocol: ReturnType<typeof useProtocol>;
   user: ReturnType<typeof useUserPosition>;
 }) {
+  const freeLeft =
+    protocol.maxFreeStakes !== undefined && protocol.freeStakeCount !== undefined
+      ? Number(protocol.maxFreeStakes - protocol.freeStakeCount)
+      : undefined;
+
+  const anyBanner =
+    user.blacklisted || protocol.emergencyMode || protocol.paused || protocol.isFreePeriod;
+  if (!anyBanner) return null;
+
   return (
     <div className="space-y-3">
       {user.blacklisted && (
@@ -125,16 +223,82 @@ function StatusBanners({
       {protocol.isFreePeriod && (
         <Alert tone="brand" title="Free-stake period is active">
           During this window a stake must be exactly 10 USDT and is recorded as a free position.
-          Ends in{" "}
-          <Countdown
-            target={Math.floor(Date.now() / 1000) + Number(protocol.freeTimeLeft ?? 0n)}
-          />
-          .
+          {freeLeft !== undefined && (
+            <>
+              {" "}
+              {freeLeft > 0
+                ? `${freeLeft} of ${protocol.maxFreeStakes?.toString()} free places remain.`
+                : "All free places have been taken."}
+            </>
+          )}{" "}
+          Window closes in{" "}
+          <Countdown target={Math.floor(Date.now() / 1000) + Number(protocol.freeTimeLeft ?? 0n)} />.
         </Alert>
       )}
     </div>
   );
 }
+
+/* ------------------------------------------------------------ summary grid */
+
+function SummaryGrid({ user }: { user: ReturnType<typeof useUserPosition> }) {
+  const planIndex = Number(user.plan ?? 0n);
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <StatCard
+        lead
+        label="Staked principal"
+        loading={user.isLoading}
+        value={
+          <>
+            {formatAmount(user.amount)}
+            <span className="ml-1.5 text-base font-semibold text-graphite-400">USDT</span>
+          </>
+        }
+        sub={user.active ? `${PLANS[planIndex].name} plan` : "No active position"}
+        icon={<Icon name="wallet" className="h-5 w-5" />}
+      />
+      <StatCard
+        label="Claimable yield"
+        loading={user.isLoading}
+        value={
+          <>
+            {formatAmount(user.pendingReward, 4)}
+            <span className="ml-1.5 text-base font-semibold text-graphite-400">USDT</span>
+          </>
+        }
+        sub="Accrues every second while the term runs"
+        icon={<Icon name="zap" className="h-5 w-5" />}
+      />
+      <StatCard
+        label="Referral balance"
+        loading={user.isLoading}
+        value={
+          <>
+            {formatAmount(user.refPending, 4)}
+            <span className="ml-1.5 text-base font-semibold text-graphite-400">USDT</span>
+          </>
+        }
+        sub={`${(user.activeReferrals ?? 0n).toString()} active referrals`}
+        icon={<Icon name="users" className="h-5 w-5" />}
+      />
+      <StatCard
+        label="Lifetime claimed"
+        loading={user.isLoading}
+        value={
+          <>
+            {formatAmount(user.totalClaimed)}
+            <span className="ml-1.5 text-base font-semibold text-graphite-400">USDT</span>
+          </>
+        }
+        sub={`${(user.claimCount ?? 0n).toString()} claims made`}
+        icon={<Icon name="arrowDown" className="h-5 w-5" />}
+      />
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------- position */
 
 function PositionCard({ user }: { user: ReturnType<typeof useUserPosition> }) {
   const planIndex = Number(user.plan ?? 0n);
@@ -144,77 +308,153 @@ function PositionCard({ user }: { user: ReturnType<typeof useUserPosition> }) {
   const elapsed = Math.max(0, Math.floor(Date.now() / 1000) - start);
   const progress = Math.min(100, (elapsed / termSeconds) * 100);
   const endsAt = start + termSeconds;
+  const daysElapsed = Math.min(plan.durationDays, Math.floor(elapsed / 86400));
 
   return (
     <Section
       title="Your position"
-      description="Rewards accrue every second and stop at the end of the term."
+      description="Rewards accrue every second and stop at the end of the term. Nothing here is compounded — yield is computed on the principal only."
       action={
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Badge tone="brand">{plan.name}</Badge>
           {user.freeStake && <Badge tone="neutral">Free stake</Badge>}
+          {user.isProtocolWallet && <Badge tone="volt">Protocol wallet</Badge>}
         </div>
       }
     >
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div>
-          <p className="text-sm text-ink-300">Staked principal</p>
-          <p className="mt-1 text-3xl font-bold tracking-tight text-white">
-            {formatAmount(user.amount)}
-            <span className="ml-1 text-base font-medium text-ink-400">USDT</span>
-          </p>
-        </div>
-        <div>
-          <p className="text-sm text-ink-300">Daily rate</p>
-          <p className="mt-1 text-3xl font-bold tracking-tight text-brand-400">
-            {formatBps(Number(user.rate ?? 0n))}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm text-ink-300">Claimed so far</p>
-          <p className="mt-1 text-3xl font-bold tracking-tight text-white">
-            {formatAmount(user.totalClaimed)}
-            <span className="ml-1 text-base font-medium text-ink-400">USDT</span>
-          </p>
-        </div>
-      </div>
+      <div className="grid gap-5 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-8">
+        <TermRing percent={progress} daysElapsed={daysElapsed} totalDays={plan.durationDays} />
 
-      <div className="mt-6">
-        <div className="mb-2 flex justify-between text-sm">
-          <span className="text-ink-300">Term progress</span>
-          <span className="text-ink-200">
-            {Math.floor(elapsed / 86400)} / {plan.durationDays} days
-          </span>
+        <div className="min-w-0 space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[.12em] text-graphite-400">
+                Daily rate
+              </p>
+              <p className="stat-value mt-1.5 text-gold-gradient">
+                {formatBps(Number(user.rate ?? 0n))}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[.12em] text-graphite-400">
+                Projected gross yield
+              </p>
+              <p className="stat-value mt-1.5">
+                {projectedYield(Number(user.amount ?? 0n) / 1e6, planIndex).toLocaleString("en-US", {
+                  maximumFractionDigits: 2,
+                })}
+                <span className="ml-1.5 text-base font-semibold text-graphite-400">USDT</span>
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <Progress value={progress} max={100} />
+            <p className="mt-2.5 text-xs text-graphite-400">
+              {progress >= 100 ? (
+                "Term complete — rewards have stopped accruing."
+              ) : (
+                <>
+                  Accrual ends in <Countdown target={endsAt} />
+                </>
+              )}
+            </p>
+          </div>
         </div>
-        <Progress value={progress} max={100} />
-        <p className="mt-2 text-xs text-ink-400">
-          {progress >= 100 ? (
-            "Term complete — rewards have stopped accruing."
-          ) : (
-            <>
-              Accrual ends in <Countdown target={endsAt} />
-            </>
-          )}
-        </p>
       </div>
 
       <div className="mt-6">
         <Row label="Claims made" value={(user.claimCount ?? 0n).toString()} />
-        <Row
-          label="Projected gross yield over term"
-          value={`${projectedYield(Number(user.amount ?? 0n) / 1e6, planIndex).toLocaleString(
-            "en-US",
-            { maximumFractionDigits: 2 },
-          )} USDT`}
-        />
+        <Row label="Claimed to date" value={`${formatAmount(user.totalClaimed)} USDT`} />
         <Row
           label="Referred by"
           value={user.referrer && user.referrer !== ZERO ? shortAddress(user.referrer) : "—"}
         />
       </div>
+
+      {(user.grossDeposited ?? 0n) > 0n && <DepositLedger user={user} />}
     </Section>
   );
 }
+
+/**
+ * Lifetime deposit reconciliation.
+ *
+ * The platform fee is taken before the stake is recorded, so a user who only
+ * ever sees "staked principal" would have no way to tie that figure back to
+ * what left their wallet. This makes the whole path visible after the fact,
+ * from the same on-chain counters the contract itself keeps.
+ */
+function DepositLedger({ user }: { user: ReturnType<typeof useUserPosition> }) {
+  return (
+    <div className="mt-6 rounded-xl border border-white/[.07] bg-graphite-925/70 p-4 sm:p-5">
+      <p className="text-xs font-medium uppercase tracking-[.12em] text-graphite-400">
+        Your deposit history
+      </p>
+      <div className="mt-3">
+        <Row label="Total sent from your wallet" value={`${formatAmount(user.grossDeposited)} USDT`} />
+        <Row
+          label="Development &amp; promotion fee"
+          value={
+            <span className="text-graphite-300">−{formatAmount(user.platformFeePaid)} USDT</span>
+          }
+        />
+        <Row label="Recorded as your stake" value={`${formatAmount(user.netStaked)} USDT`} />
+      </div>
+    </div>
+  );
+}
+
+/** Circular term-progress indicator. SVG so it stays crisp at any density. */
+function TermRing({
+  percent,
+  daysElapsed,
+  totalDays,
+}: {
+  percent: number;
+  daysElapsed: number;
+  totalDays: number;
+}) {
+  const r = 52;
+  const c = 2 * Math.PI * r;
+  const dash = (Math.min(100, Math.max(0, percent)) / 100) * c;
+
+  return (
+    <div className="relative mx-auto h-[132px] w-[132px] shrink-0 sm:mx-0">
+      <svg viewBox="0 0 132 132" className="h-full w-full -rotate-90">
+        <defs>
+          <linearGradient id="ringGold" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#f4df9c" />
+            <stop offset="50%" stopColor="#e0ad3c" />
+            <stop offset="100%" stopColor="#b3741f" />
+          </linearGradient>
+        </defs>
+        <circle cx="66" cy="66" r={r} fill="none" stroke="rgba(255,255,255,.07)" strokeWidth="8" />
+        <circle
+          cx="66"
+          cy="66"
+          r={r}
+          fill="none"
+          stroke="url(#ringGold)"
+          strokeWidth="8"
+          strokeLinecap="round"
+          strokeDasharray={`${dash} ${c}`}
+          className="transition-all duration-1000 ease-out"
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="font-display text-2xl font-bold tabular-nums text-white">
+          {Math.floor(percent)}%
+        </span>
+        <span className="mt-0.5 text-[11px] text-graphite-400">
+          {daysElapsed}/{totalDays}d
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------- stake */
 
 function StakeCard({
   user,
@@ -238,7 +478,10 @@ function StakeCard({
     }
   }, [amount]);
 
-  const planIndex = planForAmount(amountUnits);
+  const quote = useDepositQuote(amountUnits);
+  // The plan tier is decided by what is actually recorded, not by what was
+  // sent — so the preview has to use the net figure the contract returns.
+  const planIndex = planForAmount(quote.netStake ?? amountUnits);
 
   const approve = useWriteContract();
   const approveReceipt = useWaitForTransactionReceipt({ hash: approve.data });
@@ -249,51 +492,65 @@ function StakeCard({
   const freeMismatch = Boolean(protocol.isFreePeriod) && amountUnits !== MIN_STAKE_UNITS;
   // A free stake never calls transferFrom on-chain — the contract skips it
   // entirely — so neither an allowance nor a wallet balance is required.
-  // (This card only renders when the user has no active stake, so a fresh
-  // free stake is always available while the free period is still open.)
   const isFreeStake = Boolean(protocol.isFreePeriod) && amountUnits === MIN_STAKE_UNITS;
   const insufficient = !isFreeStake && amountUnits > (user.walletBalance ?? 0n);
   const needsApproval = !isFreeStake && (user.allowance ?? 0n) < amountUnits;
+  const freeSlotsGone =
+    isFreeStake &&
+    protocol.freeStakeCount !== undefined &&
+    protocol.maxFreeStakes !== undefined &&
+    protocol.freeStakeCount >= protocol.maxFreeStakes;
 
   const problem = belowMin
-    ? "Minimum stake is 10 USDT."
+    ? "Minimum deposit is 10 USDT."
     : aboveMax
-      ? "Maximum stake is 25,000 USDT."
+      ? "Maximum deposit is 25,000 USDT."
       : freeMismatch
         ? "During the free period a stake must be exactly 10 USDT."
-        : insufficient
-          ? "Amount exceeds your wallet balance."
-          : null;
+        : freeSlotsGone
+          ? "All free-stake places have already been taken."
+          : insufficient
+            ? "Amount exceeds your wallet balance."
+            : null;
 
   return (
     <Section
       title="Open a position"
-      description="Your plan is selected automatically from the amount you stake."
+      description="Your plan tier is selected automatically from the amount recorded as your stake."
     >
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div>
           <label className="label" htmlFor="amount">
-            Amount (USDT)
+            Deposit amount (USDT)
           </label>
-          <input
-            id="amount"
-            className="input"
-            inputMode="decimal"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
-            placeholder="500"
-          />
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <span className="text-ink-400">
-              Wallet balance: {formatAmount(user.walletBalance)} USDT
+          <div className="relative">
+            <input
+              id="amount"
+              className="input pr-16 font-display text-lg font-semibold"
+              inputMode="decimal"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+              placeholder="500"
+            />
+            <button
+              type="button"
+              onClick={() => setAmount(formatUnitsPlain(user.walletBalance))}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg border border-white/10 bg-white/[.04] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-graphite-300 transition hover:border-gold-400/40 hover:text-gold-300"
+            >
+              Max
+            </button>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <span className="text-graphite-400">
+              Wallet: {formatAmount(user.walletBalance)} USDT
             </span>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {PLANS.map((p) => (
                 <button
                   key={p.name}
                   type="button"
                   onClick={() => setAmount(String(p.minStake))}
-                  className="rounded-lg border border-white/10 px-2 py-1 text-ink-300 transition hover:border-brand-400/40 hover:text-brand-300"
+                  className="rounded-lg border border-white/10 px-2.5 py-1 text-graphite-300 transition hover:border-gold-400/40 hover:text-gold-300"
                 >
                   {p.name}
                 </button>
@@ -301,7 +558,7 @@ function StakeCard({
             </div>
           </div>
           {isFreeStake && (
-            <p className="mt-2 text-xs text-brand-400">
+            <p className="mt-2.5 text-xs text-gold-300">
               Free-stake position — no USDT balance or approval needed. One tap below.
             </p>
           )}
@@ -319,42 +576,17 @@ function StakeCard({
             placeholder="0x…"
           />
           {refFromUrl && (
-            <p className="mt-1.5 text-xs text-brand-400">Referral link detected and pre-filled.</p>
+            <p className="mt-1.5 text-xs text-gold-300">Referral link detected and pre-filled.</p>
           )}
         </div>
 
-        {amountUnits >= MIN_STAKE_UNITS && (
-          <div className="rounded-xl border border-white/[.07] bg-ink-950/60 p-4">
-            <p className="text-sm font-medium text-ink-200">
-              You will be placed in the {PLANS[planIndex].name} plan
-            </p>
-            <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
-              <div>
-                <p className="text-ink-400">Daily</p>
-                <p className="font-semibold text-brand-400">
-                  {formatBps(PLANS[planIndex].dailyBps)}
-                </p>
-              </div>
-              <div>
-                <p className="text-ink-400">Term</p>
-                <p className="font-semibold text-ink-200">
-                  {PLANS[planIndex].durationDays} days
-                </p>
-              </div>
-              <div>
-                <p className="text-ink-400">Gross yield</p>
-                <p className="font-semibold text-ink-200">
-                  {projectedYield(Number(amountUnits) / 1e6, planIndex).toLocaleString("en-US", {
-                    maximumFractionDigits: 2,
-                  })}{" "}
-                  USDT
-                </p>
-              </div>
-            </div>
-            <p className="mt-3 text-xs text-ink-400">
-              Before the 10% fee applied to each claim. Early exit before week 5 carries a penalty.
-            </p>
-          </div>
+        {amountUnits >= MIN_STAKE_UNITS && !isFreeStake && (
+          <DepositBreakdown
+            gross={amountUnits}
+            quote={quote}
+            planIndex={planIndex}
+            feeBps={protocol.devFeeBpsTotal}
+          />
         )}
 
         {problem && <Alert tone="warn" title={problem} />}
@@ -377,14 +609,14 @@ function StakeCard({
                 ? "Approving…"
                 : `Approve ${formatAmount(amountUnits)} USDT`}
             </button>
-            <p className="mt-2 text-xs text-ink-400">
-              Step 1 of 2. Approval lets the contract move exactly this amount.
+            <p className="mt-2.5 text-xs text-graphite-400">
+              Step 1 of 2. Approval lets the contract move exactly this amount — no more.
             </p>
             {approveReceipt.isSuccess && (
-              <p className="mt-2 text-sm text-brand-400">Approved — you can stake now.</p>
+              <p className="mt-2 text-sm text-success-400">Approved — you can stake now.</p>
             )}
             {approve.error && (
-              <p className="mt-2 text-sm text-red-400">{approve.error.message.split("\n")[0]}</p>
+              <p className="mt-2 text-sm text-danger-400">{approve.error.message.split("\n")[0]}</p>
             )}
           </div>
         ) : (
@@ -399,7 +631,7 @@ function StakeCard({
                 ])
               }
             >
-              Stake {formatAmount(amountUnits)} USDT
+              Deposit {formatAmount(amountUnits)} USDT
             </button>
             <TxStatus {...stake} />
           </div>
@@ -408,6 +640,114 @@ function StakeCard({
     </Section>
   );
 }
+
+/**
+ * The pre-signature disclosure.
+ *
+ * This panel is the whole reason the deposit fee can be called transparent: it
+ * shows, before the user signs, exactly how much leaves their wallet, how much
+ * the platform keeps, and how much is credited as their stake — all read from
+ * `quoteDeposit` on the contract rather than recomputed here. If it ever
+ * disappears, the fee stops being disclosed and starts being a surprise.
+ */
+function DepositBreakdown({
+  gross,
+  quote,
+  planIndex,
+  feeBps,
+}: {
+  gross: bigint;
+  quote: ReturnType<typeof useDepositQuote>;
+  planIndex: number;
+  feeBps?: bigint;
+}) {
+  const net = quote.netStake;
+  const fee = quote.totalFee;
+  const plan = PLANS[planIndex];
+
+  // Depositing exactly a tier's minimum lands one tier below it, because the
+  // tier is read off the recorded stake. Say so before they sign rather than
+  // letting them discover it in their position card afterwards.
+  const grossPlan = planForAmount(gross);
+  const droppedATier = grossPlan > planIndex;
+  const nextUp = PLANS[planIndex + 1];
+  const netBps = 10000n - (feeBps ?? 1000n);
+  // Round up: a cent short of a threshold is as short as a dollar short.
+  const needed =
+    nextUp && netBps > 0n
+      ? (BigInt(nextUp.minStake) * 1_000000n * 10000n + netBps - 1n) / netBps
+      : 0n;
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-gold-400/20 bg-gold-500/[.04]">
+      <div className="flex items-center gap-2 border-b border-gold-400/15 px-4 py-3">
+        <Icon name="info" className="h-4 w-4 shrink-0 text-gold-400" />
+        <p className="text-sm font-semibold text-gold-100">Before you sign</p>
+      </div>
+
+      <div className="px-4 py-3.5">
+        {quote.isLoading || net === undefined ? (
+          <Skeleton className="h-24 w-full" />
+        ) : (
+          <>
+            <div className="space-y-0">
+              <Row label="Leaves your wallet" value={`${formatAmount(gross)} USDT`} />
+              <Row
+                label={`Development & promotion fee${feeBps ? ` (${formatBps(feeBps)})` : ""}`}
+                value={<span className="text-graphite-300">−{formatAmount(fee, 4)} USDT</span>}
+              />
+              <Row
+                label="Recorded as your stake"
+                value={
+                  <span className="font-semibold text-gold-300">{formatAmount(net, 4)} USDT</span>
+                }
+              />
+            </div>
+
+            <div className="mt-4 grid grid-cols-3 gap-3 rounded-lg border border-white/[.06] bg-graphite-950/50 p-3 text-sm">
+              <div className="min-w-0">
+                <p className="text-xs text-graphite-400">Plan</p>
+                <p className="mt-0.5 truncate font-semibold text-white">{plan.name}</p>
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-graphite-400">Daily</p>
+                <p className="mt-0.5 font-semibold text-gold-300">{formatBps(plan.dailyBps)}</p>
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-graphite-400">Term</p>
+                <p className="mt-0.5 font-semibold text-white">{plan.durationDays}d</p>
+              </div>
+            </div>
+
+            {droppedATier && nextUp && (
+              <p className="mt-3 rounded-lg border border-warn-400/25 bg-warn-500/10 px-3 py-2 text-xs leading-relaxed text-warn-400">
+                {formatAmount(gross)} USDT would reach {PLANS[grossPlan].name} before the fee, but
+                the tier is set by the recorded stake — so this deposit lands in {plan.name}. Deposit{" "}
+                {formatAmount(needed)} USDT to reach {nextUp.name}.
+              </p>
+            )}
+
+            <p className="mt-3 text-xs leading-relaxed text-graphite-400">
+              Yield is calculated on the recorded stake, not on the amount sent, and is simple —
+              never compounded. Each claim carries a separate 10% fee, and exiting before week 5
+              carries a penalty on the principal.
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Plain decimal string with no separators — safe to feed back into the input. */
+function formatUnitsPlain(value: bigint | undefined): string {
+  if (!value) return "0";
+  const whole = value / 1_000000n;
+  const frac = (value % 1_000000n).toString().padStart(6, "0").replace(/0+$/, "");
+  return frac ? `${whole}.${frac}` : whole.toString();
+}
+
+/* ------------------------------------------------------------------ manage */
 
 function ManagePosition({
   user,
@@ -425,6 +765,7 @@ function ManagePosition({
     }
   }, [topUp]);
 
+  const quote = useDepositQuote(topUpUnits);
   const approve = useWriteContract();
   const approveReceipt = useWaitForTransactionReceipt({ hash: approve.data });
   const tx = useContractTx(onDone);
@@ -449,12 +790,12 @@ function ManagePosition({
       title="Manage position"
       description="Add funds to grow your position and unlock higher tiers."
     >
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div>
           <label className="label" htmlFor="topup">
             Top up (USDT)
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <input
               id="topup"
               className="input"
@@ -487,18 +828,25 @@ function ManagePosition({
               </button>
             )}
           </div>
-          <p className="mt-1.5 text-xs text-ink-400">
-            Minimum top-up is 10 USDT. New total must stay under 25,000 USDT.
+          {topUpUnits >= MIN_STAKE_UNITS && quote.netStake !== undefined && (
+            <p className="mt-2.5 text-xs text-graphite-400">
+              {formatAmount(topUpUnits)} USDT leaves your wallet;{" "}
+              <span className="text-gold-300">{formatAmount(quote.netStake, 4)} USDT</span> is added
+              to your stake after the {formatAmount(quote.totalFee, 4)} USDT development fee.
+            </p>
+          )}
+          <p className="mt-1.5 text-xs text-graphite-400">
+            Minimum top-up is 10 USDT. The new total must stay under 25,000 USDT.
           </p>
         </div>
 
-        <div className="rounded-xl border border-white/[.07] bg-ink-950/60 p-4">
+        <div className="rounded-xl border border-white/[.07] bg-graphite-925/70 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium text-ink-200">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-graphite-100">
                 Current plan: {PLANS[currentPlan].name}
               </p>
-              <p className="mt-1 text-xs text-ink-400">
+              <p className="mt-1 text-xs text-graphite-400">
                 {canUpgrade
                   ? `Your balance now qualifies for ${PLANS[eligiblePlan].name} (${formatBps(
                       PLANS[eligiblePlan].dailyBps,
@@ -507,7 +855,7 @@ function ManagePosition({
               </p>
             </div>
             <button
-              className="btn-secondary"
+              className="btn-secondary shrink-0"
               disabled={!canUpgrade || tx.isPending || tx.isConfirming}
               onClick={() => tx.call("upgradePlan")}
             >
@@ -522,31 +870,38 @@ function ManagePosition({
   );
 }
 
+/* ----------------------------------------------------------------- rewards */
+
 function RewardsCard({
   user,
+  protocol,
   onDone,
 }: {
   user: ReturnType<typeof useUserPosition>;
+  protocol: ReturnType<typeof useProtocol>;
   onDone: () => void;
 }) {
   const tx = useContractTx(onDone);
   const pending = user.pendingReward ?? 0n;
-  const fee = (pending * 1000n) / 10000n;
+  const feeBps = protocol.profitFeeBps ?? 1000n;
+  const fee = (pending * feeBps) / 10000n;
 
   return (
     <Section title="Yield rewards">
-      <p className="text-sm text-ink-300">Claimable now</p>
-      <p className="mt-1 text-3xl font-bold tracking-tight text-brand-400">
-        {user.isLoading ? <Skeleton /> : formatAmount(pending, 4)}
-        <span className="ml-1 text-base font-medium text-ink-400">USDT</span>
+      <p className="text-xs font-medium uppercase tracking-[.12em] text-graphite-400">
+        Claimable now
+      </p>
+      <p className="stat-value mt-2 text-gold-gradient">
+        {user.isLoading ? <Skeleton className="h-9 w-32" /> : formatAmount(pending, 4)}
+        <span className="ml-1.5 text-base font-semibold text-graphite-400">USDT</span>
       </p>
       {pending > 0n && (
-        <p className="mt-2 text-xs text-ink-400">
-          You receive {formatAmount(pending - fee, 4)} after the 10% protocol fee.
+        <p className="mt-2 text-xs text-graphite-400">
+          You receive {formatAmount(pending - fee, 4)} USDT after the {formatBps(feeBps)} claim fee.
         </p>
       )}
       <button
-        className="btn-primary mt-4 w-full"
+        className="btn-primary mt-5 w-full"
         disabled={pending === 0n || tx.isPending || tx.isConfirming}
         onClick={() => tx.call("claim")}
       >
@@ -556,6 +911,8 @@ function RewardsCard({
     </Section>
   );
 }
+
+/* ---------------------------------------------------------------- referral */
 
 function ReferralCard({
   user,
@@ -573,15 +930,23 @@ function ReferralCard({
   const link =
     typeof window !== "undefined" ? `${window.location.origin}/dashboard?ref=${user.address}` : "";
 
+  function copy() {
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
     <Section title="Referral rewards" action={<Badge tone="brand">{tier.name}</Badge>}>
-      <p className="text-sm text-ink-300">Claimable now</p>
-      <p className="mt-1 text-3xl font-bold tracking-tight text-brand-400">
+      <p className="text-xs font-medium uppercase tracking-[.12em] text-graphite-400">
+        Claimable now
+      </p>
+      <p className="stat-value mt-2 text-gold-gradient">
         {formatAmount(user.refPending, 4)}
-        <span className="ml-1 text-base font-medium text-ink-400">USDT</span>
+        <span className="ml-1.5 text-base font-semibold text-graphite-400">USDT</span>
       </p>
       <button
-        className="btn-primary mt-4 w-full"
+        className="btn-primary mt-5 w-full"
         disabled={(user.refPending ?? 0n) === 0n || tx.isPending || tx.isConfirming}
         onClick={() => tx.call("claimRef")}
       >
@@ -606,48 +971,41 @@ function ReferralCard({
       </div>
 
       {next && (
-        <p className="mt-3 text-xs text-ink-400">
+        <p className="mt-3 text-xs leading-relaxed text-graphite-400">
           Reach {next.name} with {next.needRefs} active referrals and{" "}
           {next.needStake.toLocaleString("en-US")} USDT staked.
         </p>
       )}
 
       {!user.active && (
-        <Alert tone="warn" title="Your link won't work yet">
-          The contract only credits a referral if you already have an active stake at the moment
-          your friend stakes. Stake first — anyone who used this link before that point was staked
-          normally, but was never linked to you, and that can&apos;t be fixed after the fact.
-        </Alert>
+        <div className="mt-4">
+          <Alert tone="warn" title="Your link won't work yet">
+            The contract only credits a referral if you already have an active stake at the moment
+            your friend stakes. Stake first — anyone who used this link before that point was staked
+            normally, but was never linked to you, and that can&apos;t be fixed after the fact.
+          </Alert>
+        </div>
       )}
 
       <div className="mt-5">
         <p className="label">Your referral link</p>
         <button
           type="button"
+          onClick={copy}
           className="input block w-full overflow-x-auto whitespace-nowrap text-left font-mono text-xs"
-          onClick={() => {
-            navigator.clipboard.writeText(link);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-          }}
         >
           {link}
         </button>
-        <button
-          type="button"
-          className="btn-secondary mt-2 w-full"
-          onClick={() => {
-            navigator.clipboard.writeText(link);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-          }}
-        >
-          {copied ? "Copied ✓" : "Copy link"}
+        <button type="button" className="btn-secondary mt-2 w-full" onClick={copy}>
+          <Icon name={copied ? "check" : "copy"} className="h-4 w-4" />
+          {copied ? "Copied" : "Copy link"}
         </button>
       </div>
     </Section>
   );
 }
+
+/* -------------------------------------------------------------------- exit */
 
 function ExitCard({
   user,
@@ -688,23 +1046,26 @@ function ExitCard({
           <Row label="Principal" value={`${formatAmount(amount)} USDT`} />
           <Row
             label={`Penalty (week ${Math.min(weeksElapsed + 1, 5)})`}
-            value={<span className="text-red-400">−{formatAmount(penalty)} USDT</span>}
+            value={<span className="text-danger-400">−{formatAmount(penalty)} USDT</span>}
           />
-          <Row label="You receive" value={`${formatAmount(returned)} USDT`} />
-          <p className="mt-3 text-xs text-ink-400">
+          <Row
+            label="You receive"
+            value={<span className="font-semibold text-white">{formatAmount(returned)} USDT</span>}
+          />
+          <p className="mt-3 text-xs leading-relaxed text-graphite-400">
             The penalty drops each week and reaches its 10% floor from week 5. Unclaimed yield is
             forfeited — claim before exiting.
           </p>
           {confirm ? (
             <div className="mt-4 space-y-2">
               <button
-                className="btn-primary w-full bg-red-500 hover:bg-red-400"
+                className="btn-danger w-full"
                 disabled={tx.isPending || tx.isConfirming}
                 onClick={() => tx.call("earlyExit")}
               >
                 Confirm exit — receive {formatAmount(returned)} USDT
               </button>
-              <button className="btn-secondary w-full" onClick={() => setConfirm(false)}>
+              <button className="btn-ghost w-full" onClick={() => setConfirm(false)}>
                 Cancel
               </button>
             </div>
@@ -720,6 +1081,8 @@ function ExitCard({
   );
 }
 
+/* -------------------------------------------------------------------- team */
+
 function ReferralTeam() {
   const { referrals, isLoading } = useReferralTree();
   const totalStaked = referrals.reduce((sum, r) => sum + r.amount, 0n);
@@ -730,7 +1093,9 @@ function ReferralTeam() {
       description="Every direct referral and the position they hold — pulled live from the contract, not a spreadsheet."
       action={
         referrals.length > 0 ? (
-          <Badge tone="neutral">{referrals.length} member{referrals.length === 1 ? "" : "s"}</Badge>
+          <Badge tone="neutral">
+            {referrals.length} member{referrals.length === 1 ? "" : "s"}
+          </Badge>
         ) : undefined
       }
     >
@@ -743,35 +1108,72 @@ function ReferralTeam() {
         />
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[28rem] text-left text-sm">
-              <thead className="text-ink-300">
+          {/* Cards on a phone, a table from sm up. A three-column table on a
+              360px screen is a horizontal scrollbar pretending to be a layout. */}
+          <ul className="space-y-2.5 sm:hidden">
+            {referrals.map((r) => (
+              <li
+                key={r.address}
+                className="flex items-center justify-between gap-3 rounded-xl border border-white/[.06] bg-white/[.02] px-3.5 py-3"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-mono text-xs text-graphite-200">
+                    {shortAddress(r.address)}
+                  </p>
+                  <p className="mt-1.5">
+                    {r.amount > 0n ? (
+                      <Badge tone="brand">{PLANS[r.plan]?.name ?? "—"}</Badge>
+                    ) : (
+                      <Badge tone="neutral">inactive</Badge>
+                    )}
+                  </p>
+                </div>
+                <p className="shrink-0 text-right text-sm font-semibold tabular-nums text-white">
+                  {formatAmount(r.amount)}
+                  <span className="ml-1 text-xs font-normal text-graphite-400">USDT</span>
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden overflow-x-auto sm:block">
+            <table className="w-full text-left text-sm">
+              <thead>
                 <tr className="border-b border-white/[.07]">
-                  <th className="py-2.5 font-medium">Address</th>
-                  <th className="py-2.5 font-medium">Plan</th>
-                  <th className="py-2.5 text-right font-medium">Staked</th>
+                  <th className="py-2.5 text-xs font-medium uppercase tracking-[.1em] text-graphite-400">
+                    Address
+                  </th>
+                  <th className="py-2.5 text-xs font-medium uppercase tracking-[.1em] text-graphite-400">
+                    Plan
+                  </th>
+                  <th className="py-2.5 text-right text-xs font-medium uppercase tracking-[.1em] text-graphite-400">
+                    Staked
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {referrals.map((r) => (
-                  <tr key={r.address} className="border-b border-white/[.06]">
-                    <td className="py-2.5 font-mono text-xs text-ink-200">
+                  <tr key={r.address} className="border-b border-white/[.05] transition hover:bg-white/[.02]">
+                    <td className="py-3 font-mono text-xs text-graphite-200">
                       {shortAddress(r.address)}
                     </td>
-                    <td className="py-2.5">
+                    <td className="py-3">
                       {r.amount > 0n ? (
                         <Badge tone="brand">{PLANS[r.plan]?.name ?? "—"}</Badge>
                       ) : (
                         <Badge tone="neutral">inactive</Badge>
                       )}
                     </td>
-                    <td className="py-2.5 text-right text-ink-200">{formatAmount(r.amount)} USDT</td>
+                    <td className="py-3 text-right tabular-nums text-graphite-100">
+                      {formatAmount(r.amount)} USDT
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-xs text-ink-400">
+
+          <p className="mt-4 text-xs text-graphite-400">
             {formatAmount(totalStaked)} USDT combined, currently staked by your direct team.
           </p>
         </>

@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAccount, usePublicClient } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { EarningsChart, type Point } from "@/components/EarningsChart";
-import { Alert, Badge, EmptyState, Progress, Section, Skeleton } from "@/components/ui";
+import { Alert, Badge, EmptyState, Progress, Section, Skeleton, StatCard } from "@/components/ui";
+import { Icon } from "@/components/Icon";
 import { useUserPosition, useProtocol } from "@/lib/hooks";
 import { fetchLogsWithFallback } from "@/lib/logs";
 import {
@@ -41,13 +42,19 @@ export default function PortfolioPage() {
 
   if (!isConnected) {
     return (
-      <div className="py-24 text-center">
-        <h1 className="font-display text-3xl font-bold tracking-tight text-white">Portfolio</h1>
-        <p className="mx-auto mt-3 max-w-md text-ink-300">
-          Connect your wallet to see your positions, earnings and full transaction history.
-        </p>
-        <div className="mt-8 flex justify-center">
-          <ConnectButton />
+      <div className="container-page py-20 sm:py-28">
+        <div className="glass mx-auto max-w-lg p-8 text-center sm:p-10">
+          <span className="mx-auto grid h-12 w-12 place-items-center rounded-xl border border-white/10 bg-white/[.04] text-gold-400">
+            <Icon name="chart" className="h-6 w-6" />
+          </span>
+          <h1 className="h-section mt-5">Portfolio</h1>
+          <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-graphite-300">
+            Connect your wallet to see your positions, earnings and full transaction history —
+            reconstructed from on-chain events, not from a database.
+          </p>
+          <div className="mt-7 flex justify-center">
+            <ConnectButton />
+          </div>
         </div>
       </div>
     );
@@ -187,13 +194,14 @@ function Portfolio() {
   const claimableNow = (user.pendingReward ?? 0n) + (user.refPending ?? 0n);
 
   return (
-    <div className="space-y-8 py-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <span className="eyebrow">Portfolio</span>
-          <h1 className="mt-4 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            Your position
-          </h1>
+    <div className="container-page space-y-6 py-8 sm:py-10">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0">
+          <span className="eyebrow">
+            <Icon name="chart" className="h-3.5 w-3.5" />
+            Portfolio
+          </span>
+          <h1 className="h-section mt-4">Your position</h1>
         </div>
         <div className="flex flex-wrap gap-2">
           {user.active ? <Badge tone="good">Active</Badge> : <Badge tone="neutral">No position</Badge>}
@@ -209,11 +217,12 @@ function Portfolio() {
       )}
 
       {/* Headline figures */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
           label="Claimable now"
           value={claimableNow}
           sub="Yield + referral, ready to withdraw"
+          icon="zap"
           lead
           loading={user.isLoading}
         />
@@ -221,65 +230,88 @@ function Portfolio() {
           label="Staked principal"
           value={user.amount}
           sub={user.active ? `${plan.name} · ${formatBps(Number(user.rate ?? 0n))}/day` : "No active stake"}
+          icon="wallet"
           loading={user.isLoading}
         />
         <Stat
           label="Total earned"
           value={totalEarned}
           sub="Lifetime, across both sources"
+          icon="arrowDown"
           loading={user.isLoading}
         />
         <Stat
           label="Team volume"
           value={user.teamVolume}
           sub={`${(user.activeReferrals ?? 0n).toString()} active referrals`}
+          icon="users"
           loading={user.isLoading}
         />
       </div>
 
+      {(user.grossDeposited ?? 0n) > 0n && (
+        <Section
+          title="Deposit reconciliation"
+          description="What left your wallet, what the platform charged, and what the contract recorded as your stake — all from the contract's own counters."
+        >
+          <div className="grid gap-4 sm:grid-cols-3">
+            {[
+              { label: "Sent from your wallet", value: user.grossDeposited, tone: "" },
+              { label: "Development & promotion fee", value: user.platformFeePaid, tone: "text-graphite-300" },
+              { label: "Recorded as your stake", value: user.netStaked, tone: "text-gold-gradient" },
+            ].map((r) => (
+              <div key={r.label} className="rounded-xl border border-white/[.06] bg-white/[.02] p-4">
+                <p className="text-xs font-medium uppercase tracking-[.12em] text-graphite-400">
+                  {r.label}
+                </p>
+                <p className="mt-2 font-display text-2xl font-bold tabular-nums text-white">
+                  <span className={r.tone}>{formatAmount(r.value)}</span>
+                  <span className="ml-1.5 text-sm font-semibold text-graphite-400">USDT</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
       {/* Position detail */}
       {user.active && (
         <Section title="Position detail" description="Everything the contract records about this stake.">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[44rem] text-left text-sm">
-              <thead>
-                <tr className="border-b border-white/[.07] text-xs uppercase tracking-wider text-ink-400">
-                  <th className="py-3 font-medium">Plan</th>
-                  <th className="py-3 font-medium">Principal</th>
-                  <th className="py-3 font-medium">Rate</th>
-                  <th className="py-3 font-medium">Term</th>
-                  <th className="py-3 font-medium">Claimed</th>
-                  <th className="py-3 text-right font-medium">Accruing now</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="py-4">
-                    <span className="font-display font-semibold text-white">{plan.name}</span>
-                    {user.freeStake && <span className="ml-2 text-xs text-ink-400">free</span>}
-                  </td>
-                  <td className="py-4 tabular-nums text-ink-100">{formatAmount(user.amount)}</td>
-                  <td className="py-4 tabular-nums text-brand-300">
-                    {formatBps(Number(user.rate ?? 0n))}
-                  </td>
-                  <td className="w-52 py-4">
-                    <div className="flex items-center gap-3">
-                      <Progress value={progress} max={100} />
-                      <span className="shrink-0 text-xs tabular-nums text-ink-400">
-                        {Math.floor(elapsed / 86400)}/{plan.durationDays}d
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-4 tabular-nums text-ink-200">
-                    {formatAmount(user.totalClaimed)}
-                  </td>
-                  <td className="py-4 text-right font-semibold tabular-nums text-brand-300">
-                    {formatAmount(user.pendingReward, 4)}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          {/* A single-row table is a table only by habit. As a field grid it
+              reflows at every width instead of forcing a scrollbar on a phone. */}
+          <dl className="grid gap-x-6 gap-y-5 sm:grid-cols-3 xl:grid-cols-5">
+            <Field label="Plan">
+              <span className="font-display font-semibold text-white">{plan.name}</span>
+              {user.freeStake && <span className="ml-2 text-xs text-graphite-400">free</span>}
+            </Field>
+            <Field label="Principal">
+              <span className="tabular-nums text-graphite-50">{formatAmount(user.amount)} USDT</span>
+            </Field>
+            <Field label="Daily rate">
+              <span className="tabular-nums text-gold-300">{formatBps(Number(user.rate ?? 0n))}</span>
+            </Field>
+            <Field label="Claimed to date">
+              <span className="tabular-nums text-graphite-50">
+                {formatAmount(user.totalClaimed)} USDT
+              </span>
+            </Field>
+            <Field label="Accruing now">
+              <span className="font-semibold tabular-nums text-gold-300">
+                {formatAmount(user.pendingReward, 4)} USDT
+              </span>
+            </Field>
+            <div className="sm:col-span-3 xl:col-span-5">
+              <div className="mb-2 flex items-baseline justify-between gap-3">
+                <span className="text-xs font-medium uppercase tracking-[.12em] text-graphite-400">
+                  Term progress
+                </span>
+                <span className="text-xs tabular-nums text-graphite-400">
+                  {Math.floor(elapsed / 86400)}/{plan.durationDays} days
+                </span>
+              </div>
+              <Progress value={progress} max={100} />
+            </div>
+          </dl>
         </Section>
       )}
 
@@ -306,14 +338,14 @@ function Portfolio() {
         description="Every action you have taken, decoded from on-chain events."
       >
         {reduced && (
-          <div className="mb-4 rounded-xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+          <div className="mb-4 rounded-xl border border-warn-400/25 bg-warn-500/10 px-4 py-3 text-sm text-warn-400">
             This RPC endpoint does not serve deep history, so only the last ~20 minutes is shown.
             Point NEXT_PUBLIC_POLYGON_RPC_URL at an archive-capable provider for the full window.
           </div>
         )}
 
         {historyError ? (
-          <div className="rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <div className="rounded-xl border border-danger-400/25 bg-danger-500/10 px-4 py-3 text-sm text-danger-400">
             {historyError}
           </div>
         ) : loadingHistory ? (
@@ -328,10 +360,48 @@ function Portfolio() {
             hint="Your stakes, top-ups and claims will appear here as they happen."
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[40rem] text-left text-sm">
+          <>
+          {/* Phones get a card list. A five-column table at 360px is a
+              horizontal scrollbar wearing a layout as a disguise. */}
+          <ul className="space-y-2.5 lg:hidden">
+            {history.map((r) => (
+              <li key={r.key} className="rounded-xl border border-white/[.06] bg-white/[.02] p-3.5">
+                <div className="flex items-start justify-between gap-3">
+                  <Badge tone={KIND_TONE[r.kind] ?? "neutral"}>{r.kind}</Badge>
+                  <span className="shrink-0 text-right font-semibold tabular-nums text-white">
+                    {formatAmount(r.amount)}
+                    <span className="ml-1 text-xs font-normal text-graphite-400">USDT</span>
+                  </span>
+                </div>
+                <p className="mt-2.5 text-sm text-graphite-300">{r.detail}</p>
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs tabular-nums text-graphite-400">
+                    {r.time
+                      ? new Date(r.time * 1000).toLocaleString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : `block ${r.block}`}
+                  </span>
+                  <a
+                    className="font-mono text-xs text-volt-400 underline underline-offset-4 hover:text-volt-300"
+                    href={`${EXPLORER}/tx/${r.hash}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {r.hash.slice(0, 10)}…
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden overflow-x-auto lg:block">
+            <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-white/[.07] text-xs uppercase tracking-wider text-ink-400">
+                <tr className="border-b border-white/[.07] text-xs uppercase tracking-wider text-graphite-400">
                   <th className="py-3 font-medium">Action</th>
                   <th className="py-3 font-medium">Detail</th>
                   <th className="py-3 font-medium">When</th>
@@ -348,8 +418,8 @@ function Portfolio() {
                     <td className="py-3.5">
                       <Badge tone={KIND_TONE[r.kind] ?? "neutral"}>{r.kind}</Badge>
                     </td>
-                    <td className="py-3.5 text-ink-300">{r.detail}</td>
-                    <td className="py-3.5 tabular-nums text-ink-400">
+                    <td className="py-3.5 text-graphite-300">{r.detail}</td>
+                    <td className="py-3.5 tabular-nums text-graphite-400">
                       {r.time ? new Date(r.time * 1000).toLocaleString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -362,7 +432,7 @@ function Portfolio() {
                     </td>
                     <td className="py-3.5 text-right">
                       <a
-                        className="font-mono text-xs text-brand-400 underline underline-offset-4 hover:text-brand-300"
+                        className="font-mono text-xs text-volt-400 underline underline-offset-4 hover:text-volt-300"
                         href={`${EXPLORER}/tx/${r.hash}`}
                         target="_blank"
                         rel="noreferrer"
@@ -375,8 +445,18 @@ function Portfolio() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </Section>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-xs font-medium uppercase tracking-[.12em] text-graphite-400">{label}</dt>
+      <dd className="mt-1.5 text-[15px]">{children}</dd>
     </div>
   );
 }
@@ -387,29 +467,28 @@ function Stat({
   sub,
   lead,
   loading,
+  icon,
 }: {
   label: string;
   value: bigint | undefined;
   sub: string;
   lead?: boolean;
   loading?: boolean;
+  icon: "zap" | "wallet" | "arrowDown" | "users";
 }) {
   return (
-    <div
-      className={`card card-hover ${lead ? "bg-gradient-to-br from-brand-900/30 to-ink-900/70" : ""}`}
-    >
-      <p className="text-sm text-ink-300">{label}</p>
-      <p className="stat-value mt-2">
-        {loading ? (
-          <Skeleton className="h-9 w-28" />
-        ) : (
-          <>
-            <span className={lead ? "text-gradient-brand" : ""}>{formatAmount(value)}</span>
-            <span className="ml-1.5 text-base font-medium text-ink-400">USDT</span>
-          </>
-        )}
-      </p>
-      <p className="mt-2 text-xs text-ink-400">{sub}</p>
-    </div>
+    <StatCard
+      label={label}
+      lead={lead}
+      loading={loading}
+      sub={sub}
+      icon={<Icon name={icon} className="h-5 w-5" />}
+      value={
+        <>
+          {formatAmount(value)}
+          <span className="ml-1.5 text-base font-semibold text-graphite-400">USDT</span>
+        </>
+      }
+    />
   );
 }

@@ -19,6 +19,12 @@ const TRACKED = [
   "ArbitrageRedeemed",
   "ArbitrageProfitAccrued",
   "ProfitFeeCharged",
+  "SwappedToArbitrageToken",
+  "SwappedFromArbitrageToken",
+  "DevelopmentFeeCharged",
+  "DevelopmentFeeWithdrawn",
+  "StakeMigrated",
+  "StakeGranted",
   "PartnerAdded",
   "PartnerRemoved",
   "EmergencyVoted",
@@ -61,12 +67,22 @@ type RawLog = {
   logIndex: number | null;
 };
 
-const TONE: Record<string, "neutral" | "good" | "warn" | "bad" | "brand"> = {
+const TONE: Record<string, "neutral" | "good" | "warn" | "bad" | "brand" | "volt"> = {
   Staked: "good",
   ToppedUp: "good",
+  StakeMigrated: "volt",
+  StakeGranted: "volt",
   PlanUpgraded: "brand",
   Claimed: "brand",
   ReferralClaimed: "brand",
+  DevelopmentFeeCharged: "neutral",
+  DevelopmentFeeWithdrawn: "neutral",
+  SwappedToArbitrageToken: "volt",
+  SwappedFromArbitrageToken: "volt",
+  ArbitrageSplitExecuted: "volt",
+  ArbitrageMergeExecuted: "volt",
+  ArbitrageRedeemed: "volt",
+  ArbitrageProfitAccrued: "good",
   EarlyExited: "warn",
   EmergencyWithdrawn: "warn",
   EmergencyVoted: "warn",
@@ -196,14 +212,20 @@ export default function ActivityPage() {
     if (filter === "staking")
       return ["Staked", "ToppedUp", "PlanUpgraded", "Claimed", "ReferralClaimed", "EarlyExited", "EmergencyWithdrawn"].includes(e.name);
     if (filter === "governance") return e.name.includes("Emergency") || e.name.includes("Rescue") || e.name.includes("Partner");
-    return e.name.includes("Arbitrage") || e.name.includes("Profit");
+    return (
+      e.name.includes("Arbitrage") || e.name.includes("Profit") || e.name.includes("Swapped")
+    );
   });
 
   return (
-    <div className="space-y-6 py-4">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Activity</h1>
-        <p className="mt-2 max-w-3xl text-ink-300">
+    <div className="container-page space-y-6 py-8 sm:py-10">
+      <div className="min-w-0">
+        <span className="eyebrow">
+          <span className="h-1.5 w-1.5 rounded-full bg-volt-400" />
+          On-chain feed
+        </span>
+        <h1 className="h-section mt-4">Activity</h1>
+        <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-graphite-300">
           Every protocol action, decoded straight from on-chain events. Nothing here is written by a
           server — it is what the contract emitted.
         </p>
@@ -223,10 +245,10 @@ export default function ActivityPage() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded-lg border px-3 py-1.5 text-sm capitalize transition ${
+              className={`rounded-lg border px-3.5 py-1.5 text-sm font-medium capitalize transition ${
                 filter === f
-                  ? "border-brand-600 bg-brand-950/60 text-brand-300"
-                  : "border-white/10 text-ink-300 hover:text-ink-200"
+                  ? "border-gold-400/40 bg-gold-500/10 text-gold-300"
+                  : "border-white/10 bg-white/[.02] text-graphite-300 hover:border-white/20 hover:text-white"
               }`}
             >
               {f}
@@ -235,9 +257,9 @@ export default function ActivityPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-900 bg-red-950/60 px-4 py-3 text-sm text-red-300">
+          <div className="rounded-xl border border-danger-400/25 bg-danger-500/10 px-4 py-3 text-sm text-danger-400">
             {error}
-            <p className="mt-1 text-red-400/80">
+            <p className="mt-1 opacity-80">
               Public RPC endpoints often limit log queries. Set NEXT_PUBLIC_POLYGON_RPC_URL to a
               private provider for a reliable feed.
             </p>
@@ -245,7 +267,7 @@ export default function ActivityPage() {
         )}
 
         {partial && !error && (
-          <div className="mb-4 rounded-xl border border-amber-800 bg-amber-950/60 px-4 py-3 text-sm text-amber-300">
+          <div className="mb-4 rounded-xl border border-warn-400/25 bg-warn-500/10 px-4 py-3 text-sm text-warn-400">
             This RPC endpoint does not serve deep history, so only the last ~20 minutes of
             activity is shown. Point NEXT_PUBLIC_POLYGON_RPC_URL at an archive-capable provider
             for the full three-day window.
@@ -264,27 +286,27 @@ export default function ActivityPage() {
             hint="Once the contract is live and transactions land, they appear here automatically."
           />
         ) : (
-          <div className="space-y-2">
+          <ul className="space-y-2">
             {shown.slice(0, 100).map((e) => (
-              <div
+              <li
                 key={e.key}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/[.07] px-4 py-3"
+                className="flex flex-col gap-2 rounded-xl border border-white/[.06] bg-white/[.02] px-4 py-3 transition hover:border-white/[.12] sm:flex-row sm:items-center sm:justify-between sm:gap-4"
               >
-                <div className="flex min-w-0 items-center gap-3">
+                <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
                   <Badge tone={TONE[e.name] ?? "neutral"}>{humanName(e.name)}</Badge>
-                  <span className="truncate text-sm text-ink-300">{describe(e)}</span>
+                  <span className="min-w-0 break-words text-sm text-graphite-300">{describe(e)}</span>
                 </div>
                 <a
-                  className="shrink-0 font-mono text-xs text-brand-400 underline underline-offset-2"
+                  className="shrink-0 font-mono text-xs text-volt-400 underline underline-offset-2 hover:text-volt-300"
                   href={`${EXPLORER}/tx/${e.hash}`}
                   target="_blank"
                   rel="noreferrer"
                 >
                   block {e.block.toString()}
                 </a>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </Section>
     </div>
@@ -325,6 +347,28 @@ function describe(e: Entry): string {
       } USDT`;
     case "ArbitrageProfitAccrued":
       return `${amount} USDT of realized profit credited to the pool`;
+    case "SwappedToArbitrageToken":
+      return `${
+        typeof a.collateralIn === "bigint" ? formatAmount(a.collateralIn) : "—"
+      } USDT swapped into the strategy's settlement token`;
+    case "SwappedFromArbitrageToken":
+      return `${
+        typeof a.collateralOut === "bigint" ? formatAmount(a.collateralOut) : "—"
+      } USDT swapped back into the pool`;
+    case "DevelopmentFeeCharged":
+      return `${user} deposited ${
+        typeof a.grossAmount === "bigint" ? formatAmount(a.grossAmount) : "—"
+      } USDT — ${
+        typeof a.netStake === "bigint" ? formatAmount(a.netStake) : "—"
+      } recorded as stake after the development fee`;
+    case "DevelopmentFeeWithdrawn":
+      return `${amount} USDT of collected development fees withdrawn to wallet ${String(
+        a.budget ?? "",
+      )}`;
+    case "StakeMigrated":
+      return `${user} migrated a ${amount} USDT position from the previous contract`;
+    case "StakeGranted":
+      return `${user} received a funded ${amount} USDT promotional position`;
     case "ProfitFeeCharged":
       return `Performance fee of ${
         typeof a.feeAmount === "bigint" ? formatAmount(a.feeAmount) : "—"
@@ -339,11 +383,11 @@ function describe(e: Entry): string {
     case "EmergencyVoteRevoked":
       return `${shortAddress(String(a.voter))} revoked their vote`;
     case "EmergencyActivated":
-      return "Emergency mode activated — withdrawals open in 2 days";
+      return "Emergency mode activated — penalty-free withdrawals open in 12 hours";
     case "EmergencyCancelled":
       return "Emergency cancelled — vote fell below quorum";
     case "RescueInitiated":
-      return "Rescue armed — executable in 7 days";
+      return "Rescue armed — executable after a 48-hour delay";
     case "RescueExecuted":
       return `${amount} USDT swept to the recovery wallet`;
     case "EmergencyPaused":

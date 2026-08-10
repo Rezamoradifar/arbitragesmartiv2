@@ -1,12 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useContractTx, TxStatus } from "@/components/TxButton";
 import { AddressLink, Alert, Badge, Countdown, Row, Section } from "@/components/ui";
 import { useGovernance, useProtocol } from "@/lib/hooks";
-import { formatAmount, formatBps, parseUnits6 } from "@/lib/contract";
+import {
+  CONTRACT_ABI,
+  CONTRACT_ADDRESS,
+  formatAmount,
+  formatBps,
+  parseUnits6,
+} from "@/lib/contract";
 
 export default function AdminPage() {
   const { isConnected } = useAccount();
@@ -20,13 +26,15 @@ export default function AdminPage() {
 
   if (!isConnected) {
     return (
-      <div className="py-20 text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Owner console</h1>
-        <p className="mx-auto mt-3 max-w-md text-ink-300">
-          Connect the owner wallet to manage the protocol.
-        </p>
-        <div className="mt-8 flex justify-center">
-          <ConnectButton />
+      <div className="container-page py-20 sm:py-28">
+        <div className="glass mx-auto max-w-lg p-8 text-center sm:p-10">
+          <h1 className="h-section">Owner console</h1>
+          <p className="mx-auto mt-3 max-w-sm text-[15px] text-graphite-300">
+            Connect the owner wallet to manage the protocol.
+          </p>
+          <div className="mt-7 flex justify-center">
+            <ConnectButton />
+          </div>
         </div>
       </div>
     );
@@ -34,8 +42,8 @@ export default function AdminPage() {
 
   if (!gov.isOwner) {
     return (
-      <div className="space-y-6 py-4">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Owner console</h1>
+      <div className="container-page space-y-6 py-10">
+        <h1 className="h-section">Owner console</h1>
         <Alert tone="neutral" title="This wallet is not the contract owner">
           The owner is <AddressLink address={gov.owner} />. Every action on this page is gated
           on-chain, so a non-owner wallet cannot change anything here regardless of what the
@@ -46,9 +54,9 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="space-y-6 py-4">
+    <div className="container-page space-y-6 py-8 sm:py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Owner console</h1>
+        <h1 className="h-section">Owner console</h1>
         <div className="flex gap-2">
           {protocol.emergencyMode && <Badge tone="bad">Emergency mode</Badge>}
           {protocol.paused ? <Badge tone="warn">Paused</Badge> : <Badge tone="good">Live</Badge>}
@@ -75,7 +83,16 @@ export default function AdminPage() {
         <BlacklistAdmin onDone={refresh} />
       </div>
 
+      <DevelopmentFeeAdmin protocol={protocol} onDone={refresh} />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <MigrationAdmin protocol={protocol} onDone={refresh} />
+        <GrantAdmin protocol={protocol} onDone={refresh} />
+      </div>
+
       <ArbitrageAdmin protocol={protocol} onDone={refresh} />
+
+      <SwapAdmin protocol={protocol} onDone={refresh} />
     </div>
   );
 }
@@ -113,7 +130,7 @@ function PauseControls({
         </button>
       </div>
       {emergencyMode && (
-        <p className="mt-3 text-xs text-amber-400">
+        <p className="mt-3 text-xs text-warn-400">
           Unpause is blocked while emergency mode is active — otherwise the owner could close the
           stakers&apos; escape hatch.
         </p>
@@ -172,12 +189,12 @@ function PartnerAdmin({
               Add
             </button>
           </div>
-          {full && <p className="mt-1.5 text-xs text-amber-400">All partner slots are filled.</p>}
+          {full && <p className="mt-1.5 text-xs text-warn-400">All partner slots are filled.</p>}
         </div>
 
         <div className="mt-5 space-y-2">
           {partners.length === 0 ? (
-            <p className="text-sm text-ink-400">No partners registered yet.</p>
+            <p className="text-sm text-graphite-400">No partners registered yet.</p>
           ) : (
             partners.map((p, i) => (
               <div
@@ -186,7 +203,7 @@ function PartnerAdmin({
               >
                 <AddressLink address={p} />
                 <button
-                  className="text-xs text-red-400 hover:text-red-300"
+                  className="text-xs text-danger-400 hover:text-danger-400/80"
                   disabled={tx.isPending || tx.isConfirming}
                   onClick={() => tx.call("removePartner", [BigInt(i)])}
                 >
@@ -198,7 +215,7 @@ function PartnerAdmin({
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-ink-400">
+      <p className="mt-4 text-xs text-graphite-400">
         Removal uses swap-and-pop, so the remaining partners may change index. The list above always
         reflects current on-chain order.
       </p>
@@ -237,7 +254,7 @@ function RescueAdmin({
           label="Executable"
           value={
             gov.rescueReady ? (
-              <span className="text-amber-400">Ready</span>
+              <span className="text-warn-400">Ready</span>
             ) : (
               <Countdown target={gov.rescueExecutableAt} prefix="in" />
             )
@@ -266,7 +283,7 @@ function RescueAdmin({
           </button>
         </div>
         {votesPending && (
-          <p className="mt-1.5 text-xs text-amber-400">
+          <p className="mt-1.5 text-xs text-warn-400">
             Frozen while rescue votes are outstanding — the destination cannot be changed under a
             vote already cast.
           </p>
@@ -274,13 +291,13 @@ function RescueAdmin({
       </div>
 
       <button
-        className="btn-primary mt-4 w-full bg-amber-500 hover:bg-amber-400"
+        className="btn-danger mt-4 w-full"
         disabled={!gov.rescueReady || tx.isPending || tx.isConfirming}
         onClick={() => tx.call("executeRescue")}
       >
         Execute rescue — sweep {formatAmount(protocol.balance)} USDT
       </button>
-      <p className="mt-2 text-xs text-ink-400">
+      <p className="mt-2 text-xs text-graphite-400">
         Requires partner quorum plus the full 48-hour delay. Stakers&apos; own no-penalty withdrawals
         open 36 hours earlier.
       </p>
@@ -371,7 +388,7 @@ function WalletAdmin({
             </button>
           </div>
           {feeBps && Number(feeBps) > 2000 && (
-            <p className="mt-1.5 text-xs text-red-400">
+            <p className="mt-1.5 text-xs text-danger-400">
               The contract hard-caps this at 2000 (20%); the transaction would revert.
             </p>
           )}
@@ -414,9 +431,391 @@ function BlacklistAdmin({ onDone }: { onDone: () => void }) {
           Unblock
         </button>
       </div>
-      <p className="mt-3 text-xs text-ink-400">
+      <p className="mt-3 text-xs text-graphite-400">
         A blocked address keeps access to early exit and emergency withdrawal, so principal is never
         trapped. Unclaimed yield is inaccessible while blocked.
+      </p>
+      <TxStatus {...tx} />
+    </Section>
+  );
+}
+
+/**
+ * Development-fee treasury.
+ *
+ * Deliberately shows collected / withdrawn / available rather than a bare
+ * "withdraw" button: the contract tracks each budget separately, and an owner
+ * who cannot see the remaining balance is an owner who will try to withdraw
+ * more than exists and get a revert instead of an answer.
+ */
+function DevelopmentFeeAdmin({
+  protocol,
+  onDone,
+}: {
+  protocol: ReturnType<typeof useProtocol>;
+  onDone: () => void;
+}) {
+  const [amount1, setAmount1] = useState("");
+  const [amount2, setAmount2] = useState("");
+  const [wallet, setWallet] = useState("");
+  const [walletBudget, setWalletBudget] = useState<1 | 2>(1);
+  const tx = useContractTx(onDone);
+
+  const budgets = [
+    { n: 1 as const, amount: amount1, setAmount: setAmount1, bps: protocol.devFeeBps1 },
+    { n: 2 as const, amount: amount2, setAmount: setAmount2, bps: protocol.devFeeBps2 },
+  ];
+
+  return (
+    <Section
+      title="Development & promotion fees"
+      description="Fees already charged on deposits and disclosed to the depositor at signing time. This balance is held apart from pool capital and is excluded from totalAssets()."
+      action={<Badge tone="brand">{formatAmount(protocol.developmentFeeBalance)} USDT held</Badge>}
+    >
+      <div className="grid gap-5 sm:grid-cols-2">
+        {budgets.map((b) => (
+          <div key={b.n} className="rounded-xl border border-white/[.07] bg-graphite-925/70 p-4">
+            <div className="flex items-baseline justify-between gap-2">
+              <p className="font-display text-sm font-semibold text-white">Budget {b.n}</p>
+              {b.bps !== undefined && (
+                <span className="text-xs text-graphite-400">{formatBps(b.bps)} of each deposit</span>
+              )}
+            </div>
+            <div className="mt-2">
+              <BudgetTotals budget={b.n} />
+            </div>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <input
+                className="input"
+                inputMode="decimal"
+                placeholder="0.00"
+                value={b.amount}
+                onChange={(e) => b.setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+                aria-label={`Withdraw amount from budget ${b.n}`}
+              />
+              <button
+                className="btn-secondary shrink-0"
+                disabled={!b.amount || Number(b.amount) <= 0 || tx.isPending || tx.isConfirming}
+                onClick={() => tx.call("withdrawDevelopmentFees", [BigInt(b.n), parseUnits6(b.amount)])}
+              >
+                Withdraw
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-5 border-t border-white/[.07] pt-5">
+        <label className="label" htmlFor="devwallet">
+          Change a fee wallet
+        </label>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <select
+            className="input sm:w-40"
+            value={walletBudget}
+            onChange={(e) => setWalletBudget(Number(e.target.value) as 1 | 2)}
+            aria-label="Budget"
+          >
+            <option value={1}>Budget 1</option>
+            <option value={2}>Budget 2</option>
+          </select>
+          <input
+            id="devwallet"
+            className="input font-mono text-sm"
+            placeholder="0x…"
+            value={wallet}
+            onChange={(e) => setWallet(e.target.value.trim())}
+          />
+          <button
+            className="btn-secondary shrink-0"
+            disabled={wallet.length !== 42 || tx.isPending || tx.isConfirming}
+            onClick={() => tx.call("setDevelopmentFeeWallet", [BigInt(walletBudget), wallet])}
+          >
+            Set
+          </button>
+        </div>
+        <p className="mt-2 text-xs text-graphite-400">
+          Only the destination address can change. The fee rates themselves are immutable
+          constructor parameters — there is no function that raises them.
+        </p>
+      </div>
+
+      <TxStatus {...tx} />
+    </Section>
+  );
+}
+
+function BudgetTotals({ budget }: { budget: 1 | 2 }) {
+  const collected = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: `developmentFeesCollected${budget}`,
+    query: { refetchInterval: 20_000 },
+  });
+  const withdrawn = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: `developmentFeesWithdrawn${budget}`,
+    query: { refetchInterval: 20_000 },
+  });
+
+  const c = (collected.data as bigint | undefined) ?? 0n;
+  const w = (withdrawn.data as bigint | undefined) ?? 0n;
+
+  return (
+    <div className="text-sm">
+      <Row label="Collected" value={`${formatAmount(c)} USDT`} />
+      <Row label="Withdrawn" value={`${formatAmount(w)} USDT`} />
+      <Row
+        label="Available"
+        value={<span className="font-semibold text-gold-300">{formatAmount(c - w)} USDT</span>}
+      />
+    </div>
+  );
+}
+
+/** Brings V2 positions across. Migration is one-way and can be closed for good. */
+function MigrationAdmin({
+  protocol,
+  onDone,
+}: {
+  protocol: ReturnType<typeof useProtocol>;
+  onDone: () => void;
+}) {
+  const [user, setUser] = useState("");
+  const [amount, setAmount] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const tx = useContractTx(onDone);
+
+  const open = protocol.migrationOpen !== false;
+
+  return (
+    <Section
+      title="V2 migration"
+      description="Recreates a position from the previous contract. Reward accrual restarts at the migration block, so a backdated start cannot mint yield for time that was never staked here."
+      action={open ? <Badge tone="good">Open</Badge> : <Badge tone="neutral">Closed</Badge>}
+    >
+      <Row label="Migrated so far" value={`${formatAmount(protocol.totalMigrated)} USDT`} />
+
+      <div className={`mt-4 space-y-3 ${open ? "" : "pointer-events-none opacity-50"}`}>
+        <input
+          className="input font-mono text-sm"
+          placeholder="User address (0x…)"
+          value={user}
+          onChange={(e) => setUser(e.target.value.trim())}
+          aria-label="User address"
+        />
+        <div className="grid gap-2 sm:grid-cols-2">
+          <input
+            className="input"
+            inputMode="decimal"
+            placeholder="Amount (USDT)"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+            aria-label="Amount"
+          />
+          <input
+            className="input"
+            inputMode="numeric"
+            placeholder="Original start (unix)"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value.replace(/[^0-9]/g, ""))}
+            aria-label="Original start timestamp"
+          />
+        </div>
+        <button
+          className="btn-primary w-full"
+          disabled={
+            user.length !== 42 || !amount || !startTime || tx.isPending || tx.isConfirming
+          }
+          onClick={() => tx.call("migrateStake", [user, parseUnits6(amount), BigInt(startTime)])}
+        >
+          Migrate position
+        </button>
+      </div>
+
+      <button
+        className="btn-secondary mt-3 w-full"
+        disabled={!open || tx.isPending || tx.isConfirming}
+        onClick={() => tx.call("closeMigration")}
+      >
+        Close migration permanently
+      </button>
+      <p className="mt-2 text-xs text-graphite-400">
+        Closing is irreversible. Migrated positions are recorded at full value with no deposit fee —
+        they were already charged once on the old contract.
+      </p>
+      <TxStatus {...tx} />
+    </Section>
+  );
+}
+
+/**
+ * Funded promotional positions.
+ *
+ * `grantStake` credits a stake without a transferFrom, so the collateral has to
+ * already be in the contract. That is the whole point: a grant spends budget
+ * the owner put in, never other depositors' principal.
+ */
+function GrantAdmin({
+  protocol,
+  onDone,
+}: {
+  protocol: ReturnType<typeof useProtocol>;
+  onDone: () => void;
+}) {
+  const [user, setUser] = useState("");
+  const [amount, setAmount] = useState("");
+  const tx = useContractTx(onDone);
+
+  return (
+    <Section
+      title="Promotional grants"
+      description="Credits a position funded by collateral the owner has already deposited — not drawn from other stakers' capital."
+    >
+      <Row label="Granted so far" value={`${formatAmount(protocol.totalGranted)} USDT`} />
+      <Row label="Free stakes used" value={`${(protocol.freeStakeCount ?? 0n).toString()} / ${(protocol.maxFreeStakes ?? 0n).toString()}`} />
+
+      <div className="mt-4 space-y-3">
+        <input
+          className="input font-mono text-sm"
+          placeholder="Recipient address (0x…)"
+          value={user}
+          onChange={(e) => setUser(e.target.value.trim())}
+          aria-label="Recipient address"
+        />
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input
+            className="input"
+            inputMode="decimal"
+            placeholder="Amount (USDT)"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+            aria-label="Grant amount"
+          />
+          <button
+            className="btn-primary shrink-0"
+            disabled={user.length !== 42 || !amount || tx.isPending || tx.isConfirming}
+            onClick={() => tx.call("grantStake", [user, parseUnits6(amount)])}
+          >
+            Grant
+          </button>
+        </div>
+      </div>
+      <p className="mt-3 text-xs text-graphite-400">
+        Deposit the collateral first. The transaction reverts if the pool balance would not cover
+        the grant, which is what stops a grant from quietly becoming a claim on someone else&apos;s
+        deposit.
+      </p>
+      <TxStatus {...tx} />
+    </Section>
+  );
+}
+
+/**
+ * The USDC.e swap layer.
+ *
+ * Polymarket settles in USDC.e, the pool holds USDT — so a position cannot be
+ * opened without crossing that boundary first. `MIN_SWAP_OUTPUT_BPS` bounds the
+ * slippage the contract will tolerate; the field below is the per-call minimum
+ * on top of it.
+ */
+function SwapAdmin({
+  protocol,
+  onDone,
+}: {
+  protocol: ReturnType<typeof useProtocol>;
+  onDone: () => void;
+}) {
+  const [inAmount, setInAmount] = useState("");
+  const [minOut, setMinOut] = useState("");
+  const tx = useContractTx(onDone);
+
+  const units = (() => {
+    try {
+      return parseUnits6(inAmount || "0");
+    } catch {
+      return 0n;
+    }
+  })();
+  const minUnits = (() => {
+    try {
+      return parseUnits6(minOut || "0");
+    } catch {
+      return 0n;
+    }
+  })();
+
+  // 0.5% below the input is a sane starting point on a stable/stable pair at
+  // the 0.01% tier; the operator can tighten it.
+  const suggested = units > 0n ? formatAmount((units * 9950n) / 10000n, 6) : "";
+
+  return (
+    <Section
+      title="Strategy token swap"
+      description="Polymarket settles in USDC.e while the pool is denominated in USDT. Collateral crosses that boundary here, and only here."
+      action={
+        <Badge tone="volt">{formatAmount(protocol.arbitrageTokenBalance)} USDC.e held</Badge>
+      }
+    >
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className="label" htmlFor="swapin">
+            Amount in
+          </label>
+          <input
+            id="swapin"
+            className="input"
+            inputMode="decimal"
+            placeholder="0.00"
+            value={inAmount}
+            onChange={(e) => setInAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+          />
+        </div>
+        <div>
+          <label className="label" htmlFor="swapmin">
+            Minimum out
+          </label>
+          <input
+            id="swapmin"
+            className="input"
+            inputMode="decimal"
+            placeholder={suggested || "0.00"}
+            value={minOut}
+            onChange={(e) => setMinOut(e.target.value.replace(/[^0-9.]/g, ""))}
+          />
+          {suggested && !minOut && (
+            <button
+              type="button"
+              className="btn-ghost mt-1.5 px-0 text-xs"
+              onClick={() => setMinOut(suggested.replace(/,/g, ""))}
+            >
+              Use {suggested} (0.5% tolerance)
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-3">
+        <button
+          className="btn-volt"
+          disabled={units === 0n || minUnits === 0n || tx.isPending || tx.isConfirming}
+          onClick={() => tx.call("swapToArbitrageToken", [units, minUnits])}
+        >
+          USDT → USDC.e
+        </button>
+        <button
+          className="btn-secondary"
+          disabled={units === 0n || minUnits === 0n || tx.isPending || tx.isConfirming}
+          onClick={() => tx.call("swapFromArbitrageToken", [units, minUnits])}
+        >
+          USDC.e → USDT
+        </button>
+      </div>
+      <p className="mt-3 text-xs text-graphite-400">
+        The contract additionally enforces its own floor of{" "}
+        {protocol.isLoading ? "…" : "99%"} on every swap, so a zero or careless minimum still cannot
+        be routed through a drained pool.
       </p>
       <TxStatus {...tx} />
     </Section>
@@ -452,25 +851,25 @@ function ArbitrageAdmin({
     >
       <div className="grid gap-4 sm:grid-cols-4">
         <div>
-          <p className="text-sm text-ink-300">Deployed</p>
+          <p className="text-sm text-graphite-300">Deployed</p>
           <p className="mt-1 text-xl font-bold text-white">
             {formatAmount(protocol.arbitrageDeployed)}
           </p>
         </div>
         <div>
-          <p className="text-sm text-ink-300">Ceiling</p>
+          <p className="text-sm text-graphite-300">Ceiling</p>
           <p className="mt-1 text-xl font-bold text-white">
             {formatAmount(protocol.arbitrageCeiling)}
           </p>
         </div>
         <div>
-          <p className="text-sm text-ink-300">Available now</p>
-          <p className="mt-1 text-xl font-bold text-brand-400">
+          <p className="text-sm text-graphite-300">Available now</p>
+          <p className="mt-1 text-xl font-bold text-gold-400">
             {formatAmount(protocol.arbitrageAvailable)}
           </p>
         </div>
         <div>
-          <p className="text-sm text-ink-300">Realized profit</p>
+          <p className="text-sm text-graphite-300">Realized profit</p>
           <p className="mt-1 text-xl font-bold text-white">
             {formatAmount(protocol.arbitrageProfit)}
           </p>
@@ -490,7 +889,7 @@ function ArbitrageAdmin({
             onChange={(e) => setConditionId(e.target.value.trim())}
           />
           {conditionId && !validCondition && (
-            <p className="mt-1.5 text-xs text-red-400">Must be a 32-byte hex value.</p>
+            <p className="mt-1.5 text-xs text-danger-400">Must be a 32-byte hex value.</p>
           )}
         </div>
         <div>
@@ -506,7 +905,7 @@ function ArbitrageAdmin({
             onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
           />
           {amountUnits > (protocol.arbitrageAvailable ?? 0n) && (
-            <p className="mt-1.5 text-xs text-red-400">Exceeds the available allowance.</p>
+            <p className="mt-1.5 text-xs text-danger-400">Exceeds the available allowance.</p>
           )}
         </div>
       </div>
@@ -541,7 +940,7 @@ function ArbitrageAdmin({
           Redeem
         </button>
       </div>
-      <p className="mt-2 text-xs text-ink-400">
+      <p className="mt-2 text-xs text-graphite-400">
         Split is blocked while paused or in emergency mode. Merge and redeem stay available so
         positions can always be unwound for stakers.
       </p>
@@ -567,7 +966,7 @@ function ArbitrageAdmin({
             Deposit
           </button>
         </div>
-        <p className="mt-1.5 text-xs text-ink-400">
+        <p className="mt-1.5 text-xs text-graphite-400">
           Requires an ERC-20 approval from the owner wallet first. Credits the measured balance
           delta, so a fee-on-transfer token cannot inflate the budget.
         </p>

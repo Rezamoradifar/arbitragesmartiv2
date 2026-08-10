@@ -8,6 +8,21 @@
         "internalType": "address"
       },
       {
+        "name": "_arbitrageToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_swapRouter",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_swapFeeTier",
+        "type": "uint24",
+        "internalType": "uint24"
+      },
+      {
         "name": "initialOwner",
         "type": "address",
         "internalType": "address"
@@ -26,6 +41,26 @@
         "name": "_profitRecipient",
         "type": "address",
         "internalType": "address"
+      },
+      {
+        "name": "_developmentFeeWallet1",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_developmentFeeWallet2",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_developmentFeeBps1",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_developmentFeeBps2",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "nonpayable"
@@ -37,6 +72,45 @@
   {
     "type": "receive",
     "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "DEVELOPMENT_FEE_BPS_1",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "DEVELOPMENT_FEE_BPS_2",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "DEVELOPMENT_FEE_MAX_BPS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -79,7 +153,33 @@
   },
   {
     "type": "function",
+    "name": "MAX_FREE_STAKES",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "MAX_PARTNERS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MIN_SWAP_OUTPUT_BPS",
     "inputs": [],
     "outputs": [
       {
@@ -132,6 +232,19 @@
   {
     "type": "function",
     "name": "PROFIT_FEE_MAX_BPS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "PROTOCOL_WALLET_STAKE",
     "inputs": [],
     "outputs": [
       {
@@ -216,6 +329,32 @@
   },
   {
     "type": "function",
+    "name": "arbitrageToken",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IERC20"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "arbitrageTokenBalance",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "blacklisted",
     "inputs": [
       {
@@ -243,6 +382,13 @@
   {
     "type": "function",
     "name": "claimRef",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "closeMigration",
     "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
@@ -319,6 +465,44 @@
   },
   {
     "type": "function",
+    "name": "dashboard",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "grossDeposits",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "developmentFees",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "userNetStakes",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "mainPoolBalance",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "developmentFeeBalance",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "deployedToArbitrage",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "deployTime",
     "inputs": [],
     "outputs": [
@@ -342,6 +526,84 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "developmentFeeWallet1",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "developmentFeeWallet2",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "developmentFeesCollected1",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "developmentFeesCollected2",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "developmentFeesWithdrawn1",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "developmentFeesWithdrawn2",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -540,6 +802,19 @@
         "name": "",
         "type": "address",
         "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "freeStakeCount",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
@@ -967,6 +1242,43 @@
   },
   {
     "type": "function",
+    "name": "grantStake",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "grossDeposited",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "isFreePeriod",
     "inputs": [],
     "outputs": [
@@ -981,6 +1293,25 @@
   {
     "type": "function",
     "name": "isPartner",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isProtocolWallet",
     "inputs": [
       {
         "name": "account",
@@ -1018,6 +1349,42 @@
   },
   {
     "type": "function",
+    "name": "migrateStake",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "originalStartTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "migrationOpen",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "minStakes",
     "inputs": [
       {
@@ -1034,6 +1401,103 @@
       }
     ],
     "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "netStaked",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "onERC1155BatchReceived",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "onERC1155Received",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "stateMutability": "pure"
   },
   {
     "type": "function",
@@ -1115,6 +1579,19 @@
   },
   {
     "type": "function",
+    "name": "pendingDevelopmentFees",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "pendingOwner",
     "inputs": [],
     "outputs": [
@@ -1134,6 +1611,25 @@
         "name": "",
         "type": "uint256",
         "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "platformFeePaid",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [
@@ -1180,6 +1676,40 @@
         "name": "",
         "type": "address",
         "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "quoteDeposit",
+    "inputs": [
+      {
+        "name": "grossAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "fee1",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "fee2",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalFee",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "netStake",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
@@ -1380,6 +1910,24 @@
   },
   {
     "type": "function",
+    "name": "setDevelopmentFeeWallet",
+    "inputs": [
+      {
+        "name": "budget",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "newWallet",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "setFeeWallets",
     "inputs": [
       {
@@ -1440,7 +1988,7 @@
     "name": "stake",
     "inputs": [
       {
-        "name": "amount",
+        "name": "grossAmount",
         "type": "uint256",
         "internalType": "uint256"
       },
@@ -1514,10 +2062,91 @@
   },
   {
     "type": "function",
+    "name": "supportsInterface",
+    "inputs": [
+      {
+        "name": "interfaceId",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "swapFeeTier",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint24",
+        "internalType": "uint24"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "swapFromArbitrageToken",
+    "inputs": [
+      {
+        "name": "amountIn",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "amountOutMinimum",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "swapRouter",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract ISwapRouter02"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "swapToArbitrageToken",
+    "inputs": [
+      {
+        "name": "amountIn",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "amountOutMinimum",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "topUp",
     "inputs": [
       {
-        "name": "amount",
+        "name": "grossAmount",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -1554,6 +2183,45 @@
   {
     "type": "function",
     "name": "totalAssets",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalGranted",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalGrossDeposits",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalMigrated",
     "inputs": [],
     "outputs": [
       {
@@ -1619,6 +2287,40 @@
   },
   {
     "type": "function",
+    "name": "userDepositBreakdown",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "gross",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "platformFee",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "netStake",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "activeStake",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "voteEmergency",
     "inputs": [],
     "outputs": [],
@@ -1628,6 +2330,24 @@
     "type": "function",
     "name": "voteRescue",
     "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "withdrawDevelopmentFees",
+    "inputs": [
+      {
+        "name": "budget",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
@@ -1771,6 +2491,93 @@
   },
   {
     "type": "event",
+    "name": "DevelopmentFeeCharged",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "grossAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "fee1",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "fee2",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "netStake",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DevelopmentFeeWalletUpdated",
+    "inputs": [
+      {
+        "name": "budget",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "newWallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DevelopmentFeeWithdrawn",
+    "inputs": [
+      {
+        "name": "budget",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "remainingUnwithdrawn",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "EarlyExited",
     "inputs": [
       {
@@ -1898,6 +2705,19 @@
         "type": "address",
         "indexed": true,
         "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "MigrationClosed_",
+    "inputs": [
+      {
+        "name": "totalMigrated",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
       }
     ],
     "anonymous": false
@@ -2189,6 +3009,62 @@
   },
   {
     "type": "event",
+    "name": "StakeGranted",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "plan",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "StakeMigrated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "plan",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "originalStartTime",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "Staked",
     "inputs": [
       {
@@ -2220,6 +3096,50 @@
         "type": "bool",
         "indexed": false,
         "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SwappedFromArbitrageToken",
+    "inputs": [
+      {
+        "name": "strategyIn",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "collateralOut",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "profit",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SwappedToArbitrageToken",
+    "inputs": [
+      {
+        "name": "collateralIn",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "strategyOut",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
       }
     ],
     "anonymous": false
@@ -2324,6 +3244,11 @@
   },
   {
     "type": "error",
+    "name": "DevelopmentFeeTooHigh",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "DuplicatePartner",
     "inputs": []
   },
@@ -2349,7 +3274,17 @@
   },
   {
     "type": "error",
+    "name": "ExceedsCollectedFees",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "ExpectedPause",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FreeStakeLimitReached",
     "inputs": []
   },
   {
@@ -2359,12 +3294,32 @@
   },
   {
     "type": "error",
+    "name": "IdenticalSwapTokens",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InsufficientLiquidityForFees",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "InvalidFreeStakeAmount",
     "inputs": []
   },
   {
     "type": "error",
+    "name": "InvalidMigrationStart",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "InvalidPartnerIndex",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "MigrationClosed",
     "inputs": []
   },
   {
@@ -2446,6 +3401,11 @@
   },
   {
     "type": "error",
+    "name": "ProtocolWalletStakeInvalid",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "ReentrancyGuardReentrantCall",
     "inputs": []
   },
@@ -2479,6 +3439,11 @@
         "internalType": "address"
       }
     ]
+  },
+  {
+    "type": "error",
+    "name": "SlippageBoundTooLoose",
+    "inputs": []
   },
   {
     "type": "error",

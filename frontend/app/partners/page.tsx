@@ -22,10 +22,11 @@ export default function PartnersPage() {
   const rescueVotes = Number(gov.rescueVoteCount ?? 0n);
 
   return (
-    <div className="space-y-6 py-4">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Partner governance</h1>
-        <p className="mt-2 max-w-3xl text-ink-300">
+    <div className="container-page space-y-6 py-8 sm:py-10">
+      <div className="min-w-0">
+        <span className="eyebrow">Governance</span>
+        <h1 className="h-section mt-4">Partner governance</h1>
+        <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-graphite-300">
           The voting body is the owner plus up to {Number(gov.maxPartners ?? 4n)} partners. Any{" "}
           {required} of them can freeze the protocol and open withdrawals — the owner holds one vote
           and cannot override the result.
@@ -34,7 +35,7 @@ export default function PartnersPage() {
 
       {!isConnected ? (
         <Section title="Connect to participate">
-          <p className="mb-4 text-sm text-ink-300">
+          <p className="mb-4 text-sm text-graphite-300">
             Anyone can read this page. Casting a vote requires a wallet in the voting body.
           </p>
           <ConnectButton />
@@ -61,8 +62,8 @@ export default function PartnersPage() {
         >
           <div className="mb-4">
             <div className="mb-2 flex justify-between text-sm">
-              <span className="text-ink-300">Votes cast</span>
-              <span className="font-semibold text-ink-50">
+              <span className="text-graphite-300">Votes cast</span>
+              <span className="font-semibold text-graphite-50">
                 {emergencyVotes} / {required}
               </span>
             </div>
@@ -75,7 +76,7 @@ export default function PartnersPage() {
                 label="Staker withdrawals open"
                 value={
                   gov.emergencyWithdrawOpen ? (
-                    <span className="text-brand-400">Open now</span>
+                    <span className="text-success-400">Open now</span>
                   ) : (
                     <Countdown
                       target={
@@ -90,9 +91,9 @@ export default function PartnersPage() {
                 label="Votes revocable"
                 value={
                   gov.emergencyWithdrawOpen ? (
-                    <span className="text-ink-300">No — window closed</span>
+                    <span className="text-graphite-300">No — window closed</span>
                   ) : (
-                    <span className="text-amber-400">Yes, until withdrawals open</span>
+                    <span className="text-warn-400">Yes, until withdrawals open</span>
                   )
                 }
               />
@@ -126,8 +127,8 @@ export default function PartnersPage() {
         >
           <div className="mb-4">
             <div className="mb-2 flex justify-between text-sm">
-              <span className="text-ink-300">Votes cast</span>
-              <span className="font-semibold text-ink-50">
+              <span className="text-graphite-300">Votes cast</span>
+              <span className="font-semibold text-graphite-50">
                 {rescueVotes} / {required}
               </span>
             </div>
@@ -140,7 +141,7 @@ export default function PartnersPage() {
               label="Sweep executable"
               value={
                 gov.rescueReady ? (
-                  <span className="text-amber-400">Ready now</span>
+                  <span className="text-warn-400">Ready now</span>
                 ) : (
                   <Countdown target={gov.rescueExecutableAt} prefix="in" />
                 )
@@ -163,7 +164,7 @@ export default function PartnersPage() {
             />
           </div>
 
-          <p className="mt-3 text-xs text-ink-400">
+          <p className="mt-3 text-xs text-graphite-400">
             Revoking a rescue vote is always available, right up until the sweep executes. Stakers&apos;
             own withdrawals open 36 hours before it.
           </p>
@@ -178,52 +179,64 @@ export default function PartnersPage() {
         {gov.isLoading ? (
           <Skeleton className="h-24 w-full" />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[32rem] text-left text-sm">
-              <thead className="text-ink-300">
-                <tr className="border-b border-white/[.07]">
-                  <th className="py-2.5 font-medium">Member</th>
-                  <th className="py-2.5 font-medium">Role</th>
-                  <th className="py-2.5 text-right font-medium">Emergency</th>
-                  <th className="py-2.5 text-right font-medium">Rescue</th>
-                </tr>
-              </thead>
-              <tbody>
-                {gov.voters.map((v, i) => (
-                  <VoterRow
-                    key={v}
-                    address={v}
-                    isOwner={i === 0}
-                    isYou={Boolean(address && v.toLowerCase() === address.toLowerCase())}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            {/* Card list on a phone: four columns of vote state do not fit
+                inside 360px, and a scrollbar is not a substitute for a layout. */}
+            <ul className="space-y-2.5 sm:hidden">
+              {gov.voters.map((v, i) => (
+                <VoterCard
+                  key={v}
+                  address={v}
+                  isOwner={i === 0}
+                  isYou={Boolean(address && v.toLowerCase() === address.toLowerCase())}
+                />
+              ))}
+            </ul>
+
+            <div className="hidden overflow-x-auto sm:block">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-white/[.07] text-xs uppercase tracking-[.1em] text-graphite-400">
+                    <th className="py-2.5 font-medium">Member</th>
+                    <th className="py-2.5 font-medium">Role</th>
+                    <th className="py-2.5 text-right font-medium">Emergency</th>
+                    <th className="py-2.5 text-right font-medium">Rescue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {gov.voters.map((v, i) => (
+                    <VoterRow
+                      key={v}
+                      address={v}
+                      isOwner={i === 0}
+                      isYou={Boolean(address && v.toLowerCase() === address.toLowerCase())}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </Section>
 
       {/* Protocol snapshot */}
       <Section title="What is at stake" description="Balances the voting body is deciding over.">
         <div className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <p className="text-sm text-ink-300">Total assets</p>
-            <p className="mt-1 text-2xl font-bold text-white">
-              {formatAmount(protocol.totalAssets)} USDT
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-ink-300">Liquid balance</p>
-            <p className="mt-1 text-2xl font-bold text-white">
-              {formatAmount(protocol.balance)} USDT
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-ink-300">In Polymarket positions</p>
-            <p className="mt-1 text-2xl font-bold text-white">
-              {formatAmount(protocol.arbitrageDeployed)} USDT
-            </p>
-          </div>
+          {[
+            { label: "Total assets", value: protocol.totalAssets },
+            { label: "Liquid balance", value: protocol.balance },
+            { label: "In Polymarket positions", value: protocol.arbitrageDeployed },
+          ].map((s) => (
+            <div key={s.label} className="rounded-xl border border-white/[.06] bg-white/[.02] p-4">
+              <p className="text-xs font-medium uppercase tracking-[.12em] text-graphite-400">
+                {s.label}
+              </p>
+              <p className="mt-2 font-display text-2xl font-bold tabular-nums text-white">
+                {formatAmount(s.value)}
+                <span className="ml-1.5 text-sm font-semibold text-graphite-400">USDT</span>
+              </p>
+            </div>
+          ))}
         </div>
       </Section>
     </div>
@@ -243,9 +256,9 @@ function VoterRow({
     <tr className="border-b border-white/[.06]">
       <td className="py-2.5">
         <AddressLink address={address} />
-        {isYou && <span className="ml-2 text-xs text-brand-400">you</span>}
+        {isYou && <span className="ml-2 text-xs text-gold-300">you</span>}
       </td>
-      <td className="py-2.5 text-ink-300">{isOwner ? "Owner" : "Partner"}</td>
+      <td className="py-2.5 text-graphite-300">{isOwner ? "Owner" : "Partner"}</td>
       <td className="py-2.5 text-right">
         <VoteCell address={address} fn="emergencyVotes" />
       </td>
@@ -253,6 +266,40 @@ function VoterRow({
         <VoteCell address={address} fn="rescueVotes" />
       </td>
     </tr>
+  );
+}
+
+function VoterCard({
+  address,
+  isOwner,
+  isYou,
+}: {
+  address: `0x${string}`;
+  isOwner: boolean;
+  isYou: boolean;
+}) {
+  return (
+    <li className="rounded-xl border border-white/[.06] bg-white/[.02] p-3.5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <AddressLink address={address} />
+        <Badge tone={isOwner ? "brand" : "neutral"}>{isOwner ? "Owner" : "Partner"}</Badge>
+      </div>
+      {isYou && <p className="mt-1 text-xs text-gold-300">this is you</p>}
+      <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <p className="text-xs text-graphite-400">Emergency</p>
+          <p className="mt-0.5">
+            <VoteCell address={address} fn="emergencyVotes" />
+          </p>
+        </div>
+        <div>
+          <p className="text-xs text-graphite-400">Rescue</p>
+          <p className="mt-0.5">
+            <VoteCell address={address} fn="rescueVotes" />
+          </p>
+        </div>
+      </div>
+    </li>
   );
 }
 
@@ -265,9 +312,9 @@ function VoteCell({ address, fn }: { address: `0x${string}`; fn: string }) {
     query: { refetchInterval: 12_000 },
   });
   return data ? (
-    <span className="text-brand-400">Voted</span>
+    <span className="font-medium text-gold-300">Voted</span>
   ) : (
-    <span className="text-ink-400">—</span>
+    <span className="text-graphite-400">—</span>
   );
 }
 
@@ -304,14 +351,14 @@ function VoteButtons({
         </button>
       ) : (
         <button
-          className={`btn-primary w-full ${destructive ? "bg-amber-500 hover:bg-amber-400" : ""}`}
+          className={destructive ? "btn-danger w-full" : "btn-primary w-full"}
           disabled={Boolean(disabledReason) || tx.isPending || tx.isConfirming}
           onClick={() => tx.call(voteFn)}
         >
           Cast my vote
         </button>
       )}
-      {disabledReason && <p className="mt-2 text-xs text-ink-400">{disabledReason}</p>}
+      {disabledReason && <p className="mt-2 text-xs text-graphite-400">{disabledReason}</p>}
       <TxStatus {...tx} />
     </div>
   );

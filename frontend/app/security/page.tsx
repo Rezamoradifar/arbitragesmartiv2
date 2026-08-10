@@ -1,16 +1,25 @@
 import type { Metadata } from "next";
 import { GovernanceSnapshot } from "@/components/GovernanceSnapshot";
+import { SecurityVisual, VerificationVisual } from "@/components/visuals/FeatureVisuals";
+import { VisualFrame } from "@/components/visuals/primitives";
+import { Icon } from "@/components/Icon";
 
 export const metadata: Metadata = {
-  title: "Security — ArbiSmart",
+  title: "Security",
   description:
-    "Exactly what the owner can and cannot do with staked funds, and the checks that enforce it.",
+    "Exactly what the owner can and cannot do with staked funds, and the on-chain checks that enforce it.",
 };
+
+const CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "";
 
 const canDo = [
   {
-    title: "Collect protocol fees",
-    body: "10% of every yield claim goes to two fee wallets, and a capped share of realized arbitrage profit goes to a profit recipient. The owner sets all three addresses. This is the business model, and it is bounded by the contract.",
+    title: "Take a disclosed fee on every deposit",
+    body: "Two development wallets each receive 5% of a deposit — 10% in total — before the stake is recorded. The deposit screen shows the exact split before you sign, your stake is credited net, and the rate is immutable: it is set at deployment and there is no function to raise it.",
+  },
+  {
+    title: "Collect protocol fees on claims",
+    body: "10% of every yield claim goes to two fee wallets, and a capped share of realized strategy profit goes to a profit recipient. The owner sets those addresses. This is the business model, and it is bounded by the contract.",
   },
   {
     title: "Deploy up to 20% into Polymarket",
@@ -29,7 +38,15 @@ const canDo = [
 const cannotDo = [
   {
     title: "Withdraw principal to a wallet",
-    body: "No such function exists. The only transfers out are: the staker who earned them, the two fee wallets, and the capped profit fee.",
+    body: "No such function exists. The only transfers out are: to the staker who earned them, to the fee wallets for fees already charged, and the capped profit fee. There is no percentage-of-pool withdrawal, at any size, under any label.",
+  },
+  {
+    title: "Spend the fee balance as if it were pool capital",
+    body: "Collected fees are tracked separately and subtracted inside totalAssets(), so platform revenue never counts toward the pool it is drawn from, and withdrawing a fee cannot touch a staker's principal.",
+  },
+  {
+    title: "Raise the deposit fee after you deposit",
+    body: "Both fee rates are immutable constructor parameters with a hard 20% ceiling enforced at deployment. The rate you were quoted is the rate the contract will always charge.",
   },
   {
     title: "Bill principal as profit",
@@ -45,40 +62,116 @@ const cannotDo = [
   },
 ];
 
+const limitations = [
+  {
+    title: "The owner is a single key, not a multisig",
+    body: "The contract accepts a Gnosis Safe or a timelock as owner with no code change, and that would be stronger. The partner voting body is the mitigation currently in place.",
+  },
+  {
+    title: "Order-book arbitrage is not autonomous",
+    body: "Polymarket's exchange is operator-gated, so the contract can only split, merge, and redeem after resolution. Continuous buy-low/sell-high would need an off-chain component that is deliberately not implemented.",
+  },
+  {
+    title: "Staking economics are not a guarantee",
+    body: "The advertised daily rates are contract parameters, not a yield the protocol has proven it can sustain. Yield is simple, never compounded, and paying it depends on strategy performance and on inflows.",
+  },
+  {
+    title: "Blacklisting can cost you accrued yield",
+    body: "Principal always remains recoverable, but a blocked address cannot claim yield it has already earned.",
+  },
+];
+
+const bounty = [
+  {
+    tier: "Critical",
+    reward: "$500",
+    body: "Any path that moves staked principal to an address other than the staker who owns it — a drain, a theft, an unauthorized sweep.",
+  },
+  {
+    tier: "High",
+    reward: "$150",
+    body: "Freezing user funds, bypassing a security control (partner quorum, the emergency-withdraw delay, blacklist boundaries), or breaking an accounting invariant.",
+  },
+  {
+    tier: "Medium",
+    reward: "$50",
+    body: "Incorrect accounting or logic errors that don't directly move funds but could compound into a real issue.",
+  },
+  {
+    tier: "Low / info",
+    reward: "Credit",
+    body: "Gas inefficiencies, style issues, or anything already listed on this page as a known limitation.",
+  },
+];
+
 export default function SecurityPage() {
   return (
-    <div className="space-y-14 py-6">
-      <section>
-        <h1 className="text-4xl font-bold tracking-tight text-white">
-          What the owner can and cannot do
-        </h1>
-        <p className="mt-4 max-w-3xl text-lg text-ink-300">
-          Most staking sites answer this with a promise. Here it is answered by the contract, and
-          every claim below is checkable in the verified source.
-        </p>
+    <div className="container-page space-y-16 py-10 sm:space-y-20 sm:py-14">
+      <section className="grid items-center gap-10 lg:grid-cols-[1.15fr_1fr]">
+        <div className="min-w-0">
+          <p className="eyebrow">
+            <Icon name="lock" className="h-3.5 w-3.5" />
+            Security model
+          </p>
+          <h1 className="h-display mt-5">
+            What the owner <span className="text-gold-gradient">can</span> and cannot do
+          </h1>
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-graphite-300">
+            Most staking sites answer this with a promise. Here it is answered by the contract, and
+            every claim below is checkable in the verified source.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <a
+              className="btn-secondary"
+              href={`https://repo.sourcify.dev/137/${CONTRACT}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Icon name="external" className="h-4 w-4" />
+              Verified source
+            </a>
+            <a
+              className="btn-ghost"
+              href={`https://polygonscan.com/address/${CONTRACT}#code`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Read it on PolygonScan
+            </a>
+          </div>
+        </div>
+        <VisualFrame className="hidden lg:block">
+          <SecurityVisual />
+        </VisualFrame>
       </section>
 
       <GovernanceSnapshot />
 
       <section className="grid gap-6 lg:grid-cols-2">
         <div>
-          <h2 className="mb-4 text-xl font-semibold text-amber-400">The owner can</h2>
-          <div className="space-y-4">
+          <h2 className="mb-4 flex items-center gap-2 font-display text-xl font-semibold text-warn-400">
+            <Icon name="info" className="h-5 w-5" />
+            The owner can
+          </h2>
+          <div className="space-y-3.5">
             {canDo.map((x) => (
-              <div key={x.title} className="card">
-                <h3 className="font-semibold text-ink-50">{x.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-300">{x.body}</p>
+              <div key={x.title} className="glass p-5">
+                <h3 className="font-display font-semibold text-white">{x.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-graphite-300">{x.body}</p>
               </div>
             ))}
           </div>
         </div>
         <div>
-          <h2 className="mb-4 text-xl font-semibold text-brand-400">The owner cannot</h2>
-          <div className="space-y-4">
+          <h2 className="mb-4 flex items-center gap-2 font-display text-xl font-semibold text-success-400">
+            <Icon name="shield" className="h-5 w-5" />
+            The owner cannot
+          </h2>
+          <div className="space-y-3.5">
             {cannotDo.map((x) => (
-              <div key={x.title} className="card">
-                <h3 className="font-semibold text-ink-50">{x.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-300">{x.body}</p>
+              <div key={x.title} className="glass p-5">
+                <h3 className="font-display font-semibold text-white">{x.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-graphite-300">{x.body}</p>
               </div>
             ))}
           </div>
@@ -86,37 +179,49 @@ export default function SecurityPage() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold tracking-tight text-white">
-          The race that protects you
-        </h2>
-        <p className="mt-2 max-w-3xl text-sm text-ink-300">
+        <h2 className="h-section">The race that protects you</h2>
+        <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-graphite-300">
           If the voting body ever moves to sweep the pool, stakers get a 36-hour head start. Both
           timers are enforced on-chain and start from the same vote.
         </p>
-        <div className="card mt-6">
-          <ol className="space-y-5">
+        <div className="glass mt-7 p-6 sm:p-8">
+          <ol className="space-y-6">
             {[
-              { day: "Hour 0", title: "Quorum reached", body: "Three of five vote. The protocol pauses immediately and new arbitrage deployments stop." },
-              { day: "Hour 12", title: "Your withdrawal opens", body: "Emergency withdrawal unlocks for every staker — full principal, no penalty, no permission needed." },
-              { day: "Hour 48", title: "Earliest possible sweep", body: "Only now can a rescue execute, and only to the recovery wallet frozen at vote time." },
+              {
+                day: "Hour 0",
+                title: "Quorum reached",
+                body: "Three of five vote. The protocol pauses immediately and new strategy deployments stop.",
+              },
+              {
+                day: "Hour 12",
+                title: "Your withdrawal opens",
+                body: "Emergency withdrawal unlocks for every staker — full principal, no penalty, no permission needed.",
+              },
+              {
+                day: "Hour 48",
+                title: "Earliest possible sweep",
+                body: "Only now can a rescue execute, and only to the recovery wallet frozen at vote time.",
+              },
             ].map((step, i) => (
               <li key={step.day} className="flex gap-4">
                 <div className="flex flex-col items-center">
                   <span
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                      i === 1 ? "bg-brand-500 text-ink-950" : "bg-ink-800 text-ink-200"
+                    className={`grid h-8 w-8 shrink-0 place-items-center rounded-full font-display text-sm font-bold ${
+                      i === 1
+                        ? "bg-gold-sheen text-graphite-950 shadow-gold"
+                        : "border border-white/10 bg-white/[.04] text-graphite-200"
                     }`}
                   >
                     {i + 1}
                   </span>
-                  {i < 2 && <span className="mt-1 h-full w-px flex-1 bg-ink-800" />}
+                  {i < 2 && <span className="mt-1 h-full w-px flex-1 bg-gradient-to-b from-white/15 to-white/[.03]" />}
                 </div>
-                <div className="pb-2">
-                  <p className="text-xs font-medium uppercase tracking-wide text-ink-400">
+                <div className="min-w-0 pb-2">
+                  <p className="text-xs font-medium uppercase tracking-[.14em] text-graphite-400">
                     {step.day}
                   </p>
-                  <p className="mt-0.5 font-semibold text-ink-50">{step.title}</p>
-                  <p className="mt-1 text-sm text-ink-300">{step.body}</p>
+                  <p className="mt-1 font-display font-semibold text-white">{step.title}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-graphite-300">{step.body}</p>
                 </div>
               </li>
             ))}
@@ -124,93 +229,69 @@ export default function SecurityPage() {
         </div>
       </section>
 
-      <section>
-        <h2 className="text-2xl font-bold tracking-tight text-white">Known limitations</h2>
-        <p className="mt-2 max-w-3xl text-sm text-ink-300">
-          Stated plainly, because a security page that only lists strengths is marketing.
-        </p>
-        <div className="mt-6 space-y-4">
-          {[
-            {
-              title: "The owner is a single key, not a multisig",
-              body: "The contract accepts a Gnosis Safe or a timelock as owner with no code change, and that would be stronger. The partner voting body is the mitigation currently in place.",
-            },
-            {
-              title: "Order-book arbitrage is not autonomous",
-              body: "Polymarket's exchange is operator-gated, so the contract can only split, merge, and redeem after resolution. Continuous buy-low/sell-high would need an off-chain component that is deliberately not implemented.",
-            },
-            {
-              title: "Staking economics are not a guarantee",
-              body: "The advertised daily rates are contract parameters, not a yield the protocol has proven it can sustain. Returns depend on arbitrage performance and inflows.",
-            },
-            {
-              title: "Blacklisting can cost you accrued yield",
-              body: "Principal always remains recoverable, but a blocked address cannot claim yield it has already earned.",
-            },
-          ].map((x) => (
-            <div key={x.title} className="card">
-              <h3 className="font-semibold text-ink-50">{x.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-300">{x.body}</p>
-            </div>
-          ))}
+      <section className="grid items-start gap-10 lg:grid-cols-[1fr_.85fr]">
+        <div className="min-w-0">
+          <h2 className="h-section">Known limitations</h2>
+          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-graphite-300">
+            Stated plainly, because a security page that only lists strengths is marketing.
+          </p>
+          <div className="mt-7 space-y-3.5">
+            {limitations.map((x) => (
+              <div key={x.title} className="glass p-5">
+                <h3 className="font-display font-semibold text-white">{x.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-graphite-300">{x.body}</p>
+              </div>
+            ))}
+          </div>
         </div>
+        <VisualFrame className="hidden lg:block lg:mt-24">
+          <VerificationVisual />
+        </VisualFrame>
       </section>
 
-      <section>
-        <h2 className="text-2xl font-bold tracking-tight text-white">Bug bounty</h2>
-        <p className="mt-2 max-w-3xl text-sm text-ink-300">
+      <section id="bounty" className="scroll-mt-24">
+        <h2 className="h-section">Bug bounty</h2>
+        <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-graphite-300">
           Found a real vulnerability? Report it privately before doing anything else, and get paid
-          for it. Independently of the automated Slither static-analysis pass and the 76-test /
-          8-invariant suite already run against this contract, a genuine bug found by a human is
+          for it. Independently of the automated Slither static-analysis pass and the unit, fork and
+          invariant suites already run against this contract, a genuine bug found by a human is
           worth a real reward.
         </p>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            {
-              tier: "Critical",
-              reward: "$500",
-              body: "Any path that moves staked principal to an address other than the staker who owns it — a drain, a theft, an unauthorized sweep.",
-            },
-            {
-              tier: "High",
-              reward: "$150",
-              body: "Freezing user funds, bypassing a security control (partner quorum, the emergency-withdraw delay, blacklist boundaries), or breaking an accounting invariant.",
-            },
-            {
-              tier: "Medium",
-              reward: "$50",
-              body: "Incorrect accounting or logic errors that don't directly move funds but could compound into a real issue.",
-            },
-            {
-              tier: "Low / info",
-              reward: "Credit",
-              body: "Gas inefficiencies, style issues, or anything already listed on this page as a known limitation.",
-            },
-          ].map((t) => (
-            <div key={t.tier} className="card">
-              <div className="flex items-baseline justify-between">
-                <h3 className="font-semibold text-ink-50">{t.tier}</h3>
-                <span className="font-display text-lg font-bold text-brand-400">{t.reward}</span>
+        <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {bounty.map((t, i) => (
+            <div key={t.tier} className={`glass glass-hover p-5 ${i === 0 ? "glass-gold" : ""}`}>
+              <div className="flex items-baseline justify-between gap-2">
+                <h3 className="font-display font-semibold text-white">{t.tier}</h3>
+                <span
+                  className={`font-display text-lg font-bold ${
+                    i === 0 ? "text-gold-gradient" : "text-graphite-100"
+                  }`}
+                >
+                  {t.reward}
+                </span>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-ink-300">{t.body}</p>
+              <p className="mt-2.5 text-sm leading-relaxed text-graphite-300">{t.body}</p>
             </div>
           ))}
         </div>
 
-        <div className="card mt-6">
-          <h3 className="font-semibold text-ink-50">How to report</h3>
-          <p className="mt-2 text-sm leading-relaxed text-ink-300">
+        <div className="glass mt-4 p-5 sm:p-6">
+          <h3 className="font-display font-semibold text-white">How to report</h3>
+          <p className="mt-2.5 text-sm leading-relaxed text-graphite-300">
             Email{" "}
-            <a className="text-brand-400 underline underline-offset-2" href="mailto:EnjoyingEnjoying@gmail.com">
+            <a
+              className="text-gold-300 underline underline-offset-2 hover:text-gold-200"
+              href="mailto:EnjoyingEnjoying@gmail.com"
+            >
               EnjoyingEnjoying@gmail.com
             </a>{" "}
-            with a description and, ideally, a proof-of-concept against a fork — not mainnet.
-            Report privately first; public disclosure or on-chain exploitation before a fix ships
-            forfeits the reward. First valid report wins if more than one person finds the same
-            issue. Scope is the deployed contract at{" "}
-            <span className="font-mono text-ink-200">0xDCcc0561b36809454584ED1038824ca06B86c1d6</span>{" "}
-            and this frontend; known limitations listed above are out of scope.
+            with a description and, ideally, a proof-of-concept against a fork — not mainnet. Report
+            privately first; public disclosure or on-chain exploitation before a fix ships forfeits
+            the reward. First valid report wins if more than one person finds the same issue. Scope
+            is the deployed contract at{" "}
+            <span className="break-all font-mono text-xs text-graphite-200">{CONTRACT}</span> and
+            this frontend; known limitations listed above are out of scope.
           </p>
         </div>
       </section>
