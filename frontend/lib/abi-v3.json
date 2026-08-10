@@ -308,6 +308,13 @@
   },
   {
     "type": "function",
+    "name": "closeMigration",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "collateralToken",
     "inputs": [],
     "outputs": [
@@ -1212,6 +1219,42 @@
   },
   {
     "type": "function",
+    "name": "migrateStake",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "originalStartTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "migrationOpen",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "minStakes",
     "inputs": [
       {
@@ -1876,6 +1919,19 @@
   },
   {
     "type": "function",
+    "name": "totalMigrated",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "totalPaidOut",
     "inputs": [],
     "outputs": [
@@ -2353,6 +2409,19 @@
   },
   {
     "type": "event",
+    "name": "MigrationClosed_",
+    "inputs": [
+      {
+        "name": "totalMigrated",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "OwnershipTransferStarted",
     "inputs": [
       {
@@ -2638,6 +2707,37 @@
   },
   {
     "type": "event",
+    "name": "StakeMigrated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "plan",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "originalStartTime",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "Staked",
     "inputs": [
       {
@@ -2828,7 +2928,17 @@
   },
   {
     "type": "error",
+    "name": "InvalidMigrationStart",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "InvalidPartnerIndex",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "MigrationClosed",
     "inputs": []
   },
   {

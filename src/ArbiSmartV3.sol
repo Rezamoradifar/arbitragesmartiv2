@@ -419,6 +419,17 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     mapping(address => uint256) public platformFeePaid;
     mapping(address => uint256) public netStaked;
 
+    // ============================================================
+    // V2 migration window
+    // ============================================================
+
+    /// @notice Whether {migrateStake} is still callable. Starts true and can
+    ///         only ever be set false, by {closeMigration}.
+    bool public migrationOpen = true;
+
+    /// @notice Total principal brought over from V2. Reporting only.
+    uint256 public totalMigrated;
+
     /// @notice Timestamp at which the contract was last paused; 0 while unpaused.
     uint256 public pausedAt;
     /// @notice How long the contract must remain continuously paused before
@@ -635,6 +646,14 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
 
     event DevelopmentFeeWalletUpdated(uint256 indexed budget, address indexed newWallet);
 
+    /// @notice Emitted when a V2 position is recreated here. `originalStartTime`
+    ///         is carried over so the migrated term and penalty schedule can be
+    ///         checked against the V2 record.
+    event StakeMigrated(address indexed user, uint256 amount, uint256 plan, uint256 originalStartTime);
+
+    /// @notice Emitted once, when the migration window is permanently closed.
+    event MigrationClosed_(uint256 totalMigrated);
+
     // ============================================================
     // Custom errors
     // ============================================================
@@ -680,6 +699,9 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     error DevelopmentFeeTooHigh();
     error ExceedsCollectedFees();
     error InsufficientLiquidityForFees();
+
+    error MigrationClosed();
+    error InvalidMigrationStart();
 
     // ============================================================
     // Modifiers
@@ -1164,6 +1186,86 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     // ============================================================
     // Emergency fund rescue — partner-gated, time-delayed
     // ============================================================
+
+    // ============================================================
+    // One-time migration of V2 positions
+    // ============================================================
+
+    /// @notice Recreates a staker's V2 position here, funded by the caller.
+    /// @dev The alternative — telling users to exit V2 and re-stake — costs
+    ///      them the early-exit penalty and then the development fee on the
+    ///      way back in, roughly half their principal. This path preserves
+    ///      the position instead, and the cost lands on whoever calls it.
+    ///
+    ///      Four properties keep this from being a mint function:
+    ///
+    ///        1. `amount` is pulled from the caller by `safeTransferFrom` and
+    ///           the balance delta is verified, so a migrated stake is always
+    ///           backed by collateral that actually arrived. No position can
+    ///           be conjured.
+    ///        2. `lastClaimTime` is set to now, never to `originalStartTime`.
+    ///           Yield accrues only from migration forward, so backdating
+    ///           `originalStartTime` cannot mint retroactive rewards — the
+    ///           obvious way this function could otherwise be abused.
+    ///        3. `originalStartTime` may not be in the future, and is used
+    ///           only for the term end and penalty schedule, so a migrated
+    ///           user keeps the position age they had earned.
+    ///        4. The whole facility is disabled permanently by
+    ///           {closeMigration}, which cannot be undone.
+    ///
+    ///      No development fee is charged: this is a continuation of a stake
+    ///      already made, not a new deposit.
+    function migrateStake(address user, uint256 amount, uint256 originalStartTime)
+        external
+        onlyOwner
+        nonReentrant
+    {
+        if (!migrationOpen) revert MigrationClosed();
+        if (user == address(0)) revert ZeroAddress();
+        if (amount < MIN_STAKE) revert BelowMinStake();
+        if (amount > MAX_STAKE) revert AboveMaxStake();
+        if (originalStartTime > block.timestamp) revert InvalidMigrationStart();
+
+        Stake storage s = stakes[user];
+        if (s.active) revert AlreadyActive();
+        if (s.earlyExited) revert AlreadyExited();
+
+        // The position must be paid for. Verified by delta so a fee-on-transfer
+        // collateral cannot leave the stake partly unbacked.
+        uint256 balanceBefore = collateralToken.balanceOf(address(this));
+        collateralToken.safeTransferFrom(msg.sender, address(this), amount);
+        if (collateralToken.balanceOf(address(this)) != balanceBefore + amount) {
+            revert TransferAmountMismatch();
+        }
+
+        uint256 plan = _getPlanByAmount(amount);
+        if (s.amount == 0) _userCount++;
+        stakes[user] = Stake({
+            amount: amount,
+            plan: plan,
+            rate: dailyRates[plan],
+            startTime: originalStartTime,
+            lastClaimTime: block.timestamp,
+            totalClaimed: 0,
+            active: true,
+            earlyExited: false,
+            freeStake: false
+        });
+        totalStaked += amount;
+        _activeStakeCount++;
+        totalMigrated += amount;
+
+        emit StakeMigrated(user, amount, plan, originalStartTime);
+    }
+
+    /// @notice Permanently ends the migration window.
+    /// @dev One-way. Once closed, the only route to a stake is {stake}, which
+    ///      charges the development fee like any other deposit — so migration
+    ///      cannot be reused later as a fee-free side door.
+    function closeMigration() external onlyOwner {
+        migrationOpen = false;
+        emit MigrationClosed_(totalMigrated);
+    }
 
     // ============================================================
     // Owner functions — site growth fee

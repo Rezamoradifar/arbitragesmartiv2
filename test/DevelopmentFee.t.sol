@@ -69,6 +69,11 @@ contract DevelopmentFeeTest is Test {
     uint256 internal constant BPS2 = 500;
 
     function setUp() public {
+        // Start from a realistic unix time. Foundry's default of 1 leaves no
+        // room behind `block.timestamp`, so migration tests that backdate a
+        // position by weeks would underflow rather than exercise the logic.
+        vm.warp(1_800_000_000);
+
         usdc = new TestUSDC();
         arbi = new ArbiSmartV3(
             address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, BPS1, BPS2
@@ -467,6 +472,142 @@ contract DevelopmentFeeTest is Test {
         (,,, uint256 active) = free.userDepositBreakdown(alice);
         assertEq(active, 1000_000000, "no fee, no haircut");
         assertEq(free.pendingDevelopmentFees(), 0);
+    }
+
+    // ---------------------------------------------------------------
+    // V2 migration
+    // ---------------------------------------------------------------
+
+    function test_migrateStake_recreatesPositionFullyBacked() public {
+        uint256 amount = 28_000000;
+        uint256 originalStart = block.timestamp - 8 days;
+
+        usdc.mint(owner, amount);
+        vm.startPrank(owner);
+        usdc.approve(address(arbi), type(uint256).max);
+        arbi.migrateStake(alice, amount, originalStart);
+        vm.stopPrank();
+
+        (uint256 amt,,, uint256 startTime,,, bool active,,) = arbi.stakes(alice);
+        assertEq(amt, amount, "full V2 principal preserved, no fee taken");
+        assertEq(startTime, originalStart, "position age carried over");
+        assertTrue(active);
+        assertEq(arbi.totalStaked(), amount);
+        assertEq(arbi.totalMigrated(), amount);
+
+        // The defining property: the caller actually paid for it.
+        assertEq(usdc.balanceOf(address(arbi)), amount, "stake is backed by real collateral");
+        assertGe(arbi.totalAssets(), arbi.totalStaked(), "pool fully backs the migrated stake");
+    }
+
+    /// @dev The obvious abuse: backdate `originalStartTime` far enough that the
+    ///      migrated stake immediately owes a large accrued reward. Setting
+    ///      `lastClaimTime` to now rather than to the original start is what
+    ///      closes it.
+    function test_migrateStake_backdatingCannotMintRetroactiveYield() public {
+        uint256 amount = 1000_000000;
+        uint256 wayBack = block.timestamp - 100 days;
+
+        usdc.mint(owner, amount);
+        vm.startPrank(owner);
+        usdc.approve(address(arbi), type(uint256).max);
+        arbi.migrateStake(alice, amount, wayBack);
+        vm.stopPrank();
+
+        assertEq(arbi.getReward(alice), 0, "no yield may accrue for time before migration");
+
+        vm.warp(block.timestamp + 1 days);
+        assertEq(arbi.getReward(alice), 18_000000, "accrual starts at migration, 1.8% of 1000");
+    }
+
+    function test_migrateStake_cannotStartInTheFuture() public {
+        usdc.mint(owner, 1000_000000);
+        vm.startPrank(owner);
+        usdc.approve(address(arbi), type(uint256).max);
+        vm.expectRevert(ArbiSmartV3.InvalidMigrationStart.selector);
+        arbi.migrateStake(alice, 1000_000000, block.timestamp + 1);
+        vm.stopPrank();
+    }
+
+    function test_migrateStake_requiresRealPayment() public {
+        // Owner holds no collateral: the transfer must fail rather than
+        // crediting an unbacked position.
+        vm.startPrank(owner);
+        usdc.approve(address(arbi), type(uint256).max);
+        vm.expectRevert();
+        arbi.migrateStake(alice, 1000_000000, block.timestamp - 1 days);
+        vm.stopPrank();
+
+        (uint256 amt,,,,,, bool active,,) = arbi.stakes(alice);
+        assertEq(amt, 0, "no position created");
+        assertFalse(active);
+    }
+
+    function test_migrateStake_onlyOwner() public {
+        usdc.mint(bob, 1000_000000);
+        vm.startPrank(bob);
+        usdc.approve(address(arbi), type(uint256).max);
+        vm.expectRevert();
+        arbi.migrateStake(bob, 1000_000000, block.timestamp - 1 days);
+        vm.stopPrank();
+    }
+
+    function test_migrateStake_cannotOverwriteActiveStake() public {
+        vm.prank(alice, alice);
+        arbi.stake(1000_000000, address(0));
+
+        usdc.mint(owner, 1000_000000);
+        vm.startPrank(owner);
+        usdc.approve(address(arbi), type(uint256).max);
+        vm.expectRevert(ArbiSmartV3.AlreadyActive.selector);
+        arbi.migrateStake(alice, 1000_000000, block.timestamp - 1 days);
+        vm.stopPrank();
+    }
+
+    function test_closeMigration_isPermanent() public {
+        vm.prank(owner);
+        arbi.closeMigration();
+        assertFalse(arbi.migrationOpen());
+
+        usdc.mint(owner, 1000_000000);
+        vm.startPrank(owner);
+        usdc.approve(address(arbi), type(uint256).max);
+        vm.expectRevert(ArbiSmartV3.MigrationClosed.selector);
+        arbi.migrateStake(alice, 1000_000000, block.timestamp - 1 days);
+        vm.stopPrank();
+    }
+
+    /// @dev A migrated stake keeps its V2 age, so the penalty schedule
+    ///      continues from where it left off rather than restarting.
+    function test_migratedStakeKeepsItsPenaltySchedule() public {
+        uint256 amount = 1000_000000;
+        uint256 originalStart = block.timestamp - 5 weeks; // already past the floor
+
+        usdc.mint(owner, amount);
+        vm.startPrank(owner);
+        usdc.approve(address(arbi), type(uint256).max);
+        arbi.migrateStake(alice, amount, originalStart);
+        vm.stopPrank();
+
+        uint256 before = usdc.balanceOf(alice);
+        vm.prank(alice, alice);
+        arbi.earlyExit();
+
+        // 10% floor penalty, not the 50% week-one rate.
+        assertEq(usdc.balanceOf(alice) - before, 900_000000, "keeps the age it had earned");
+    }
+
+    function test_migrationChargesNoDevelopmentFee() public {
+        uint256 amount = 1000_000000;
+        usdc.mint(owner, amount);
+        vm.startPrank(owner);
+        usdc.approve(address(arbi), type(uint256).max);
+        arbi.migrateStake(alice, amount, block.timestamp - 1 days);
+        vm.stopPrank();
+
+        assertEq(arbi.pendingDevelopmentFees(), 0, "migration is not a new deposit");
+        (uint256 amt,,,,,,,,) = arbi.stakes(alice);
+        assertEq(amt, amount, "full amount staked, nothing skimmed");
     }
 
     // ---------------------------------------------------------------
