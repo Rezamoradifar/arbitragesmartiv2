@@ -7,7 +7,7 @@ import { Icon } from "@/components/Icon";
 export const metadata: Metadata = {
   title: "Security",
   description:
-    "Exactly what the owner can and cannot do with staked funds, and the on-chain checks that enforce it.",
+    "What the owner can and cannot do with staked funds, and the on-chain checks behind each answer.",
 };
 
 const CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "";
@@ -15,69 +15,69 @@ const CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "";
 const canDo = [
   {
     title: "Take a disclosed fee on every deposit",
-    body: "Two development wallets each receive 5% of a deposit — 10% in total — before the stake is recorded. The deposit screen shows the exact split before you sign, your stake is credited net, and the rate is immutable: it is set at deployment and there is no function to raise it.",
+    body: "Two development wallets each take 5% of a deposit, 10% together, before the stake is recorded. You see the exact split on the deposit screen before you sign, and your stake is credited after the fee. The rate was set at deployment and there is no function to raise it.",
   },
   {
     title: "Collect protocol fees on claims",
-    body: "10% of every yield claim goes to two fee wallets, and a capped share of realized strategy profit goes to a profit recipient. The owner sets those addresses. This is the business model, and it is bounded by the contract.",
+    body: "10% of every yield claim goes to two fee wallets, and a capped share of any strategy profit goes to a third. The owner chooses those addresses. This is how the project makes money, and the contract caps how much it can take.",
   },
   {
     title: "Deploy up to 20% into Polymarket",
-    body: "Collateral converts into outcome tokens held by the contract itself. It never reaches a wallet. The cap is cumulative against total assets, so repeated deployments cannot walk past it.",
+    body: "The collateral becomes outcome tokens held by the contract. It never lands in anyone's wallet. The 20% cap counts everything already deployed, so it cannot be worked around by deploying repeatedly in smaller amounts.",
   },
   {
     title: "Pause the protocol",
-    body: "Suspends staking and yield claims. Early exit stays open throughout, so nobody is locked in.",
+    body: "This stops new stakes and yield claims. Early exit keeps working the whole time, so nobody gets locked in.",
   },
   {
     title: "Blacklist an address",
-    body: "Blocks new stakes and claims. It cannot block early exit or emergency withdrawal — principal is never trapped. Accrued yield is inaccessible while blocked, which is the one genuine cost.",
+    body: "This blocks new stakes and claims for one address. It cannot block early exit or emergency withdrawal, so principal is never trapped. What it does cost you is access to yield you have already earned but not claimed.",
   },
 ];
 
 const cannotDo = [
   {
     title: "Withdraw principal to a wallet",
-    body: "No such function exists. The only transfers out are: to the staker who earned them, to the fee wallets for fees already charged, and the capped profit fee. There is no percentage-of-pool withdrawal, at any size, under any label.",
+    body: "There is no such function. Money leaves the contract in three ways: to the staker who earned it, to the fee wallets for fees already charged, and as the capped profit fee. There is no withdraw-a-percentage-of-the-pool function at any size, whatever it might be called.",
   },
   {
     title: "Spend the fee balance as if it were pool capital",
-    body: "Collected fees are tracked separately and subtracted inside totalAssets(), so platform revenue never counts toward the pool it is drawn from, and withdrawing a fee cannot touch a staker's principal.",
+    body: "Collected fees are counted separately and subtracted inside totalAssets(). Fee income never gets counted as pool capital, and withdrawing a fee cannot reach a staker's principal.",
   },
   {
     title: "Raise the deposit fee after you deposit",
-    body: "Both fee rates are immutable constructor parameters with a hard 20% ceiling enforced at deployment. The rate you were quoted is the rate the contract will always charge.",
+    body: "Both rates were fixed when the contract was deployed, under a hard 20% ceiling checked at that moment. Whatever rate you were shown is the rate the contract will always charge.",
   },
   {
     title: "Bill principal as profit",
-    body: "The performance fee is charged only on the surplus over tracked principal, and the tracker is retired by the amount actually recovered — so splitting a redemption across calls cannot manufacture fake profit.",
+    body: "The performance fee applies only to what comes back above the principal that went out, and that principal counter is reduced by whatever is actually recovered. Splitting a redemption across several calls cannot invent profit that was not made.",
   },
   {
     title: "Sweep funds without partners and a delay",
-    body: "Fund rescue needs three of five votes plus a 48-hour on-chain delay, and the destination is frozen while any vote is outstanding.",
+    body: "A fund rescue needs three of five votes and then a 48-hour wait enforced on-chain. While any vote is outstanding, the destination address cannot be changed.",
   },
   {
     title: "Override a partner vote",
-    body: "The owner holds one vote of five, cannot unpause out of emergency mode, and cannot add or remove partners while a vote is live.",
+    body: "The owner has one vote out of five. They cannot unpause their way out of emergency mode, and they cannot add or remove partners while a vote is running.",
   },
 ];
 
 const limitations = [
   {
     title: "The owner is a single key, not a multisig",
-    body: "The contract accepts a Gnosis Safe or a timelock as owner with no code change, and that would be stronger. The partner voting body is the mitigation currently in place.",
+    body: "A Gnosis Safe or a timelock would work as owner without changing a line of code, and either would be safer. For now the partner vote is what stands in for it.",
   },
   {
     title: "Order-book arbitrage is not autonomous",
-    body: "Polymarket's exchange is operator-gated, so the contract can only split, merge, and redeem after resolution. Continuous buy-low/sell-high would need an off-chain component that is deliberately not implemented.",
+    body: "Polymarket's order book only accepts orders from approved operators, so the contract can split, merge, and redeem after a market resolves, and nothing more. Continuous buying and selling would need an off-chain component, and we have not built one.",
   },
   {
     title: "Staking economics are not a guarantee",
-    body: "The advertised daily rates are contract parameters, not a yield the protocol has proven it can sustain. Yield is simple, never compounded, and paying it depends on strategy performance and on inflows.",
+    body: "The daily rates are settings in the contract, not a return the project has shown it can sustain. Yield is simple rather than compounded, and paying it depends on how the strategy performs and on money coming in.",
   },
   {
     title: "Blacklisting can cost you accrued yield",
-    body: "Principal always remains recoverable, but a blocked address cannot claim yield it has already earned.",
+    body: "You can always get your principal back, but a blocked address cannot claim yield it has already earned.",
   },
 ];
 
@@ -85,22 +85,22 @@ const bounty = [
   {
     tier: "Critical",
     reward: "$500",
-    body: "Any path that moves staked principal to an address other than the staker who owns it — a drain, a theft, an unauthorized sweep.",
+    body: "Any route that moves staked principal to an address other than the staker who owns it. A drain, a theft, an unauthorised sweep.",
   },
   {
     tier: "High",
     reward: "$150",
-    body: "Freezing user funds, bypassing a security control (partner quorum, the emergency-withdraw delay, blacklist boundaries), or breaking an accounting invariant.",
+    body: "Freezing user funds, getting around a security control such as the partner quorum, the emergency-withdrawal delay or the blacklist limits, or breaking an accounting rule.",
   },
   {
     tier: "Medium",
     reward: "$50",
-    body: "Incorrect accounting or logic errors that don't directly move funds but could compound into a real issue.",
+    body: "Accounting or logic errors that do not move funds by themselves but could add up to something that does.",
   },
   {
     tier: "Low / info",
     reward: "Credit",
-    body: "Gas inefficiencies, style issues, or anything already listed on this page as a known limitation.",
+    body: "Gas inefficiencies, style issues, or anything already listed above as a known limitation.",
   },
 ];
 
@@ -117,8 +117,8 @@ export default function SecurityPage() {
             What the owner <span className="text-gold-gradient">can</span> and cannot do
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-graphite-300">
-            Most staking sites answer this with a promise. Here it is answered by the contract, and
-            every claim below is checkable in the verified source.
+            Most staking sites answer this with a promise. Here the answer is in the contract, and
+            you can check every line below against the verified source.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <a
@@ -181,8 +181,8 @@ export default function SecurityPage() {
       <section>
         <h2 className="h-section">The race that protects you</h2>
         <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-graphite-300">
-          If the voting body ever moves to sweep the pool, stakers get a 36-hour head start. Both
-          timers are enforced on-chain and start from the same vote.
+          If the voting body ever moves to sweep the pool, you get a 36-hour head start. Both clocks
+          run on-chain and both start from the same vote.
         </p>
         <div className="glass mt-7 p-6 sm:p-8">
           <ol className="space-y-6">
@@ -190,17 +190,17 @@ export default function SecurityPage() {
               {
                 day: "Hour 0",
                 title: "Quorum reached",
-                body: "Three of five vote. The protocol pauses immediately and new strategy deployments stop.",
+                body: "Three of five have voted. The protocol pauses straight away and no new capital goes into the strategy.",
               },
               {
                 day: "Hour 12",
                 title: "Your withdrawal opens",
-                body: "Emergency withdrawal unlocks for every staker — full principal, no penalty, no permission needed.",
+                body: "Emergency withdrawal opens for everyone. Full principal, no penalty, no permission needed.",
               },
               {
                 day: "Hour 48",
                 title: "Earliest possible sweep",
-                body: "Only now can a rescue execute, and only to the recovery wallet frozen at vote time.",
+                body: "Only now can a rescue go through, and only to the recovery wallet that was locked in when the vote started.",
               },
             ].map((step, i) => (
               <li key={step.day} className="flex gap-4">
@@ -233,7 +233,8 @@ export default function SecurityPage() {
         <div className="min-w-0">
           <h2 className="h-section">Known limitations</h2>
           <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-graphite-300">
-            Stated plainly, because a security page that only lists strengths is marketing.
+            A page that only lists strengths is an advert. These are the parts we would want to know
+            about before depositing.
           </p>
           <div className="mt-7 space-y-3.5">
             {limitations.map((x) => (
@@ -252,10 +253,9 @@ export default function SecurityPage() {
       <section id="bounty" className="scroll-mt-24">
         <h2 className="h-section">Bug bounty</h2>
         <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-graphite-300">
-          Found a real vulnerability? Report it privately before doing anything else, and get paid
-          for it. Independently of the automated Slither static-analysis pass and the unit, fork and
-          invariant suites already run against this contract, a genuine bug found by a human is
-          worth a real reward.
+          If you find a real vulnerability, tell us privately before you do anything else and we
+          will pay for it. The contract has already been through Slither and a unit, fork and
+          invariant test suite, so anything a person finds on top of that is worth paying for.
         </p>
 
         <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -286,10 +286,10 @@ export default function SecurityPage() {
             >
               EnjoyingEnjoying@gmail.com
             </a>{" "}
-            with a description and, ideally, a proof-of-concept against a fork — not mainnet. Report
-            privately first; public disclosure or on-chain exploitation before a fix ships forfeits
-            the reward. First valid report wins if more than one person finds the same issue. Scope
-            is the deployed contract at{" "}
+            with a description and, if you can, a proof of concept against a fork rather than
+            mainnet. Tell us privately first. Posting it publicly or exploiting it on-chain before a
+            fix is out means no reward. If two people find the same issue, the first valid report
+            wins. The scope is the deployed contract at{" "}
             <span className="break-all font-mono text-xs text-graphite-200">{CONTRACT}</span> and
             this frontend; known limitations listed above are out of scope.
           </p>

@@ -49,8 +49,8 @@ export default function PortfolioPage() {
           </span>
           <h1 className="h-section mt-5">Portfolio</h1>
           <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-graphite-300">
-            Connect your wallet to see your positions, earnings and full transaction history —
-            reconstructed from on-chain events, not from a database.
+            Connect your wallet to see your positions, earnings and full history, rebuilt from
+            on-chain events rather than from a database.
           </p>
           <div className="mt-7 flex justify-center">
             <ConnectButton />
@@ -252,7 +252,7 @@ function Portfolio() {
       {(user.grossDeposited ?? 0n) > 0n && (
         <Section
           title="Deposit reconciliation"
-          description="What left your wallet, what the platform charged, and what the contract recorded as your stake — all from the contract's own counters."
+          description="What left your wallet, what the fee was, and what the contract recorded as your stake. All of it from the contract's own counters."
         >
           <div className="grid gap-4 sm:grid-cols-3">
             {[
@@ -318,7 +318,7 @@ function Portfolio() {
       {/* Earnings over time */}
       <Section
         title="Earnings over time"
-        description="Cumulative, built from your own claim events — not a projection."
+        description="Cumulative, built from your own claim events rather than a projection."
         action={
           <button className="btn-ghost" onClick={loadHistory} disabled={loadingHistory}>
             {loadingHistory ? "Loading…" : "Refresh"}
@@ -335,7 +335,7 @@ function Portfolio() {
       {/* History */}
       <Section
         title="Transaction history"
-        description="Every action you have taken, decoded from on-chain events."
+        description="Everything you have done here, decoded from on-chain events."
       >
         {reduced && (
           <div className="mb-4 rounded-xl border border-warn-400/25 bg-warn-500/10 px-4 py-3 text-sm text-warn-400">

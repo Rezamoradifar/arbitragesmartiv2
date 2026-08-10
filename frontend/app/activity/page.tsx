@@ -226,14 +226,14 @@ export default function ActivityPage() {
         </span>
         <h1 className="h-section mt-4">Activity</h1>
         <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-graphite-300">
-          Every protocol action, decoded straight from on-chain events. Nothing here is written by a
-          server — it is what the contract emitted.
+          Every action on the protocol, decoded straight from on-chain events. No server writes any
+          of this. It is what the contract itself emitted.
         </p>
       </div>
 
       <Section
         title="Recent events"
-        description="Approximately the last three days of Polygon blocks."
+        description="Roughly the last three days of Polygon blocks."
         action={
           <button className="btn-secondary" onClick={load} disabled={loading}>
             {loading ? "Loading…" : "Refresh"}

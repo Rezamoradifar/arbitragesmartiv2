@@ -28,8 +28,8 @@ export default function PartnersPage() {
         <h1 className="h-section mt-4">Partner governance</h1>
         <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-graphite-300">
           The voting body is the owner plus up to {Number(gov.maxPartners ?? 4n)} partners. Any{" "}
-          {required} of them can freeze the protocol and open withdrawals — the owner holds one vote
-          and cannot override the result.
+          {required} of them can freeze the protocol and open withdrawals. The owner has one vote
+          and cannot overrule the result.
         </p>
       </div>
 
@@ -91,7 +91,7 @@ export default function PartnersPage() {
                 label="Votes revocable"
                 value={
                   gov.emergencyWithdrawOpen ? (
-                    <span className="text-graphite-300">No — window closed</span>
+                    <span className="text-graphite-300">No, the window has closed</span>
                   ) : (
                     <span className="text-warn-400">Yes, until withdrawals open</span>
                   )
@@ -165,8 +165,8 @@ export default function PartnersPage() {
           </div>
 
           <p className="mt-3 text-xs text-graphite-400">
-            Revoking a rescue vote is always available, right up until the sweep executes. Stakers&apos;
-            own withdrawals open 36 hours before it.
+            You can revoke a rescue vote right up until the sweep goes through. Stakers&apos; own
+            withdrawals open 36 hours before that.
           </p>
         </Section>
       </div>
@@ -174,7 +174,7 @@ export default function PartnersPage() {
       {/* Voting body */}
       <Section
         title="Voting body"
-        description={`${gov.voters.length} members — the owner plus ${Number(gov.partnerCount ?? 0n)} partner(s).`}
+        description={`${gov.voters.length} members: the owner plus ${Number(gov.partnerCount ?? 0n)} partner(s).`}
       >
         {gov.isLoading ? (
           <Skeleton className="h-24 w-full" />

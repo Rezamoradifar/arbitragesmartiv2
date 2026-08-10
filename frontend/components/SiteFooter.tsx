@@ -44,8 +44,8 @@ export function SiteFooter() {
               </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-graphite-400">
-              Advanced digital asset infrastructure on Polygon. Open-source, verified byte-for-byte,
-              and built so that leaving never requires anyone&apos;s permission.
+              Staking infrastructure on Polygon. The source is open, the deployed code is verified
+              against it, and you can withdraw without asking us.
             </p>
           </div>
 
@@ -78,18 +78,18 @@ export function SiteFooter() {
 
         <div className="divider my-10" />
 
-        {/* The risk note is deliberately in the footer of every page rather
-            than only on /security: a rate is a contract parameter, not a
-            promise, and that should never be more than one glance away. */}
+        {/* The risk note sits on every page rather than only on /security. A
+            rate is a setting, not a promise, and that should never be more
+            than a glance away. */}
         <p className="max-w-3xl text-xs leading-relaxed text-graphite-500">
-          Staking returns are contract parameters, not guarantees, and a deposit carries a platform
-          fee that is charged before the stake is recorded — the deposit screen shows the exact split
-          before you sign. Read the{" "}
+          Staking returns are settings in the contract, not guarantees. Every deposit is charged a
+          fee before the stake is recorded, and the deposit screen shows the exact split before you
+          sign. The{" "}
           <Link href="/security" className="text-graphite-300 underline underline-offset-2 hover:text-gold-300">
             security page
           </Link>{" "}
-          for what the owner can and cannot do with pooled funds, and for this protocol&apos;s known
-          limitations.
+          {" "}covers what the owner can and cannot do with pooled funds, and what we know is weak
+          about this protocol.
         </p>
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4">

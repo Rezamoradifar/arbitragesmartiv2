@@ -18,7 +18,7 @@ const display = Sora({
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://arbhub.site";
 const TITLE = "ArbiSmart — Advanced Digital Asset Infrastructure";
 const DESCRIPTION =
-  "Institutional-grade staking infrastructure on Polygon. Fixed daily yield, a four-tier referral programme, and an exit no one can block — every control that could touch principal is bounded, delayed, or put to a partner vote.";
+  "Staking on Polygon with a fixed daily rate, a four-tier referral programme, and a withdrawal nobody can block. Every control that could reach your principal is capped, delayed, or put to a partner vote.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: TITLE,
     description:
-      "Staking with an exit you don't have to trust anyone for. Every control that could touch your principal is bounded, delayed, or put to a vote.",
+      "Staking where getting out does not depend on trusting anyone. Every control that could reach your principal is capped, delayed, or put to a vote.",
     url: SITE_URL,
     siteName: "ArbiSmart",
     type: "website",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: TITLE,
-    description: "Advanced digital asset infrastructure on Polygon.",
+    description: "Fixed-rate staking on Polygon, on a contract you can read.",
   },
   robots: { index: true, follow: true },
   verification: {

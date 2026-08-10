@@ -19,7 +19,7 @@ export function GovernanceSnapshot() {
         <div>
           <h2 className="font-display text-lg font-semibold text-white">Live governance state</h2>
           <p className="mt-1 text-sm text-graphite-300">
-            Read straight from the contract — not a status page someone updates by hand.
+            Read straight from the contract, not a status page someone updates by hand.
           </p>
         </div>
         {protocol.emergencyMode ? (
@@ -92,7 +92,7 @@ export function GovernanceSnapshot() {
         href="/partners"
         className="mt-6 inline-block text-sm text-gold-300 underline underline-offset-2 hover:text-gold-300"
       >
-        See the full voting body and per-member votes →
+        See the full voting body and who has voted →
       </Link>
     </section>
   );

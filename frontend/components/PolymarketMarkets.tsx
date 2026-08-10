@@ -16,9 +16,9 @@ export async function PolymarketMarkets() {
         <span className="eyebrow">Live from Polymarket</span>
         <h2 className="h-section mt-4">The order books the strategy watches</h2>
         <p className="mt-3 leading-relaxed text-graphite-300">
-          Live prices, pulled straight from Polymarket&apos;s public API — the same prediction
-          markets ArbiSmart&apos;s arbitrage engine scans for mispriced YES/NO pairs. This isn&apos;t a
-          list of the protocol&apos;s open positions; it&apos;s the real market data behind the strategy.
+          Live prices from Polymarket&apos;s public API. These are the markets the strategy watches
+          for mispriced YES/NO pairs. They are not the protocol&apos;s open positions, just the market
+          data behind it.
         </p>
       </div>
 
@@ -52,8 +52,8 @@ export async function PolymarketMarkets() {
       </div>
 
       <p className="mt-5 text-xs text-graphite-400">
-        Source: Polymarket public Gamma API, refreshed every couple of minutes. Prices are implied
-        probabilities from the live order book, not a recommendation.
+        Source: Polymarket&apos;s public Gamma API, refreshed every couple of minutes. The prices are
+        implied probabilities from the live order book, and none of this is a recommendation.
       </p>
     </section>
   );

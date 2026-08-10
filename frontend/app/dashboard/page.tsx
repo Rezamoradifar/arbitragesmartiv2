@@ -145,18 +145,18 @@ function ConnectGate() {
             <p className="eyebrow">Wallet required</p>
             <h1 className="h-section mt-4">Connect to open your dashboard</h1>
             <p className="mt-3 max-w-md text-[15px] leading-relaxed text-graphite-300">
-              Everything here is read straight from the contract on Polygon — your position, your
-              accrued yield, and your team. Connecting a wallet only lets the page read your
-              address; nothing moves until you sign a transaction.
+              Your position, your yield and your team are all read from the contract on Polygon.
+              Connecting a wallet only lets the page see your address. Nothing moves until you sign
+              a transaction.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <ConnectButton />
             </div>
             <ul className="mt-8 space-y-2.5">
               {[
-                "Your deposit split is shown in full before you sign",
-                "Exit is permissionless — no approval required to leave",
-                "Contract source is verified byte-for-byte on-chain",
+                "You see the full deposit split before you sign",
+                "Leaving needs no approval from anyone",
+                "The contract source is verified on-chain",
               ].map((t) => (
                 <li key={t} className="flex items-start gap-2.5 text-sm text-graphite-300">
                   <Icon name="check" className="mt-0.5 h-4 w-4 shrink-0 text-gold-400" />
@@ -205,15 +205,15 @@ function StatusBanners({
     <div className="space-y-3">
       {user.blacklisted && (
         <Alert tone="bad" title="This address is blocked from new stakes and claims">
-          Your principal is not frozen — early exit and emergency withdrawal remain available to you.
+          Your principal is not frozen. Early exit and emergency withdrawal both still work for you.
         </Alert>
       )}
       {protocol.emergencyMode && (
         <Alert tone="bad" title="The protocol is in emergency mode">
           New stakes and arbitrage deployments are frozen.{" "}
           {user.emergencyOpen
-            ? "Emergency withdrawal is open — you can recover your full principal with no penalty."
-            : "Emergency withdrawal opens shortly; no penalty will be applied."}
+            ? "Emergency withdrawal is open. You can take your full principal back with no penalty."
+            : "Emergency withdrawal opens shortly, and no penalty will apply."}
         </Alert>
       )}
       {!protocol.emergencyMode && protocol.paused && (
@@ -223,7 +223,8 @@ function StatusBanners({
       )}
       {protocol.isFreePeriod && (
         <Alert tone="brand" title="Free-stake period is active">
-          During this window a stake must be exactly 10 USDT and is recorded as a free position.
+          While this window is open, a stake has to be exactly 10 USDT and is recorded as a free
+          position.
           {freeLeft !== undefined && (
             <>
               {" "}
@@ -314,7 +315,7 @@ function PositionCard({ user }: { user: ReturnType<typeof useUserPosition> }) {
   return (
     <Section
       title="Your position"
-      description="Rewards accrue every second and stop at the end of the term. Nothing here is compounded — yield is computed on the principal only."
+      description="Rewards build every second and stop when the term ends. Nothing compounds here: yield is worked out on your principal alone."
       action={
         <div className="flex flex-wrap gap-2">
           <Badge tone="brand">{plan.name}</Badge>
@@ -530,7 +531,7 @@ function StakeCard({
   return (
     <Section
       title="Open a position"
-      description="Your plan tier is selected automatically from the amount recorded as your stake."
+      description="Your tier is set by the amount the contract records as your stake, which is your deposit minus the fee."
     >
       <div className="space-y-5">
         <div>
@@ -573,7 +574,7 @@ function StakeCard({
           </div>
           {isFreeStake && (
             <p className="mt-2.5 text-xs text-gold-300">
-              Free-stake position — no USDT balance or approval needed. One tap below.
+              Free position: no USDT balance or approval needed. One tap below.
             </p>
           )}
 
@@ -582,25 +583,25 @@ function StakeCard({
               stops being true, rather than only rejecting the amount. */}
           {freePeriod && !isProtocolWallet && (
             <p className="mt-2.5 text-xs leading-relaxed text-graphite-400">
-              The contract accepts only 10 USDT from any wallet while the launch window is open.
-              Larger deposits — and every plan tier above Starter — unlock automatically in{" "}
+              While the launch window is open the contract takes only 10 USDT, from any wallet.
+              Larger deposits, and every tier above Starter, open automatically in{" "}
               <span className="text-graphite-200">
                 <Countdown
                   target={Math.floor(Date.now() / 1000) + Number(protocol.freeTimeLeft ?? 0n)}
                 />
               </span>
-              . Nothing needs to be done to enable them.
+              . Nobody has to do anything to switch them on.
             </p>
           )}
 
           {isProtocolWallet && (
             <p className="mt-2.5 text-xs leading-relaxed text-graphite-400">
               This is a development-fee wallet. It cannot take a free position, and once the launch
-              window closes it may open exactly one position of{" "}
+              window closes it can open exactly one position of{" "}
               <span className="text-graphite-200">
                 {formatAmount(PROTOCOL_WALLET_STAKE_UNITS)} USDT
               </span>
-              , funded like any other deposit.
+              , paid for like any other deposit.
             </p>
           )}
         </div>
@@ -651,10 +652,10 @@ function StakeCard({
                 : `Approve ${formatAmount(amountUnits)} USDT`}
             </button>
             <p className="mt-2.5 text-xs text-graphite-400">
-              Step 1 of 2. Approval lets the contract move exactly this amount — no more.
+              Step 1 of 2. This approval lets the contract move exactly this amount and no more.
             </p>
             {approveReceipt.isSuccess && (
-              <p className="mt-2 text-sm text-success-400">Approved — you can stake now.</p>
+              <p className="mt-2 text-sm text-success-400">Approved. You can stake now.</p>
             )}
             {approve.error && (
               <p className="mt-2 text-sm text-danger-400">{approve.error.message.split("\n")[0]}</p>
@@ -762,16 +763,16 @@ function DepositBreakdown({
 
             {droppedATier && nextUp && (
               <p className="mt-3 rounded-lg border border-warn-400/25 bg-warn-500/10 px-3 py-2 text-xs leading-relaxed text-warn-400">
-                {formatAmount(gross)} USDT would reach {PLANS[grossPlan].name} before the fee, but
-                the tier is set by the recorded stake — so this deposit lands in {plan.name}. Deposit{" "}
+                {formatAmount(gross)} USDT would reach {PLANS[grossPlan].name} before the fee, but the
+                tier comes from the recorded stake, so this deposit lands in {plan.name}. Send{" "}
                 {formatAmount(needed)} USDT to reach {nextUp.name}.
               </p>
             )}
 
             <p className="mt-3 text-xs leading-relaxed text-graphite-400">
-              Yield is calculated on the recorded stake, not on the amount sent, and is simple —
-              never compounded. Each claim carries a separate 10% fee, and exiting before week 5
-              carries a penalty on the principal.
+              Yield is worked out on the recorded stake rather than the amount you sent, and it is
+              simple interest, not compounded. Claiming costs a separate 10% fee, and leaving before
+              week five costs a penalty on your principal.
             </p>
           </>
         )}
@@ -1021,9 +1022,9 @@ function ReferralCard({
       {!user.active && (
         <div className="mt-4">
           <Alert tone="warn" title="Your link won't work yet">
-            The contract only credits a referral if you already have an active stake at the moment
-            your friend stakes. Stake first — anyone who used this link before that point was staked
-            normally, but was never linked to you, and that can&apos;t be fixed after the fact.
+            A referral only counts if you already have an active stake when your friend stakes. So
+            stake first. Anyone who used this link before that staked normally, but was never linked
+            to you, and there is no way to fix that afterwards.
           </Alert>
         </div>
       )}
@@ -1094,8 +1095,8 @@ function ExitCard({
             value={<span className="font-semibold text-white">{formatAmount(returned)} USDT</span>}
           />
           <p className="mt-3 text-xs leading-relaxed text-graphite-400">
-            The penalty drops each week and reaches its 10% floor from week 5. Unclaimed yield is
-            forfeited — claim before exiting.
+            The penalty drops each week and settles at 10% from week five. Anything you have not
+            claimed is lost, so claim before you exit.
           </p>
           {confirm ? (
             <div className="mt-4 space-y-2">
@@ -1131,7 +1132,7 @@ function ReferralTeam() {
   return (
     <Section
       title="Your team"
-      description="Every direct referral and the position they hold — pulled live from the contract, not a spreadsheet."
+      description="Everyone you referred directly and the position they hold, read live from the contract."
       action={
         referrals.length > 0 ? (
           <Badge tone="neutral">

@@ -70,7 +70,7 @@ export function EarningsChart({ data, height = 260 }: { data: Point[]; height?: 
         className="flex items-center justify-center rounded-xl border border-dashed border-white/[.07] text-sm text-graphite-400"
         style={{ height }}
       >
-        Not enough history yet — your first claim starts this chart.
+        Not enough history yet. This chart starts with your first claim.
       </div>
     );
   }

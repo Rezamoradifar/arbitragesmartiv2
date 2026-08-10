@@ -45,9 +45,9 @@ export default function AdminPage() {
       <div className="container-page space-y-6 py-10">
         <h1 className="h-section">Owner console</h1>
         <Alert tone="neutral" title="This wallet is not the contract owner">
-          The owner is <AddressLink address={gov.owner} />. Every action on this page is gated
-          on-chain, so a non-owner wallet cannot change anything here regardless of what the
-          interface shows.
+          The owner is <AddressLink address={gov.owner} />. Every action on this page is checked
+          on-chain, so another wallet cannot change anything here no matter what this page lets you
+          click.
         </Alert>
       </div>
     );
@@ -111,7 +111,7 @@ function PauseControls({
   return (
     <Section
       title="Protocol state"
-      description="Pausing suspends staking and claims. Early exit always stays available to stakers."
+      description="Pausing stops staking and claims. Early exit stays available to stakers throughout."
     >
       <div className="flex flex-wrap gap-3">
         <button
@@ -131,8 +131,8 @@ function PauseControls({
       </div>
       {emergencyMode && (
         <p className="mt-3 text-xs text-warn-400">
-          Unpause is blocked while emergency mode is active — otherwise the owner could close the
-          stakers&apos; escape hatch.
+          Unpause is blocked while emergency mode is active. Otherwise the owner could close the
+          stakers&apos; way out.
         </p>
       )}
       <TxStatus {...tx} />
@@ -216,8 +216,8 @@ function PartnerAdmin({
       </div>
 
       <p className="mt-4 text-xs text-graphite-400">
-        Removal uses swap-and-pop, so the remaining partners may change index. The list above always
-        reflects current on-chain order.
+        Removing a partner moves the last one into their slot, so the remaining indexes can shift.
+        The list above always shows the current on-chain order.
       </p>
       <TxStatus {...tx} />
     </Section>
@@ -284,8 +284,8 @@ function RescueAdmin({
         </div>
         {votesPending && (
           <p className="mt-1.5 text-xs text-warn-400">
-            Frozen while rescue votes are outstanding — the destination cannot be changed under a
-            vote already cast.
+            Frozen while rescue votes are outstanding, so the destination cannot be changed under a
+            vote that has already been cast.
           </p>
         )}
       </div>
@@ -298,8 +298,8 @@ function RescueAdmin({
         Execute rescue — sweep {formatAmount(protocol.balance)} USDT
       </button>
       <p className="mt-2 text-xs text-graphite-400">
-        Requires partner quorum plus the full 48-hour delay. Stakers&apos; own no-penalty withdrawals
-        open 36 hours earlier.
+        Needs the partner quorum and the full 48-hour delay. Stakers&apos; own penalty-free
+        withdrawals open 36 hours before that.
       </p>
       <TxStatus {...tx} />
     </Section>
@@ -432,8 +432,8 @@ function BlacklistAdmin({ onDone }: { onDone: () => void }) {
         </button>
       </div>
       <p className="mt-3 text-xs text-graphite-400">
-        A blocked address keeps access to early exit and emergency withdrawal, so principal is never
-        trapped. Unclaimed yield is inaccessible while blocked.
+        A blocked address can still use early exit and emergency withdrawal, so principal is never
+        trapped. Yield that has not been claimed stays out of reach while the block is on.
       </p>
       <TxStatus {...tx} />
     </Section>
@@ -469,7 +469,7 @@ function DevelopmentFeeAdmin({
   return (
     <Section
       title="Development & promotion fees"
-      description="Fees already charged on deposits and disclosed to the depositor at signing time. This balance is held apart from pool capital and is excluded from totalAssets()."
+      description="Fees already charged on deposits and shown to the depositor before they signed. This balance is kept apart from pool capital and left out of totalAssets()."
       action={<Badge tone="brand">{formatAmount(protocol.developmentFeeBalance)} USDT held</Badge>}
     >
       <div className="grid gap-5 sm:grid-cols-2">
@@ -535,8 +535,8 @@ function DevelopmentFeeAdmin({
           </button>
         </div>
         <p className="mt-2 text-xs text-graphite-400">
-          Only the destination address can change. The fee rates themselves are immutable
-          constructor parameters — there is no function that raises them.
+          Only the destination address can change. The rates themselves were fixed at deployment
+          and no function raises them.
         </p>
       </div>
 
@@ -592,7 +592,7 @@ function MigrationAdmin({
   return (
     <Section
       title="V2 migration"
-      description="Recreates a position from the previous contract. Reward accrual restarts at the migration block, so a backdated start cannot mint yield for time that was never staked here."
+      description="Recreates a position from the previous contract. Rewards start accruing again at the migration block, so an old start date cannot pay out yield for time that was never staked here."
       action={open ? <Badge tone="good">Open</Badge> : <Badge tone="neutral">Closed</Badge>}
     >
       <Row label="Migrated so far" value={`${formatAmount(protocol.totalMigrated)} USDT`} />
@@ -642,8 +642,8 @@ function MigrationAdmin({
         Close migration permanently
       </button>
       <p className="mt-2 text-xs text-graphite-400">
-        Closing is irreversible. Migrated positions are recorded at full value with no deposit fee —
-        they were already charged once on the old contract.
+        Closing this is permanent. Migrated positions are recorded at full value with no deposit
+        fee, since they were already charged once on the old contract.
       </p>
       <TxStatus {...tx} />
     </Section>
@@ -671,7 +671,7 @@ function GrantAdmin({
   return (
     <Section
       title="Promotional grants"
-      description="Credits a position funded by collateral the owner has already deposited — not drawn from other stakers' capital."
+      description="Opens a position paid for with collateral the owner has already deposited, rather than out of other stakers' capital."
     >
       <Row label="Granted so far" value={`${formatAmount(protocol.totalGranted)} USDT`} />
       <Row label="Free stakes used" value={`${(protocol.freeStakeCount ?? 0n).toString()} / ${(protocol.maxFreeStakes ?? 0n).toString()}`} />
@@ -703,8 +703,8 @@ function GrantAdmin({
         </div>
       </div>
       <p className="mt-3 text-xs text-graphite-400">
-        Deposit the collateral first. The transaction reverts if the pool balance would not cover
-        the grant, which is what stops a grant from quietly becoming a claim on someone else&apos;s
+        Deposit the collateral first. The transaction reverts if the pool cannot cover the grant,
+        which is what stops a grant from quietly turning into a claim on someone else&apos;s
         deposit.
       </p>
       <TxStatus {...tx} />
@@ -753,7 +753,7 @@ function SwapAdmin({
   return (
     <Section
       title="Strategy token swap"
-      description="Polymarket settles in USDC.e while the pool is denominated in USDT. Collateral crosses that boundary here, and only here."
+      description="Polymarket settles in USDC.e while the pool is held in USDT. This is the only place collateral crosses between the two."
       action={
         <Badge tone="volt">{formatAmount(protocol.arbitrageTokenBalance)} USDC.e held</Badge>
       }
@@ -847,7 +847,7 @@ function ArbitrageAdmin({
   return (
     <Section
       title="Polymarket arbitrage"
-      description="Collateral converts into contract-held outcome tokens. No path sends it to a wallet."
+      description="Collateral becomes outcome tokens held by the contract. Nothing here sends it to a wallet."
     >
       <div className="grid gap-4 sm:grid-cols-4">
         <div>
@@ -941,8 +941,8 @@ function ArbitrageAdmin({
         </button>
       </div>
       <p className="mt-2 text-xs text-graphite-400">
-        Split is blocked while paused or in emergency mode. Merge and redeem stay available so
-        positions can always be unwound for stakers.
+        Split is blocked while the protocol is paused or in emergency mode. Merge and redeem keep
+        working so positions can always be unwound and stakers paid.
       </p>
 
       <div className="mt-6 border-t border-white/[.07] pt-5">
@@ -967,8 +967,8 @@ function ArbitrageAdmin({
           </button>
         </div>
         <p className="mt-1.5 text-xs text-graphite-400">
-          Requires an ERC-20 approval from the owner wallet first. Credits the measured balance
-          delta, so a fee-on-transfer token cannot inflate the budget.
+          Needs an ERC-20 approval from the owner wallet first. It credits the measured balance
+          change, so a fee-on-transfer token cannot inflate the budget.
         </p>
       </div>
 

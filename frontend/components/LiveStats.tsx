@@ -33,7 +33,7 @@ export function LiveStats() {
     {
       label: "Total value locked",
       value: p.totalAssets,
-      sub: "Liquid + deployed, net of unswept fees",
+      sub: "Liquid plus deployed, after unswept fees",
       lead: true,
       icon: "layers" as const,
     },
@@ -57,8 +57,8 @@ export function LiveStats() {
       // plainly rather than leaving a bare zero to be read as a fault.
       sub:
         (p.arbitrageProfit ?? 0n) === 0n
-          ? "None realized yet — only settled gains count"
-          : "Net of performance fee, credited to the pool",
+          ? "Nothing realised yet. Only settled gains count."
+          : "After the performance fee, credited to the pool",
       icon: "zap" as const,
     },
   ];
@@ -165,7 +165,7 @@ function StrategyCapacity({
       <p className="mt-3.5 text-xs leading-relaxed text-graphite-400">
         {deployed === 0n ? (
           <>
-            Every staked dollar is liquid right now — nothing is committed to a position. The
+            Every staked dollar is liquid right now, with nothing committed to a position. The
             contract can commit at most{" "}
             <span className="text-graphite-200">{formatAmount(ceiling)} USDT</span> (20% of assets);
             the rest can never leave the withdrawal buffer.
@@ -227,8 +227,8 @@ function BalanceSheet({ p }: { p: ReturnType<typeof useProtocol> }) {
       </dl>
 
       <p className="mt-3.5 text-xs leading-relaxed text-graphite-400">
-        The fee balance is held separately in the accounting and is subtracted from total assets, so
-        platform revenue is never counted as pool capital and cannot be withdrawn as if it were.
+        Fees are counted separately and subtracted from total assets, so fee income never gets
+        mistaken for pool capital or withdrawn as though it were.
       </p>
     </div>
   );

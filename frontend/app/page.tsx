@@ -47,25 +47,25 @@ const steps: Array<{ n: string; title: string; body: string; icon: IconName }> =
   {
     n: "01",
     title: "Connect a wallet",
-    body: "MetaMask, Trust, Rainbow or any WalletConnect wallet. No account, no email, no custody transfer — the contract only ever sees an address.",
+    body: "Works with MetaMask, Trust, Rainbow, or anything that speaks WalletConnect. There is no signup and no email. The contract only ever sees your address.",
     icon: "wallet",
   },
   {
     n: "02",
-    title: "Review the split, then deposit",
-    body: "The deposit screen shows exactly what a given amount buys — the platform fee and the stake that gets recorded — before you sign anything.",
+    title: "Check the numbers, then deposit",
+    body: "Before you sign, the deposit screen shows what leaves your wallet, what the fee is, and what gets recorded as your stake.",
     icon: "layers",
   },
   {
     n: "03",
-    title: "Yield accrues per second",
-    body: "Rewards accumulate continuously against your recorded stake and stop at the end of the term. Nothing needs claiming to keep accruing.",
+    title: "Yield builds every second",
+    body: "Rewards build against the stake the contract recorded and stop when the term ends. You do not have to claim anything to keep earning.",
     icon: "zap",
   },
   {
     n: "04",
-    title: "Claim or exit, on your terms",
-    body: "Claim yield whenever you like. Exit whenever you like, at a penalty that declines weekly to a 10% floor. Neither needs anyone's approval.",
+    title: "Claim or leave when you want",
+    body: "Claim your yield any time. Leaving early costs a penalty that drops each week and stops at 10%. Neither one needs our approval.",
     icon: "check",
   },
 ];
@@ -80,69 +80,69 @@ const features: Array<{
 }> = [
   {
     eyebrow: "Smart contract security",
-    title: "The owner cannot reach your principal",
-    body: "Not as a policy — as an absence. There is no function in the deployed bytecode that moves staked principal to a wallet, so there is nothing to trust and nothing to revoke.",
+    title: "The owner cannot touch your principal",
+    body: "The code running on Polygon has no function that sends staked principal to a wallet. It is not a rule we promise to follow. The option is simply not there.",
     points: [
-      "No withdrawal path to any owner-controlled address",
-      "Fee rates are compile-time constants, not settings",
-      "Blacklisting can never block an exit",
+      "No withdrawal path to an owner wallet",
+      "Fee rates were fixed at deployment and cannot be raised",
+      "A blocked address can still withdraw",
     ],
     Visual: SecurityVisual,
   },
   {
     eyebrow: "Automated strategies",
     title: "Capital deployment with a hard ceiling",
-    body: "At most 20% of assets can ever sit in a market position, and the cap is cumulative — repeated deployments cannot walk past it. The rest stays liquid for withdrawals, always.",
+    body: "No more than 20% of assets can sit in a market position. The cap counts everything already deployed, so splitting one deployment into several does not get around it. The rest stays liquid for withdrawals.",
     points: [
-      "Cumulative 20% ceiling, enforced on every call",
-      "Swaps carry a contract-level slippage floor",
-      "Profit is only booked once it settles in the pool's own currency",
+      "20% ceiling, checked on every deployment",
+      "Every swap has a slippage limit in the contract",
+      "Profit counts only once it settles back in USDT",
     ],
     Visual: StrategyVisual,
     flip: true,
   },
   {
     eyebrow: "Global infrastructure",
-    title: "Permissionless, everywhere, always on",
-    body: "Deployed on Polygon and reachable from any wallet on earth. No regional gating, no business hours, no intermediary between a holder and their own position.",
+    title: "Open to anyone, anywhere",
+    body: "It runs on Polygon and works from any wallet. No countries are blocked, there are no opening hours, and nobody stands between you and your position.",
     points: [
-      "Polygon mainnet — low fees, fast finality",
-      "Any WalletConnect-compatible wallet",
-      "Every action settles on a public ledger",
+      "Polygon mainnet, with low fees and fast confirmation",
+      "Any wallet that supports WalletConnect",
+      "Every action is a public transaction",
     ],
     Visual: GlobalVisual,
   },
   {
     eyebrow: "Analytics",
-    title: "Read the protocol, not a dashboard",
-    body: "Every figure shown is read live from the contract at the block you are looking at. Nothing is cached, aggregated or reported from a private database.",
+    title: "The numbers come from the chain",
+    body: "Every figure on this site is read from the contract as the page loads. There is no database behind it, so there is nothing that can quietly go stale or be edited.",
     points: [
-      "Live reads, straight from chain state",
-      "Full event-sourced transaction history",
-      "Portfolio performance built from your own claims",
+      "Read live at the current block",
+      "History rebuilt from on-chain events",
+      "Your returns calculated from your own claims",
     ],
     Visual: AnalyticsVisual,
     flip: true,
   },
   {
     eyebrow: "Web3 ecosystem",
-    title: "Composable by construction",
-    body: "Standard ERC-20 collateral, standard wallet connections, and a verified interface any tool can read. Nothing here is a walled garden.",
+    title: "Built on standards",
+    body: "Ordinary ERC-20 collateral, ordinary wallet connections, and a published interface. Any tool that can read Polygon can read this.",
     points: [
-      "USDT collateral on Polygon",
-      "Public ABI, verified source",
-      "Direct integration with Polymarket's Conditional Tokens",
+      "USDT on Polygon",
+      "Public ABI and verified source",
+      "Uses Polymarket's Conditional Tokens directly",
     ],
     Visual: EcosystemVisual,
   },
   {
     eyebrow: "Security center",
-    title: "Verified byte-for-byte, publicly",
-    body: "The deployed bytecode matches the published source exactly, confirmed independently on Sourcify. You do not have to take our word for any claim on this page.",
+    title: "The source is published and verified",
+    body: "The code running on Polygon matches the published source exactly. Sourcify checked that, not us. You can read the whole thing before you deposit anything.",
     points: [
-      "Exact-match verification on creation and runtime bytecode",
-      "Partner governance can freeze the protocol over the owner",
-      "Live bug bounty with published reward tiers",
+      "Exact bytecode match on both creation and runtime code",
+      "Partners can freeze the protocol without the owner",
+      "Bug bounty with published payouts",
     ],
     Visual: VerificationVisual,
     flip: true,
@@ -151,28 +151,28 @@ const features: Array<{
 
 const faqs = [
   {
-    q: "What does the platform fee actually cost me?",
-    a: "A 10% development fee is charged on each deposit, split across two operations wallets. It is taken before the stake is recorded, so a 1,000 USDT deposit records a 900 USDT stake and the contract holds exactly what it owes from the first block. The deposit screen shows the split before you sign, and the rate is immutable — it cannot be raised after you have read it.",
+    q: "What does the fee cost me?",
+    a: "Every deposit is charged 10%, split between two development wallets. It comes off before your stake is recorded, so 1,000 USDT in means 900 USDT staked. You see the exact split on the deposit screen before you sign. The rate was set when the contract was deployed and there is no function to raise it later.",
   },
   {
     q: "Can the owner take my deposit?",
-    a: "No. There is no function in the contract that transfers staked principal to an owner-controlled address. The owner receives fees — 10% of yield at claim time and a capped share of realised strategy profit — and nothing else. The emergency rescue path that can move pooled funds needs a 3-of-5 partner vote plus a 48-hour delay, and stakers' own no-penalty withdrawal opens 36 hours before it can fire.",
+    a: "No. Nothing in the contract sends staked principal to an owner address. The owner earns the deposit fee, 10% of your yield when you claim, and a capped share of strategy profit. That is the whole list. The one path that can move pooled funds needs 3 of 5 partner votes and then a 48-hour wait, and your own penalty-free withdrawal opens 36 hours before that wait is over.",
   },
   {
-    q: "What happens if I want to leave early?",
-    a: "Early exit is always available and needs no one's approval. The penalty starts at 50% in week one and declines each week to a 10% floor from week five. It applies to principal only. Unclaimed yield is forfeited on exit, so claim first, then exit.",
+    q: "What if I want to leave early?",
+    a: "You can leave whenever you want and nobody has to approve it. The penalty is 50% in the first week and falls each week until it settles at 10% from week five. It only applies to your principal. Anything you have not claimed is lost when you exit, so claim first.",
   },
   {
-    q: "Are the advertised rates guaranteed?",
-    a: "No. They are contract parameters, not promises. Yield is paid from pooled capital and, over time, must be funded by real returns; nothing in a smart contract can manufacture a return that the underlying strategy has not earned. Treat the rates as the terms currently encoded, not as a forecast, and size your position accordingly.",
+    q: "Are the rates guaranteed?",
+    a: "No. They are settings in the contract, not a promise. Yield is paid out of the pool, and over time it has to be covered by money the strategy actually makes. No smart contract can create a return that was not earned somewhere. Treat the rates as today's terms rather than a forecast, and decide how much to deposit on that basis.",
   },
   {
-    q: "How does the referral programme pay out?",
-    a: "Referral rewards are funded from protocol fees, not deducted from the referred user's principal or yield — their position is unaffected by whether they were referred. It pays two levels deep across four tiers. Your link only credits referrals while you hold an active stake, so stake before you share it.",
+    q: "How do referrals pay?",
+    a: "Referral rewards come out of protocol fees. Nothing is taken from the person you referred, so their position is identical either way. It pays across two levels and four tiers. Your link only counts while you have an active stake, so stake before you share it.",
   },
   {
-    q: "Where can I verify all of this myself?",
-    a: "The full source is published and verified with an exact bytecode match on Sourcify, and readable on PolygonScan and Blockscout. Every number on this site is read live from that contract. The security page documents the known limitations as plainly as the strengths.",
+    q: "How do I check any of this myself?",
+    a: "The full source is published and verified against the deployed bytecode on Sourcify, and you can read it on PolygonScan or Blockscout. Every number on this site comes from that contract. The security page also lists what is weak about it, not just what is strong.",
   },
 ];
 
@@ -210,9 +210,8 @@ export default function Home() {
             </p>
 
             <p className="mt-5 max-w-xl animate-fade-up animate-delay-300 text-[15px] leading-relaxed text-graphite-300 sm:text-base">
-              Fixed-rate staking on an open, verified contract — with a bounded strategy allocation,
-              partner-governed emergency controls, and an exit that never requires anyone&apos;s
-              permission.
+              Fixed-rate staking on Polygon. The contract is published and verified, the amount that
+              can go into the strategy is capped, and you can withdraw without asking us.
             </p>
 
             <div className="mt-9 flex animate-fade-up animate-delay-500 flex-wrap items-center gap-3">
@@ -247,8 +246,8 @@ export default function Home() {
         <Reveal>
           <SectionHead
             eyebrow="How it works"
-            title="Four steps, no intermediaries"
-            body="From a cold wallet to an accruing position in a few minutes — and back out again whenever you decide."
+            title="Four steps, nobody in between"
+            body="Going from a cold wallet to an open position takes a few minutes. Getting back out works the same way."
           />
         </Reveal>
 
@@ -309,7 +308,7 @@ export default function Home() {
           <SectionHead
             eyebrow="Staking plans"
             title="Four tiers, one set of rules"
-            body="Higher tiers pay a higher daily rate over a shorter term, in exchange for a larger minimum. The tier is determined by the stake actually recorded after the platform fee."
+            body="Bigger deposits earn a higher daily rate over a shorter term. Your tier comes from the stake the contract records, which is your deposit minus the fee, so the amount you need to send is a little above the tier minimum."
             align="center"
           />
         </Reveal>
@@ -373,8 +372,8 @@ export default function Home() {
             <div className="glass-panel">
               <h3 className="font-display text-base font-semibold text-white">Referral tiers</h3>
               <p className="mt-2 text-sm text-graphite-400">
-                Paid from protocol fees, two levels deep. A referred user&apos;s own position is never
-                reduced to fund it.
+                Paid out of protocol fees, across two levels. Nothing is taken from the person you
+                referred.
               </p>
               <div className="mt-5 space-y-2.5">
                 {REFERRAL_LEVELS.map((l) => (
@@ -392,8 +391,8 @@ export default function Home() {
             <div className="glass-panel">
               <h3 className="font-display text-base font-semibold text-white">Exit penalty schedule</h3>
               <p className="mt-2 text-sm text-graphite-400">
-                Applies to principal only, and declines every week to a permanent floor. Exit is
-                available at any point on this curve.
+                Applies to your principal only, and drops every week until it settles at 10%. You can
+                exit at any point on this curve.
               </p>
               <div className="mt-6 flex items-end gap-2.5">
                 {PENALTY_SCHEDULE.map((w, i) => {
@@ -420,8 +419,8 @@ export default function Home() {
         <Reveal>
           <SectionHead
             eyebrow="FAQ"
-            title="The questions worth asking first"
-            body="Including the ones with uncomfortable answers."
+            title="Common questions"
+            body="Including the ones where the answer is not what you were hoping for."
             align="center"
           />
         </Reveal>
@@ -442,11 +441,11 @@ export default function Home() {
             <div className="pointer-events-none absolute inset-0 -z-10 bg-graphite-950/70" />
 
             <h2 className="h-section mx-auto max-w-2xl">
-              Verify everything. <span className="text-gold-gradient">Then decide.</span>
+              Check it yourself <span className="text-gold-gradient">before you decide.</span>
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-graphite-300">
-              Every claim on this page is checkable against the deployed bytecode. Read the source,
-              read the limitations, and size your position on what you can confirm.
+              Everything on this page can be checked against the code running on Polygon. Read the
+              source, read the known limitations, then decide how much to put in.
             </p>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
               <Link href="/dashboard" className="btn-primary">
