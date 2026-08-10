@@ -32,6 +32,9 @@ contract DeployV3 is Script {
     function run() external returns (ArbiSmartV3 deployed) {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address collateralToken = vm.envAddress("COLLATERAL_TOKEN");
+        address arbitrageToken = vm.envAddress("ARBITRAGE_TOKEN");
+        address swapRouter = vm.envAddress("SWAP_ROUTER");
+        uint24 swapFeeTier = uint24(vm.envUint("SWAP_FEE_TIER"));
         address initialOwner = vm.envAddress("INITIAL_OWNER");
         address feeWallet1 = vm.envAddress("FEE_WALLET_1");
         address feeWallet2 = vm.envAddress("FEE_WALLET_2");
@@ -42,6 +45,9 @@ contract DeployV3 is Script {
         uint256 devBps2 = vm.envUint("DEV_FEE_BPS_2");
 
         require(collateralToken != address(0), "COLLATERAL_TOKEN not set");
+        require(arbitrageToken != address(0), "ARBITRAGE_TOKEN not set");
+        require(swapRouter != address(0), "SWAP_ROUTER not set");
+        require(collateralToken != arbitrageToken, "collateral and strategy token must differ");
         require(initialOwner != address(0), "INITIAL_OWNER not set");
         require(feeWallet1 != address(0), "FEE_WALLET_1 not set");
         require(feeWallet2 != address(0), "FEE_WALLET_2 not set");
@@ -52,6 +58,9 @@ contract DeployV3 is Script {
 
         console2.log("=== ArbiSmartV3 deployment ===");
         console2.log("collateralToken:  ", collateralToken);
+        console2.log("arbitrageToken:   ", arbitrageToken);
+        console2.log("swapRouter:       ", swapRouter);
+        console2.log("swapFeeTier:      ", swapFeeTier);
         console2.log("initialOwner:     ", initialOwner);
         console2.log("");
         console2.log("-- yield-claim fee (fixed at 5%% + 5%% in the contract) --");
@@ -85,6 +94,9 @@ contract DeployV3 is Script {
 
         deployed = new ArbiSmartV3(
             collateralToken,
+            arbitrageToken,
+            swapRouter,
+            swapFeeTier,
             initialOwner,
             feeWallet1,
             feeWallet2,
@@ -102,6 +114,7 @@ contract DeployV3 is Script {
         console2.log("--- on-chain readback ---");
         console2.log("owner():                  ", deployed.owner());
         console2.log("collateralToken():        ", address(deployed.collateralToken()));
+        console2.log("arbitrageToken():         ", address(deployed.arbitrageToken()));
         console2.log("developmentFeeWallet1():  ", deployed.developmentFeeWallet1());
         console2.log("developmentFeeWallet2():  ", deployed.developmentFeeWallet2());
         console2.log("DEVELOPMENT_FEE_BPS_1():  ", deployed.DEVELOPMENT_FEE_BPS_1());

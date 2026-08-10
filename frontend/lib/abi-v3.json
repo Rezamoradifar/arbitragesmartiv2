@@ -8,6 +8,21 @@
         "internalType": "address"
       },
       {
+        "name": "_arbitrageToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_swapRouter",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_swapFeeTier",
+        "type": "uint24",
+        "internalType": "uint24"
+      },
+      {
         "name": "initialOwner",
         "type": "address",
         "internalType": "address"
@@ -164,6 +179,19 @@
   },
   {
     "type": "function",
+    "name": "MIN_SWAP_OUTPUT_BPS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "POLYMARKET_CONDITIONAL_TOKENS",
     "inputs": [],
     "outputs": [
@@ -289,6 +317,32 @@
   {
     "type": "function",
     "name": "arbitrageProfitSurplus",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "arbitrageToken",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IERC20"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "arbitrageTokenBalance",
     "inputs": [],
     "outputs": [
       {
@@ -1930,6 +1984,68 @@
   },
   {
     "type": "function",
+    "name": "swapFeeTier",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint24",
+        "internalType": "uint24"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "swapFromArbitrageToken",
+    "inputs": [
+      {
+        "name": "amountIn",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "amountOutMinimum",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "swapRouter",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract ISwapRouter02"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "swapToArbitrageToken",
+    "inputs": [
+      {
+        "name": "amountIn",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "amountOutMinimum",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "topUp",
     "inputs": [
       {
@@ -2889,6 +3005,50 @@
   },
   {
     "type": "event",
+    "name": "SwappedFromArbitrageToken",
+    "inputs": [
+      {
+        "name": "strategyIn",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "collateralOut",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "profit",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SwappedToArbitrageToken",
+    "inputs": [
+      {
+        "name": "collateralIn",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "strategyOut",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "ToppedUp",
     "inputs": [
       {
@@ -3037,6 +3197,11 @@
   },
   {
     "type": "error",
+    "name": "IdenticalSwapTokens",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "InsufficientLiquidityForFees",
     "inputs": []
   },
@@ -3177,6 +3342,11 @@
         "internalType": "address"
       }
     ]
+  },
+  {
+    "type": "error",
+    "name": "SlippageBoundTooLoose",
+    "inputs": []
   },
   {
     "type": "error",

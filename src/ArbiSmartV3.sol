@@ -19,6 +19,35 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
+ * @title ISwapRouter02
+ * @notice Minimal interface to Uniswap's SwapRouter02, deployed on Polygon at
+ *         0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45.
+ *
+ * @dev Needed because the pool's accounting currency and Polymarket's
+ *      collateral are different tokens. Polymarket's markets on Polygon are
+ *      denominated in bridged USDC (USDC.e); outcome tokens minted against
+ *      any other collateral carry a different position id and do not exist on
+ *      Polymarket's order book. So collateral has to be converted before it
+ *      can enter a market, and converted back on the way out.
+ *
+ *      `ExactInputSingleParams` matches SwapRouter02's layout, which drops
+ *      the `deadline` field present in the original SwapRouter.
+ */
+interface ISwapRouter02 {
+    struct ExactInputSingleParams {
+        address tokenIn;
+        address tokenOut;
+        uint24 fee;
+        address recipient;
+        uint256 amountIn;
+        uint256 amountOutMinimum;
+        uint160 sqrtPriceLimitX96;
+    }
+
+    function exactInputSingle(ExactInputSingleParams calldata params) external payable returns (uint256 amountOut);
+}
+
+/**
  * @title IConditionalTokens
  * @notice Minimal interface to Polymarket's OFFICIAL, permissionless Gnosis
  *         Conditional Tokens Framework contract deployed on Polygon mainnet
@@ -535,10 +564,45 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     ///         plus any profit returned via {depositArbitrageProfit}.
     uint256 public totalArbitrageProfit;
 
-    /// @notice Collateral currently committed to open Polymarket positions,
-    ///         i.e. the running sum of {committedByCondition}. Increases on
-    ///         split, decreases on merge/redeem.
+    /// @notice Pool capital currently out on the strategy leg, measured in
+    ///         COLLATERAL (the accounting currency), at the amount actually
+    ///         spent. Increases when collateral is converted for a strategy,
+    ///         decreases as it is converted back.
+    /// @dev Deliberately a cost basis rather than a mark to market. Holding
+    ///      it at cost means {totalAssets} needs no price feed and never
+    ///      reports an unrealised gain as though it were spendable — the only
+    ///      profit that ever reaches the books is profit that has already
+    ///      come back as collateral.
     uint256 public totalArbitrageDeployed;
+
+    // ============================================================
+    // Strategy leg — held in Polymarket's collateral, not the pool's
+    // ============================================================
+
+    /// @notice The token Polymarket markets are denominated in (USDC.e on
+    ///         Polygon). Fixed at deployment.
+    IERC20 public immutable arbitrageToken;
+
+    /// @notice Uniswap SwapRouter02, the only venue this contract will trade
+    ///         through. Immutable, so a compromised owner cannot point swaps
+    ///         at a contract of their own.
+    ISwapRouter02 public immutable swapRouter;
+
+    /// @notice Pool fee tier used for the stablecoin swap, in hundredths of a
+    ///         bip. 100 = 0.01%, the tier the USDT/USDC.e pair is quoted on.
+    uint24 public immutable swapFeeTier;
+
+    /// @notice Strategy-currency balance currently held and not yet committed
+    ///         to a market. Tracked explicitly rather than read from
+    ///         `balanceOf`, so a donation cannot be mistaken for returns.
+    uint256 public arbitrageTokenBalance;
+
+    /// @notice Floor on what a swap must return, in basis points of the input.
+    /// @dev Both legs are dollar stablecoins, so anything worse than 1% is a
+    ///      sandwich or a depeg rather than ordinary slippage. Bounding it in
+    ///      the contract means a mistyped `minOut` — or an owner who passes
+    ///      zero — still cannot hand the pool to a searcher.
+    uint256 public constant MIN_SWAP_OUTPUT_BPS = 9900;
 
     struct Stake {
         uint256 amount;
@@ -679,6 +743,14 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     /// @notice Emitted when a funded promotional position is opened.
     event StakeGranted(address indexed user, uint256 amount, uint256 plan);
 
+    /// @notice Emitted when pool collateral is converted onto the strategy leg.
+    event SwappedToArbitrageToken(uint256 collateralIn, uint256 strategyOut);
+
+    /// @notice Emitted when the strategy leg is converted back. `profit` is
+    ///         measured in collateral against the outstanding cost basis, so
+    ///         it is the figure the pool actually gained.
+    event SwappedFromArbitrageToken(uint256 strategyIn, uint256 collateralOut, uint256 profit);
+
     /// @notice Emitted once, when the migration window is permanently closed.
     event MigrationClosed_(uint256 totalMigrated);
 
@@ -732,6 +804,8 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     error InvalidMigrationStart();
     error ProtocolWalletStakeInvalid();
     error FreeStakeLimitReached();
+    error IdenticalSwapTokens();
+    error SlippageBoundTooLoose();
 
     // ============================================================
     // Modifiers
@@ -768,8 +842,16 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     // Constructor
     // ============================================================
 
-    /// @param _collateralToken Collateral ERC-20 (must match the token the
-    ///        target Polymarket condition(s) were prepared with).
+    /// @param _collateralToken The pool's accounting currency — what users
+    ///        deposit, are credited in, and withdraw. Need NOT match
+    ///        Polymarket's collateral: `_arbitrageToken` covers that leg, and
+    ///        the contract converts between the two.
+    /// @param _arbitrageToken The token Polymarket markets are denominated in
+    ///        (USDC.e on Polygon). Outcome tokens minted against anything else
+    ///        carry a different position id and are not tradeable there, so
+    ///        this must match what the target conditions were prepared with.
+    /// @param _swapRouter Uniswap SwapRouter02. Immutable once set.
+    /// @param _swapFeeTier Pool fee tier for the pair, e.g. 100 for 0.01%.
     /// @param initialOwner Recommended: a Gnosis Safe multisig or an
     ///        OpenZeppelin `TimelockController` address, not a bare EOA.
     /// @param _feeWallet1 Initial primary fee recipient (funded from staking-yield claims).
@@ -787,6 +869,9 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     ///        afterwards, which is the point.
     constructor(
         address _collateralToken,
+        address _arbitrageToken,
+        address _swapRouter,
+        uint24 _swapFeeTier,
         address initialOwner,
         address _feeWallet1,
         address _feeWallet2,
@@ -797,15 +882,21 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
         uint256 _developmentFeeBps2
     ) Ownable(initialOwner) {
         if (
-            _collateralToken == address(0) || _feeWallet1 == address(0) || _feeWallet2 == address(0)
-                || _profitRecipient == address(0) || _developmentFeeWallet1 == address(0)
-                || _developmentFeeWallet2 == address(0)
+            _collateralToken == address(0) || _arbitrageToken == address(0) || _swapRouter == address(0)
+                || _feeWallet1 == address(0) || _feeWallet2 == address(0) || _profitRecipient == address(0)
+                || _developmentFeeWallet1 == address(0) || _developmentFeeWallet2 == address(0)
         ) {
             revert ZeroAddress();
         }
         if (_developmentFeeBps1 + _developmentFeeBps2 > DEVELOPMENT_FEE_MAX_BPS) revert DevelopmentFeeTooHigh();
+        // Identical tokens would make every swap a no-op while still moving
+        // the cost-basis counters, so the two legs must genuinely differ.
+        if (_collateralToken == _arbitrageToken) revert IdenticalSwapTokens();
 
         collateralToken = IERC20(_collateralToken);
+        arbitrageToken = IERC20(_arbitrageToken);
+        swapRouter = ISwapRouter02(_swapRouter);
+        swapFeeTier = _swapFeeTier;
         feeWallet1 = _feeWallet1;
         feeWallet2 = _feeWallet2;
         profitRecipient = _profitRecipient;
@@ -818,8 +909,9 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
 
         // One-time max approval to Polymarket's real Conditional Tokens
         // contract, mirroring the pattern used by Polymarket's own
-        // CTFExchange (`Assets.sol`) constructor.
-        collateralToken.forceApprove(POLYMARKET_CONDITIONAL_TOKENS, type(uint256).max);
+        // CTFExchange (`Assets.sol`) constructor. It is the STRATEGY token
+        // that enters markets, so that is what the CTF is approved to spend.
+        arbitrageToken.forceApprove(POLYMARKET_CONDITIONAL_TOKENS, type(uint256).max);
     }
 
     // ============================================================
@@ -924,20 +1016,141 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     }
 
     // ============================================================
+    // Owner functions — converting between the two legs
+    // ============================================================
+
+    /// @notice Converts pool collateral into the strategy currency, so it can
+    ///         enter a Polymarket market.
+    /// @param amountIn Collateral to convert. Bounded by
+    ///        {polymarketArbitrageAvailable}, so this cannot reach past the
+    ///        20% ceiling or into the withdrawal buffer.
+    /// @param amountOutMinimum Floor on what the swap must return. Must be at
+    ///        least {MIN_SWAP_OUTPUT_BPS} of `amountIn` — the contract will
+    ///        not accept a looser bound even from the owner.
+    /// @dev The cost basis moves before the swap, not after: `amountIn` is
+    ///      what left the pool, and that is the figure the pool is owed back
+    ///      regardless of what the swap returns. Booking the *output* instead
+    ///      would let a bad fill quietly write down what the strategy owes.
+    function swapToArbitrageToken(uint256 amountIn, uint256 amountOutMinimum)
+        external
+        onlyOwner
+        whenNotPaused
+        notEmergency
+        nonReentrant
+    {
+        if (amountIn == 0) revert ZeroAmount();
+        if (amountIn > polymarketArbitrageAvailable()) revert AmountExceedsAvailable();
+        if (amountOutMinimum < (amountIn * MIN_SWAP_OUTPUT_BPS) / BPS_DENOMINATOR) {
+            revert SlippageBoundTooLoose();
+        }
+
+        totalArbitrageDeployed += amountIn;
+
+        collateralToken.forceApprove(address(swapRouter), amountIn);
+        uint256 received = swapRouter.exactInputSingle(
+            ISwapRouter02.ExactInputSingleParams({
+                tokenIn: address(collateralToken),
+                tokenOut: address(arbitrageToken),
+                fee: swapFeeTier,
+                recipient: address(this),
+                amountIn: amountIn,
+                amountOutMinimum: amountOutMinimum,
+                sqrtPriceLimitX96: 0
+            })
+        );
+        // Clear any residual allowance so the router holds no standing claim
+        // on pool collateral between calls.
+        collateralToken.forceApprove(address(swapRouter), 0);
+
+        arbitrageTokenBalance += received;
+        emit SwappedToArbitrageToken(amountIn, received);
+    }
+
+    /// @notice Converts strategy currency back into pool collateral, and
+    ///         realises the round trip's profit or loss.
+    /// @dev This is the single point where strategy P&L reaches the books,
+    ///      and it is denominated in collateral because that is what the pool
+    ///      owes its stakers. Anything above the outstanding cost basis is
+    ///      profit and is taxed at {profitFeeBPS}; anything below simply
+    ///      retires less basis, so a loss is absorbed rather than hidden.
+    ///
+    ///      Like {executePolymarketRedeem}, unwinding a position in pieces
+    ///      makes the fee a conservative estimate rather than an exact one:
+    ///      basis is retired first, so the fee can only ever be charged late,
+    ///      never on returned principal.
+    function swapFromArbitrageToken(uint256 amountIn, uint256 amountOutMinimum)
+        external
+        onlyOwner
+        nonReentrant
+    {
+        if (amountIn == 0) revert ZeroAmount();
+        if (amountIn > arbitrageTokenBalance) revert AmountExceedsAvailable();
+        if (amountOutMinimum < (amountIn * MIN_SWAP_OUTPUT_BPS) / BPS_DENOMINATOR) {
+            revert SlippageBoundTooLoose();
+        }
+
+        arbitrageTokenBalance -= amountIn;
+
+        arbitrageToken.forceApprove(address(swapRouter), amountIn);
+        uint256 received = swapRouter.exactInputSingle(
+            ISwapRouter02.ExactInputSingleParams({
+                tokenIn: address(arbitrageToken),
+                tokenOut: address(collateralToken),
+                fee: swapFeeTier,
+                recipient: address(this),
+                amountIn: amountIn,
+                amountOutMinimum: amountOutMinimum,
+                sqrtPriceLimitX96: 0
+            })
+        );
+        arbitrageToken.forceApprove(address(swapRouter), 0);
+
+        // Retire cost basis first, so returned principal is never taxed.
+        //
+        // The writes below land after the external call, departing from the
+        // strict CEI used elsewhere. That is unavoidable — `received` is the
+        // swap's return value and cannot be known beforehand — and safe here
+        // for the same reasons as {executePolymarketRedeem}: the function is
+        // `onlyOwner` and `nonReentrant`, and `swapRouter` is immutable, so
+        // the callee is a fixed, known contract rather than anything an
+        // attacker can substitute.
+        uint256 basis = totalArbitrageDeployed;
+        uint256 principalReturned = received > basis ? basis : received;
+        totalArbitrageDeployed = basis - principalReturned;
+
+        uint256 profit = received - principalReturned;
+        uint256 fee = (profit * profitFeeBPS) / BPS_DENOMINATOR;
+        if (fee > 0) {
+            collateralToken.safeTransfer(profitRecipient, fee);
+            emit ProfitFeeCharged(bytes32(0), profit, fee, profitRecipient);
+        }
+
+        uint256 netProfit = profit - fee;
+        if (netProfit > 0) {
+            totalArbitrageProfit += netProfit;
+            emit ArbitrageProfitAccrued(netProfit, totalArbitrageProfit);
+        }
+
+        emit SwappedFromArbitrageToken(amountIn, received, profit);
+    }
+
+    // ============================================================
     // Owner functions — Polymarket integration (REAL on-chain calls only)
     // ============================================================
 
-    /// @notice Converts `amount` of pooled `collateralToken` into a complete
-    ///         set of Polymarket outcome-token positions for `conditionId`,
-    ///         via a real call to Polymarket's official, permissionless
-    ///         Conditional Tokens contract. See the contract-level NatSpec
-    ///         for the honest limitation on realizing profit from this via
-    ///         the order book.
+    /// @notice Converts held strategy currency into a complete set of
+    ///         Polymarket outcome-token positions for `conditionId`, via a
+    ///         real call to Polymarket's official, permissionless Conditional
+    ///         Tokens contract. See the contract-level NatSpec for the honest
+    ///         limitation on realizing profit from this via the order book.
     /// @param conditionId Polymarket condition ID for the target market
     ///        (obtained off-chain from Polymarket's API/subgraph).
     /// @param partition Index-set partition, e.g. `[1, 2]` for a standard
     ///        binary YES/NO market's complete set.
-    /// @param amount Amount of `collateralToken` to convert.
+    /// @param amount Amount of {arbitrageToken} to convert. Must already have
+    ///        been obtained via {swapToArbitrageToken} — this function draws
+    ///        on {arbitrageTokenBalance}, never on pool collateral, so the
+    ///        20% ceiling is enforced at the swap rather than here.
     function executePolymarketSplit(bytes32 conditionId, uint256[] calldata partition, uint256 amount)
         external
         onlyOwner
@@ -946,16 +1159,18 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
         nonReentrant
     {
         if (amount == 0) revert ZeroAmount();
-        if (amount > polymarketArbitrageAvailable()) revert AmountExceedsAvailable();
+        if (amount > arbitrageTokenBalance) revert AmountExceedsAvailable();
 
         // Effects before the external call (strict CEI): `amount` is already
         // known at this point, so there is no need to wait for the call to
-        // return before updating accounting.
+        // return before updating accounting. `totalArbitrageDeployed` is NOT
+        // touched — the capital left the pool at the swap, and counting it
+        // again here would double-book the same exposure.
         committedByCondition[conditionId] += amount;
-        totalArbitrageDeployed += amount;
+        arbitrageTokenBalance -= amount;
 
         IConditionalTokens(POLYMARKET_CONDITIONAL_TOKENS)
-            .splitPosition(collateralToken, bytes32(0), conditionId, partition, amount);
+            .splitPosition(arbitrageToken, bytes32(0), conditionId, partition, amount);
 
         emit ArbitrageSplitExecuted(conditionId, amount, partition);
     }
@@ -988,70 +1203,57 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
         uint256 committed = committedByCondition[conditionId];
         uint256 released = amount >= committed ? committed : amount;
         committedByCondition[conditionId] = committed - released;
-        totalArbitrageDeployed -= released;
+        // Returns to the strategy leg, not to the pool. The cost basis stays
+        // outstanding until {swapFromArbitrageToken} actually brings
+        // collateral back — that is the only point capital has genuinely
+        // returned to the stakers.
+        arbitrageTokenBalance += amount;
 
         IConditionalTokens(POLYMARKET_CONDITIONAL_TOKENS)
-            .mergePositions(collateralToken, bytes32(0), conditionId, partition, amount);
+            .mergePositions(arbitrageToken, bytes32(0), conditionId, partition, amount);
 
         emit ArbitrageMergeExecuted(conditionId, amount, partition);
     }
 
-    /// @notice Redeems already-held Polymarket outcome-token positions for
-    ///         collateral after `conditionId` has been resolved by its
-    ///         oracle. Fully autonomous, on-chain, no order-book dependency.
-    /// @dev A performance fee ({profitFeeBPS}) is charged ONLY on the amount
-    ///      by which `received` exceeds this contract's own tracked
-    ///      {committedByCondition} for `conditionId` — i.e. only on genuine
-    ///      profit, never on principal the contract itself split into this
-    ///      position. Assumes the full committed position for `conditionId`
-    ///      is redeemed in one call; partial redemptions make this a
-    ///      conservative (not exact) profit estimate — documented, not
-    ///      silently wrong.
+    /// @notice Redeems already-held Polymarket outcome-token positions after
+    ///         `conditionId` has been resolved by its oracle. Fully
+    ///         autonomous, on-chain, no order-book dependency.
+    /// @dev No performance fee is charged here, and none can be: proceeds
+    ///      arrive in {arbitrageToken}, whereas the pool's obligations — and
+    ///      therefore any meaningful notion of profit — are denominated in
+    ///      collateral. A position can be up in USDC.e terms and still return
+    ///      less collateral than it cost. So this function only moves value
+    ///      back onto the strategy leg; P&L is realised once, in the
+    ///      accounting currency, at {swapFromArbitrageToken}.
+    ///
+    ///      `committedByCondition` is retired by the amount ACTUALLY
+    ///      recovered rather than zeroed outright. Zeroing it up front made
+    ///      partial redemptions exploitable: the first call retired the whole
+    ///      commitment while returning only part of it, so a second call on
+    ///      the same condition saw `committed == 0` and treated pure
+    ///      principal as gain.
     function executePolymarketRedeem(bytes32 conditionId, uint256[] calldata indexSets)
         external
         onlyOwner
         nonReentrant
     {
-        uint256 balanceBefore = collateralToken.balanceOf(address(this));
+        uint256 balanceBefore = arbitrageToken.balanceOf(address(this));
 
         uint256 committed = committedByCondition[conditionId];
 
         IConditionalTokens(POLYMARKET_CONDITIONAL_TOKENS)
-            .redeemPositions(collateralToken, bytes32(0), conditionId, indexSets);
+            .redeemPositions(arbitrageToken, bytes32(0), conditionId, indexSets);
 
-        uint256 received = collateralToken.balanceOf(address(this)) - balanceBefore;
+        uint256 received = arbitrageToken.balanceOf(address(this)) - balanceBefore;
 
-        // The principal tracker is retired by the amount ACTUALLY recovered,
-        // never zeroed outright. Zeroing it up front made partial redemptions
-        // exploitable: the first call retired the whole commitment while
-        // returning only part of it, so a second call on the same condition
-        // saw `committed == 0` and billed 100% of the proceeds — pure staker
-        // principal — as profit. Retiring only `principalReturned` leaves the
-        // unrecovered remainder on the books for the next call.
-        //
-        // This writes state after the external call, departing from the strict
-        // CEI used elsewhere. That is unavoidable: `received` is a balance
-        // delta and cannot be known beforehand. It is safe here because the
-        // function is `onlyOwner` + `nonReentrant` and the only external call
-        // is to the fixed, trusted Conditional Tokens address.
+        // Writes state after the external call, departing from the strict CEI
+        // used elsewhere. Unavoidable: `received` is a balance delta and
+        // cannot be known beforehand. Safe here because the function is
+        // `onlyOwner` + `nonReentrant` and the only external call is to the
+        // fixed, trusted Conditional Tokens address.
         uint256 principalReturned = received > committed ? committed : received;
         committedByCondition[conditionId] = committed - principalReturned;
-        totalArbitrageDeployed -= principalReturned;
-
-        uint256 profit = received - principalReturned;
-        uint256 fee = (profit * profitFeeBPS) / BPS_DENOMINATOR;
-        if (fee > 0) {
-            collateralToken.safeTransfer(profitRecipient, fee);
-            emit ProfitFeeCharged(conditionId, profit, fee, profitRecipient);
-        }
-
-        // Credit only what the pool actually keeps, so the deployment budget
-        // never grows on profit that was paid out as a fee.
-        uint256 netProfit = profit - fee;
-        if (netProfit > 0) {
-            totalArbitrageProfit += netProfit;
-            emit ArbitrageProfitAccrued(netProfit, totalArbitrageProfit);
-        }
+        arbitrageTokenBalance += received;
 
         emit ArbitrageRedeemed(conditionId, indexSets, received);
     }

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import { Test } from "forge-std/Test.sol";
-import { ArbiSmartV3 } from "../src/ArbiSmartV3.sol";
+import { ArbiSmartV3, ISwapRouter02 } from "../src/ArbiSmartV3.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -15,6 +15,25 @@ contract TestUSDC is ERC20 {
 
     function mint(address to, uint256 amount) external {
         _mint(to, amount);
+    }
+}
+
+/// @notice Stand-in for Uniswap's SwapRouter02. Exchanges at a configurable
+///         rate so tests can drive a profitable round trip, a lossy one, and
+///         a fill bad enough that the slippage floor must reject it.
+contract MockSwapRouter {
+    /// @dev Output per unit of input, in basis points. 10_000 is 1:1.
+    uint256 public rateBps = 10_000;
+
+    function setRate(uint256 newRateBps) external {
+        rateBps = newRateBps;
+    }
+
+    function exactInputSingle(ISwapRouter02.ExactInputSingleParams calldata p) external returns (uint256 amountOut) {
+        IERC20(p.tokenIn).transferFrom(msg.sender, address(this), p.amountIn);
+        amountOut = (p.amountIn * rateBps) / 10_000;
+        require(amountOut >= p.amountOutMinimum, "Too little received");
+        IERC20(p.tokenOut).transfer(p.recipient, amountOut);
     }
 }
 
@@ -50,7 +69,9 @@ contract MockConditionalTokens {
 /// reach is bounded by fees genuinely charged rather than by policy.
 contract DevelopmentFeeTest is Test {
     ArbiSmartV3 internal arbi;
-    TestUSDC internal usdc;
+    TestUSDC internal usdc;      // pool collateral (stands in for USDT)
+    TestUSDC internal usdce;     // strategy currency (stands in for USDC.e)
+    MockSwapRouter internal router;
     MockConditionalTokens internal ctf;
 
     address internal constant CTF_ADDRESS = 0x4D97DCd97eC945f40cF65F87097ACe5EA0476045;
@@ -75,9 +96,13 @@ contract DevelopmentFeeTest is Test {
         vm.warp(1_800_000_000);
 
         usdc = new TestUSDC();
-        arbi = new ArbiSmartV3(
-            address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, BPS1, BPS2
-        );
+        usdce = new TestUSDC();
+        router = new MockSwapRouter();
+        arbi = _deploy(BPS1, BPS2);
+
+        // The router settles from its own inventory, so it must hold both legs.
+        usdc.mint(address(router), 10_000_000_000000);
+        usdce.mint(address(router), 10_000_000_000000);
 
         MockConditionalTokens impl = new MockConditionalTokens();
         vm.etch(CTF_ADDRESS, address(impl).code);
@@ -93,10 +118,36 @@ contract DevelopmentFeeTest is Test {
         usdc.approve(address(arbi), type(uint256).max);
     }
 
+    function _deploy(uint256 bps1, uint256 bps2) internal returns (ArbiSmartV3) {
+        return new ArbiSmartV3(
+            address(usdc),
+            address(usdce),
+            address(router),
+            100, // 0.01% tier, as used for the USDT/USDC.e pair
+            owner,
+            feeWallet1,
+            feeWallet2,
+            profitRecipient,
+            growth1,
+            growth2,
+            bps1,
+            bps2
+        );
+    }
+
     function _partition() internal pure returns (uint256[] memory p) {
         p = new uint256[](2);
         p[0] = 1;
         p[1] = 2;
+    }
+
+    /// @dev Puts `gross` of real deposits in so the strategy ceiling is
+    ///      non-zero, then converts `amount` onto the strategy leg.
+    function _fundAndSwapOut(uint256 gross, uint256 amount) internal {
+        vm.prank(alice, alice);
+        arbi.stake(gross, address(0));
+        vm.prank(owner);
+        arbi.swapToArbitrageToken(amount, (amount * 9900) / 10_000);
     }
 
     // ---------------------------------------------------------------
@@ -343,9 +394,7 @@ contract DevelopmentFeeTest is Test {
 
     function test_deploymentRejectsFeeAboveCap() public {
         vm.expectRevert(ArbiSmartV3.DevelopmentFeeTooHigh.selector);
-        new ArbiSmartV3(
-            address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, 1500, 600
-        );
+        _deploy(1500, 600);
     }
 
     /// @dev The rate is immutable by construction; this documents that there
@@ -460,9 +509,7 @@ contract DevelopmentFeeTest is Test {
     // ---------------------------------------------------------------
 
     function test_zeroFeeBehavesLikeV2() public {
-        ArbiSmartV3 free = new ArbiSmartV3(
-            address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, 0, 0
-        );
+        ArbiSmartV3 free = _deploy(0, 0);
         vm.warp(block.timestamp + 25 hours);
         vm.startPrank(alice, alice);
         usdc.approve(address(free), type(uint256).max);
@@ -511,9 +558,7 @@ contract DevelopmentFeeTest is Test {
     ///      nobody funded. The free window is the obvious way around a fixed
     ///      deposit size, so it is closed to them.
     function test_developmentWalletCannotTakeAFreeStake() public {
-        ArbiSmartV3 fresh = new ArbiSmartV3(
-            address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, BPS1, BPS2
-        );
+        ArbiSmartV3 fresh = _deploy(BPS1, BPS2);
         assertTrue(fresh.isFreePeriod(), "still inside the free window");
 
         vm.startPrank(growth1, growth1);
@@ -570,15 +615,201 @@ contract DevelopmentFeeTest is Test {
     }
 
     // ---------------------------------------------------------------
+    // Strategy leg: converting between collateral and Polymarket's currency
+    // ---------------------------------------------------------------
+
+    function test_swapOut_movesCapitalOntoTheStrategyLegAtCost() public {
+        _fundAndSwapOut(10_000_000000, 500_000000);
+
+        assertEq(arbi.arbitrageTokenBalance(), 500_000000, "strategy currency received");
+        assertEq(arbi.totalArbitrageDeployed(), 500_000000, "basis is what LEFT the pool");
+        // Cost basis holds totalAssets flat across the conversion.
+        assertGe(arbi.totalAssets(), arbi.totalStaked(), "pool still fully backs stakes");
+    }
+
+    /// @dev The basis must record the input, not the output. Booking the fill
+    ///      would let a bad swap quietly reduce what the strategy owes back.
+    function test_swapOut_basisRecordsInputNotOutput() public {
+        router.setRate(9950); // 0.5% worse than par
+        _fundAndSwapOut(10_000_000000, 1000_000000);
+
+        assertEq(arbi.arbitrageTokenBalance(), 995_000000, "actual fill");
+        assertEq(arbi.totalArbitrageDeployed(), 1000_000000, "pool is still owed the full 1000");
+    }
+
+    function test_swapOut_cannotExceedTheTwentyPercentCeiling() public {
+        vm.prank(alice, alice);
+        arbi.stake(10_000_000000, address(0)); // 9,000 net -> ceiling 1,800
+
+        uint256 ceiling = arbi.arbitrageDeploymentCeiling();
+        assertEq(ceiling, 1800_000000);
+
+        vm.prank(owner);
+        vm.expectRevert(ArbiSmartV3.AmountExceedsAvailable.selector);
+        arbi.swapToArbitrageToken(ceiling + 1, ((ceiling + 1) * 9900) / 10_000);
+    }
+
+    /// @dev A stablecoin pair should never move 1%. Bounding the floor in the
+    ///      contract means a mistyped minOut — or a zero — cannot hand the
+    ///      pool to a searcher.
+    function test_swapRejectsALooseSlippageBound() public {
+        vm.prank(alice, alice);
+        arbi.stake(10_000_000000, address(0));
+
+        vm.startPrank(owner);
+        vm.expectRevert(ArbiSmartV3.SlippageBoundTooLoose.selector);
+        arbi.swapToArbitrageToken(500_000000, 0);
+
+        vm.expectRevert(ArbiSmartV3.SlippageBoundTooLoose.selector);
+        arbi.swapToArbitrageToken(500_000000, 400_000000); // 80%, far too loose
+        vm.stopPrank();
+    }
+
+    function test_swapRevertsWhenTheFillBreachesTheFloor() public {
+        vm.prank(alice, alice);
+        arbi.stake(10_000_000000, address(0));
+
+        router.setRate(9000); // 10% down — a sandwich, not slippage
+        vm.prank(owner);
+        vm.expectRevert(bytes("Too little received"));
+        arbi.swapToArbitrageToken(500_000000, (500_000000 * 9900) / 10_000);
+    }
+
+    function test_roundTripAtPar_returnsPrincipalAndBooksNoProfit() public {
+        _fundAndSwapOut(10_000_000000, 1000_000000);
+
+        vm.prank(owner);
+        arbi.swapFromArbitrageToken(1000_000000, (1000_000000 * 9900) / 10_000);
+
+        assertEq(arbi.totalArbitrageDeployed(), 0, "basis fully retired");
+        assertEq(arbi.arbitrageTokenBalance(), 0);
+        assertEq(arbi.totalArbitrageProfit(), 0, "a par round trip is not profit");
+        assertEq(usdc.balanceOf(profitRecipient), 0, "and is not taxed");
+    }
+
+    /// @dev P&L is realised once, in the accounting currency, because that is
+    ///      what the pool owes its stakers.
+    function test_profitableRoundTrip_isTaxedAndCreditedToThePool() public {
+        _fundAndSwapOut(10_000_000000, 1000_000000);
+
+        // The strategy earned 10%: 1,000 out, 1,100 back.
+        router.setRate(11_000);
+        vm.prank(owner);
+        arbi.swapFromArbitrageToken(1000_000000, (1000_000000 * 9900) / 10_000);
+
+        uint256 profit = 100_000000;
+        uint256 fee = (profit * 1000) / 10_000; // 10% performance fee
+        assertEq(usdc.balanceOf(profitRecipient), fee, "fee charged on gain only");
+        assertEq(arbi.totalArbitrageProfit(), profit - fee, "net gain credited to the pool");
+        assertEq(arbi.totalArbitrageDeployed(), 0, "basis retired first");
+    }
+
+    /// @dev A loss must reduce the pool honestly rather than be papered over.
+    function test_lossyRoundTrip_isAbsorbedNotHidden() public {
+        _fundAndSwapOut(10_000_000000, 1000_000000);
+
+        router.setRate(9900); // returns 990 for 1,000
+        vm.prank(owner);
+        arbi.swapFromArbitrageToken(1000_000000, (1000_000000 * 9900) / 10_000);
+
+        assertEq(arbi.totalArbitrageProfit(), 0, "no profit booked on a loss");
+        assertEq(usdc.balanceOf(profitRecipient), 0, "and no fee taken");
+        assertEq(arbi.totalArbitrageDeployed(), 10_000000, "10 of basis never came back");
+    }
+
+    function test_polymarketSplitDrawsOnTheStrategyLegNotThePool() public {
+        _fundAndSwapOut(10_000_000000, 1000_000000);
+
+        uint256 poolBefore = arbi.totalAssets();
+        vm.prank(owner);
+        arbi.executePolymarketSplit(bytes32("mkt"), _partition(), 600_000000);
+
+        assertEq(arbi.arbitrageTokenBalance(), 400_000000, "drawn from the strategy leg");
+        assertEq(arbi.totalArbitrageDeployed(), 1000_000000, "exposure not double-booked");
+        assertEq(arbi.totalAssets(), poolBefore, "pool accounting untouched by a split");
+        assertEq(usdce.balanceOf(CTF_ADDRESS), 600_000000, "real collateral reached the CTF");
+    }
+
+    function test_mergeReturnsToTheStrategyLegNotThePool() public {
+        _fundAndSwapOut(10_000_000000, 1000_000000);
+        vm.startPrank(owner);
+        arbi.executePolymarketSplit(bytes32("mkt"), _partition(), 600_000000);
+        arbi.executePolymarketMerge(bytes32("mkt"), _partition(), 600_000000);
+        vm.stopPrank();
+
+        assertEq(arbi.arbitrageTokenBalance(), 1000_000000, "back on the strategy leg");
+        assertEq(arbi.totalArbitrageDeployed(), 1000_000000, "still outstanding until swapped back");
+    }
+
+    /// @dev Redeeming pays out in the strategy currency, where "profit" is not
+    ///      yet meaningful to the pool — so no fee may be charged here.
+    function test_redeemChargesNoFeeBecauseItSettlesInTheWrongCurrency() public {
+        _fundAndSwapOut(10_000_000000, 1000_000000);
+        vm.prank(owner);
+        arbi.executePolymarketSplit(bytes32("mkt"), _partition(), 1000_000000);
+
+        // A winning position pays out more than it cost, funded in a real
+        // market by the losing side's collateral. The mock has no such
+        // counterparty, so give it the inventory to settle from.
+        usdce.mint(CTF_ADDRESS, 200_000000);
+
+        ctf.setRedeemPayout(1200_000000); // market resolved in our favour
+        vm.prank(owner);
+        arbi.executePolymarketRedeem(bytes32("mkt"), _partition());
+
+        assertEq(arbi.arbitrageTokenBalance(), 1200_000000, "proceeds held on the strategy leg");
+        assertEq(usdc.balanceOf(profitRecipient), 0, "no fee until it settles in collateral");
+        assertEq(arbi.totalArbitrageProfit(), 0);
+
+        // Only the swap back realises it.
+        vm.prank(owner);
+        arbi.swapFromArbitrageToken(1200_000000, (1200_000000 * 9900) / 10_000);
+        assertEq(usdc.balanceOf(profitRecipient), 20_000000, "10% of the 200 gain");
+        assertEq(arbi.totalArbitrageProfit(), 180_000000);
+    }
+
+    function test_swapFunctionsAreOwnerOnly() public {
+        vm.startPrank(bob);
+        vm.expectRevert();
+        arbi.swapToArbitrageToken(100_000000, 99_000000);
+        vm.expectRevert();
+        arbi.swapFromArbitrageToken(100_000000, 99_000000);
+        vm.stopPrank();
+    }
+
+    function test_cannotSwapBackMoreThanIsHeld() public {
+        _fundAndSwapOut(10_000_000000, 500_000000);
+        uint256 tooMuch = 500_000001;
+        vm.prank(owner);
+        vm.expectRevert(ArbiSmartV3.AmountExceedsAvailable.selector);
+        arbi.swapFromArbitrageToken(tooMuch, (tooMuch * 9900) / 10_000);
+    }
+
+    function test_routerHoldsNoStandingAllowance() public {
+        _fundAndSwapOut(10_000_000000, 500_000000);
+        assertEq(usdc.allowance(address(arbi), address(router)), 0, "collateral approval cleared");
+
+        vm.prank(owner);
+        arbi.swapFromArbitrageToken(500_000000, (500_000000 * 9900) / 10_000);
+        assertEq(usdce.allowance(address(arbi), address(router)), 0, "strategy approval cleared");
+    }
+
+    function test_deploymentRejectsIdenticalLegs() public {
+        vm.expectRevert(ArbiSmartV3.IdenticalSwapTokens.selector);
+        new ArbiSmartV3(
+            address(usdc), address(usdc), address(router), 100, owner,
+            feeWallet1, feeWallet2, profitRecipient, growth1, growth2, BPS1, BPS2
+        );
+    }
+
+    // ---------------------------------------------------------------
     // Free-stake cap
     // ---------------------------------------------------------------
 
     /// @dev A free stake is the one position with no collateral behind it, so
     ///      the cap is the protocol's entire exposure to the launch window.
     function test_freeStakes_areCappedAtThree() public {
-        ArbiSmartV3 fresh = new ArbiSmartV3(
-            address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, BPS1, BPS2
-        );
+        ArbiSmartV3 fresh = _deploy(BPS1, BPS2);
         assertTrue(fresh.isFreePeriod());
         assertEq(fresh.MAX_FREE_STAKES(), 3);
 
@@ -603,9 +834,7 @@ contract DevelopmentFeeTest is Test {
     /// @dev Exiting must not return a slot to the pool, or the cap could be
     ///      cycled indefinitely by one address after another.
     function test_freeStakeSlotIsNotReclaimedByExiting() public {
-        ArbiSmartV3 fresh = new ArbiSmartV3(
-            address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, BPS1, BPS2
-        );
+        ArbiSmartV3 fresh = _deploy(BPS1, BPS2);
 
         address[3] memory takers = [makeAddr("g1"), makeAddr("g2"), makeAddr("g3")];
         for (uint256 i = 0; i < 3; i++) {
@@ -625,9 +854,7 @@ contract DevelopmentFeeTest is Test {
 
     /// @dev The cap applies only to free stakes; paid deposits are unaffected.
     function test_freeStakeCapDoesNotBlockPaidDeposits() public {
-        ArbiSmartV3 fresh = new ArbiSmartV3(
-            address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, BPS1, BPS2
-        );
+        ArbiSmartV3 fresh = _deploy(BPS1, BPS2);
         for (uint256 i = 0; i < 3; i++) {
             address a = makeAddr(string(abi.encodePacked("free", i)));
             vm.prank(a, a);
