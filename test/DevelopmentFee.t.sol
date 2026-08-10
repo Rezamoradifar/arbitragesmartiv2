@@ -570,6 +570,78 @@ contract DevelopmentFeeTest is Test {
     }
 
     // ---------------------------------------------------------------
+    // Funded promotional grants
+    // ---------------------------------------------------------------
+
+    function test_grantStake_isFreeToTheUserAndPaidForByTheOwner() public {
+        uint256 amount = 500_000000;
+        usdc.mint(owner, amount);
+
+        uint256 aliceSpent = usdc.balanceOf(alice);
+        vm.startPrank(owner);
+        usdc.approve(address(arbi), type(uint256).max);
+        arbi.grantStake(alice, amount);
+        vm.stopPrank();
+
+        (uint256 amt,,,,,, bool active,,) = arbi.stakes(alice);
+        assertEq(amt, amount, "user receives the full package");
+        assertTrue(active);
+        assertEq(usdc.balanceOf(alice), aliceSpent, "user paid nothing");
+        assertEq(usdc.balanceOf(owner), 0, "owner paid for it");
+
+        // The distinction from a V2-style free stake: it is backed.
+        assertGe(arbi.totalAssets(), arbi.totalStaked(), "pool fully backs the granted position");
+        assertEq(arbi.totalGranted(), amount);
+    }
+
+    /// @dev The whole point: a promotion cannot outrun its budget, because
+    ///      each grant costs the caller its full face value at the moment it
+    ///      is created.
+    function test_grantStake_exposureIsBoundedByWhatWasFunded() public {
+        usdc.mint(owner, 500_000000); // budget for exactly one package
+        vm.startPrank(owner);
+        usdc.approve(address(arbi), type(uint256).max);
+        arbi.grantStake(alice, 500_000000);
+
+        vm.expectRevert(); // budget exhausted — no second grant possible
+        arbi.grantStake(bob, 500_000000);
+        vm.stopPrank();
+
+        assertGe(arbi.totalAssets(), arbi.totalStaked(), "still fully backed");
+    }
+
+    function test_grantStake_accruesYieldNormally() public {
+        usdc.mint(owner, 500_000000);
+        vm.startPrank(owner);
+        usdc.approve(address(arbi), type(uint256).max);
+        arbi.grantStake(alice, 500_000000);
+        vm.stopPrank();
+
+        assertEq(arbi.getReward(alice), 0, "nothing accrued yet");
+        vm.warp(block.timestamp + 1 days);
+        assertEq(arbi.getReward(alice), 9_000000, "1.8% of 500");
+    }
+
+    function test_grantStake_onlyOwner() public {
+        usdc.mint(bob, 500_000000);
+        vm.startPrank(bob);
+        usdc.approve(address(arbi), type(uint256).max);
+        vm.expectRevert();
+        arbi.grantStake(bob, 500_000000);
+        vm.stopPrank();
+    }
+
+    function test_grantStake_chargesNoDevelopmentFee() public {
+        usdc.mint(owner, 500_000000);
+        vm.startPrank(owner);
+        usdc.approve(address(arbi), type(uint256).max);
+        arbi.grantStake(alice, 500_000000);
+        vm.stopPrank();
+
+        assertEq(arbi.pendingDevelopmentFees(), 0, "a grant is a cost, not a deposit");
+    }
+
+    // ---------------------------------------------------------------
     // V2 migration
     // ---------------------------------------------------------------
 

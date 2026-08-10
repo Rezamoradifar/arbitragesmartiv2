@@ -430,6 +430,12 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     /// @notice Total principal brought over from V2. Reporting only.
     uint256 public totalMigrated;
 
+    /// @notice Total principal handed out as funded promotional grants.
+    ///         Every unit of this was paid for on the way in, so it is a
+    ///         marketing cost already borne — never a claim on other
+    ///         depositors.
+    uint256 public totalGranted;
+
     /// @notice The single deposit size the two development-fee wallets are
     ///         allowed to stake — no more, no less. They pay the development
     ///         fee on it exactly as any other depositor does.
@@ -655,6 +661,9 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     ///         is carried over so the migrated term and penalty schedule can be
     ///         checked against the V2 record.
     event StakeMigrated(address indexed user, uint256 amount, uint256 plan, uint256 originalStartTime);
+
+    /// @notice Emitted when a funded promotional position is opened.
+    event StakeGranted(address indexed user, uint256 amount, uint256 plan);
 
     /// @notice Emitted once, when the migration window is permanently closed.
     event MigrationClosed_(uint256 totalMigrated);
@@ -1277,6 +1286,57 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
         totalMigrated += amount;
 
         emit StakeMigrated(user, amount, plan, originalStartTime);
+    }
+
+    /// @notice Opens a promotional position for `user`, paid for by the caller.
+    /// @dev The honest form of a "free package". A free stake in the V2 sense
+    ///      creates a position with no collateral behind it, so the yield it
+    ///      draws comes out of other depositors' principal — and the better
+    ///      the promotion works, the larger that hole gets. Here the owner
+    ///      funds the grant up front from marketing budget: the user still
+    ///      pays nothing, the position is still real, but the cost sits with
+    ///      whoever ran the promotion instead of with the other stakers.
+    ///
+    ///      Same guarantees as {migrateStake}: the collateral is pulled from
+    ///      the caller and verified by balance delta, accrual starts now, and
+    ///      the total is bounded by what has actually been funded — so the
+    ///      protocol's exposure to a promotion can never exceed its budget.
+    ///
+    ///      No development fee is taken; the grant is already a cost to the
+    ///      project rather than a deposit by the user.
+    function grantStake(address user, uint256 amount) external onlyOwner nonReentrant {
+        if (user == address(0)) revert ZeroAddress();
+        if (amount < MIN_STAKE) revert BelowMinStake();
+        if (amount > MAX_STAKE) revert AboveMaxStake();
+
+        Stake storage s = stakes[user];
+        if (s.active) revert AlreadyActive();
+        if (s.earlyExited) revert AlreadyExited();
+
+        uint256 balanceBefore = collateralToken.balanceOf(address(this));
+        collateralToken.safeTransferFrom(msg.sender, address(this), amount);
+        if (collateralToken.balanceOf(address(this)) != balanceBefore + amount) {
+            revert TransferAmountMismatch();
+        }
+
+        uint256 plan = _getPlanByAmount(amount);
+        if (s.amount == 0) _userCount++;
+        stakes[user] = Stake({
+            amount: amount,
+            plan: plan,
+            rate: dailyRates[plan],
+            startTime: block.timestamp,
+            lastClaimTime: block.timestamp,
+            totalClaimed: 0,
+            active: true,
+            earlyExited: false,
+            freeStake: false
+        });
+        totalStaked += amount;
+        _activeStakeCount++;
+        totalGranted += amount;
+
+        emit StakeGranted(user, amount, plan);
     }
 
     /// @notice Permanently ends the migration window.
