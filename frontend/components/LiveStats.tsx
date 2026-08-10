@@ -32,7 +32,18 @@ export function LiveStats() {
     { label: "Total value locked", value: p.totalAssets, sub: "Liquid + deployed", lead: true },
     { label: "Principal staked", value: p.totalStaked, sub: "Across all active positions" },
     { label: "Paid out to stakers", value: p.totalPaidOut, sub: "Lifetime yield claimed" },
-    { label: "Realized arbitrage profit", value: p.arbitrageProfit, sub: "Net of performance fee" },
+    {
+      label: "Realized strategy profit",
+      value: p.arbitrageProfit,
+      // Only profit that has actually been received in collateral is ever
+      // counted here, so this reads 0 until a position is genuinely closed
+      // at a gain. Say that plainly rather than leaving a bare zero to be
+      // read as a fault.
+      sub:
+        (p.arbitrageProfit ?? 0n) === 0n
+          ? "None realized yet — only settled gains count"
+          : "Net of performance fee, credited to the pool",
+    },
   ];
 
   return (
@@ -92,12 +103,25 @@ export function LiveStats() {
         ))}
       </div>
 
+      {/* Strategy capacity. When nothing is deployed the honest reading is
+          "no open positions", not a bare zero — a lone 0 reads as broken
+          rather than idle, and the distinction matters to someone deciding
+          whether to stake. */}
       <div className="card mt-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <p className="text-sm font-medium text-ink-200">Arbitrage capital deployed</p>
+          <p className="text-sm font-medium text-ink-200">Strategy capital deployed</p>
           <p className="text-sm tabular-nums text-ink-300">
-            <span className="font-semibold text-white">{formatAmount(deployed)}</span>
-            <span className="text-ink-400"> / {formatAmount(p.arbitrageCeiling)} USDT ceiling</span>
+            {deployed === 0n ? (
+              <Badge tone="neutral">No open positions</Badge>
+            ) : (
+              <>
+                <span className="font-semibold text-white">{formatAmount(deployed)}</span>
+                <span className="text-ink-400">
+                  {" "}
+                  / {formatAmount(p.arbitrageCeiling)} USDT ceiling
+                </span>
+              </>
+            )}
           </p>
         </div>
         <div className="mt-4">
@@ -108,9 +132,20 @@ export function LiveStats() {
           />
         </div>
         <p className="mt-3 text-xs leading-relaxed text-ink-400">
-          Capped cumulatively at 20% of total assets plus realized profit. The remaining{" "}
-          <span className="text-ink-200">{formatAmount(p.balance)} USDT</span> stays liquid for
-          withdrawals.
+          {deployed === 0n ? (
+            <>
+              Every staked dollar is liquid right now — nothing is committed to a position. The
+              contract can commit at most{" "}
+              <span className="text-ink-200">{formatAmount(p.arbitrageCeiling)} USDT</span> (20% of
+              assets); the rest can never leave the withdrawal buffer.
+            </>
+          ) : (
+            <>
+              Capped cumulatively at 20% of total assets plus realized profit. The remaining{" "}
+              <span className="text-ink-200">{formatAmount(p.balance)} USDT</span> stays liquid for
+              withdrawals.
+            </>
+          )}
         </p>
       </div>
     </section>
