@@ -2032,7 +2032,14 @@ contract ArbiSmartV4 is Ownable2Step, ReentrancyGuard, Pausable {
     function upgradePlan() external whenNotPaused notBlacklisted onlyEOA nonReentrant {
         Stake storage s = stakes[msg.sender];
         if (!s.active) revert NoActiveStake();
-        if (s.freeStake) revert InvalidFreeStakeAmount();
+        // A giveaway that has been funded is an ordinary position for every
+        // purpose except its principal. V3 could block the whole function
+        // because free positions could not be topped up at all; V4 opens that
+        // door, so blocking the upgrade here would strand a converted user on
+        // Starter's rate no matter how large their real deposit grew.
+        if (s.freeStake && grossDeposited[msg.sender] < MIN_ACTIVATION_DEPOSIT) {
+            revert FreeStakeNotActivated();
+        }
         uint256 newPlan = _getPlanByAmount(s.amount);
         if (newPlan == s.plan) revert PlanUnchanged();
         uint256 oldPlan = s.plan;
@@ -2080,7 +2087,7 @@ contract ArbiSmartV4 is Ownable2Step, ReentrancyGuard, Pausable {
         // upline separately out of pooled capital, which meant a Platinum
         // chain cost the pool 135% of the accrual and the shortfall grew with
         // the programme's success.
-        uint256 referralPaid = _processReferralRewards(msg.sender, reward);
+        uint256 referralPaid = _processReferralRewards(msg.sender, reward, reward - totalFee);
         uint256 userAmount = reward - totalFee - referralPaid;
 
         _updateDailyWithdrawn(msg.sender, userAmount);
@@ -2261,17 +2268,22 @@ contract ArbiSmartV4 is Ownable2Step, ReentrancyGuard, Pausable {
      *      A blacklisted member is skipped and the money stays in the pool
      *      rather than passing further up the chain.
      */
-    function _processReferralRewards(address user, uint256 reward) private returns (uint256 spent) {
+    function _processReferralRewards(address user, uint256 reward, uint256 budget) private returns (uint256 spent) {
         address current = referrals[user].referrer;
 
         for (uint256 depth = 0; depth < 3; depth++) {
             if (current == address(0)) break;
 
             if (!blacklisted[current] && stakes[current].active) {
+                // Shares are a percentage of the whole claim, because that is
+                // what the rate table advertises. What they are capped against
+                // is `budget` — the claim minus the fee already committed —
+                // so the caller's subtraction can never underflow whatever the
+                // rate table is later set to.
                 uint256 rate = referralRate(referrals[current].level, depth);
                 if (rate > 0) {
                     uint256 share = (reward * rate) / BPS_DENOMINATOR;
-                    uint256 remaining = reward - spent;
+                    uint256 remaining = budget - spent;
                     if (share > remaining) share = remaining;
                     if (share > 0) {
                         referrals[current].pendingReward += share;

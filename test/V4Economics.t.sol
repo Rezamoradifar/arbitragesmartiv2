@@ -309,6 +309,57 @@ contract V4EconomicsTest is Test {
         assertEq(returned, 158_400000, "the giveaway leaked out as principal");
     }
 
+    /// Regression: V4 opened top-up to giveaway positions but left the plan
+    /// upgrade shut, which stranded a converted user on Starter's rate no
+    /// matter how large their real deposit grew.
+    function test_ConvertedFreeStakeCanUpgradeItsPlan() public {
+        _stake(alice, 10_000000, address(0)); // giveaway, Starter
+
+        vm.prank(alice, alice);
+        arbi.topUp(1_000_000000); // 10% band -> 900 net, total 910
+
+        vm.prank(alice, alice);
+        arbi.upgradePlan();
+
+        (, uint256 plan,,,,,,) = arbi.getStakeBasic(alice);
+        assertEq(plan, 1, "a funded giveaway could not reach Growth");
+    }
+
+    /// A giveaway that has NOT been funded still cannot upgrade — the gate is
+    /// the deposit, not the mere existence of a top-up path.
+    function test_UnfundedFreeStakeCannotUpgrade() public {
+        _stake(alice, 10_000000, address(0));
+        vm.prank(alice, alice);
+        vm.expectRevert(ArbiSmartV4.FreeStakeNotActivated.selector);
+        arbi.upgradePlan();
+    }
+
+    /// Regression: the upline budget used to be capped against the whole
+    /// claim rather than the claim minus the fee, so `reward - fee - upline`
+    /// was underflow-free only by coincidence of the rate table.
+    function test_FeePlusUplineNeverExceedsTheClaim() public {
+        _pastFreeWindow();
+        _stake(alice, 20_000_000000, address(0));
+        _stake(bob, 20_000_000000, alice);
+        _stake(carol, 20_000_000000, bob);
+        _stake(dave, 20_000_000000, carol);
+
+        vm.warp(block.timestamp + 30 * DAY);
+        uint256 accrued = arbi.getReward(dave);
+
+        uint256 daveBefore = usdc.balanceOf(dave);
+        uint256 feeBefore = usdc.balanceOf(feeWallet1) + usdc.balanceOf(feeWallet2);
+        vm.prank(dave, dave);
+        arbi.claim();
+
+        uint256 got = usdc.balanceOf(dave) - daveBefore;
+        uint256 fees = usdc.balanceOf(feeWallet1) + usdc.balanceOf(feeWallet2) - feeBefore;
+        uint256 upline = arbi.getRefReward(carol) + arbi.getRefReward(bob) + arbi.getRefReward(alice);
+
+        assertEq(got + fees + upline, accrued, "the three parts did not sum to the accrual");
+        assertGt(got, 0, "the claimer was left with nothing");
+    }
+
     function test_FreeStakeCapIsOneHundred() public view {
         assertEq(arbi.MAX_FREE_STAKES(), 100);
     }
