@@ -152,7 +152,7 @@ const features: Array<{
 const faqs = [
   {
     q: "What does the fee cost me?",
-    a: "Every deposit is charged 10%, split between two development wallets. It comes off before your stake is recorded, so 1,000 USDT in means 900 USDT staked. You see the exact split on the deposit screen before you sign. The rate was set when the contract was deployed and there is no function to raise it later.",
+    a: "Every deposit is charged 10%, split between two development wallets. It comes off before your stake is recorded, so 1,000 USDT in means 900 USDT staked. That also moves the floor: the smallest stake the contract accepts is 10 USDT, so the smallest deposit is 11.12. You see the exact split on the deposit screen before you sign, and the rate was set when the contract was deployed with no function to raise it later.",
   },
   {
     q: "Can the owner take my deposit?",

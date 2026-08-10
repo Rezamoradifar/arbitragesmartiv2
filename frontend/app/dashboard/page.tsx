@@ -496,8 +496,16 @@ function StakeCard({
   // revert with no explanation of which rule it broke.
   const isProtocolWallet = Boolean(user.isProtocolWallet);
 
-  const belowMin = amountUnits < MIN_STAKE_UNITS;
+  // The contract checks the NET stake against the minimum, not the amount
+  // sent. A 10 USDT deposit nets 9 after the fee and reverts with
+  // BelowMinStake, so comparing the gross here would enable the button on an
+  // amount the contract refuses. During the free window net equals gross, so
+  // the same check covers both cases.
+  const netForMin = freePeriodNet(quote.netStake, amountUnits, protocol.isFreePeriod);
+  const belowMin = netForMin < MIN_STAKE_UNITS;
   const aboveMax = amountUnits > MAX_STAKE_UNITS;
+  // Smallest deposit whose net still clears the minimum, rounded up.
+  const minGross = minGrossDeposit(protocol.devFeeBpsTotal);
   const freeMismatch = freePeriod && amountUnits !== MIN_STAKE_UNITS;
   const protocolWalletAmountWrong =
     isProtocolWallet && !freePeriod && amountUnits !== PROTOCOL_WALLET_STAKE_UNITS;
@@ -517,7 +525,7 @@ function StakeCard({
     : protocolWalletAmountWrong
       ? "A development-fee wallet must deposit exactly 1,000 USDT."
       : belowMin
-        ? "Minimum deposit is 10 USDT."
+        ? `Minimum deposit is ${formatAmount(minGross, 2)} USDT, which is what it takes to record a 10 USDT stake after the fee.`
         : aboveMax
           ? "Maximum deposit is 25,000 USDT."
           : freeMismatch
@@ -779,6 +787,27 @@ function DepositBreakdown({
       </div>
     </div>
   );
+}
+
+/**
+ * The smallest deposit whose recorded stake still clears the contract's 10
+ * USDT minimum. The fee is taken first, so the floor on what you send is
+ * strictly above the floor on what gets staked.
+ */
+function minGrossDeposit(feeBps?: bigint): bigint {
+  const net = 10000n - (feeBps ?? 1000n);
+  if (net <= 0n) return MIN_STAKE_UNITS;
+  // Round up, then up again to whole cents so the quoted figure is one a user
+  // can actually type.
+  const exact = (MIN_STAKE_UNITS * 10000n + net - 1n) / net;
+  return ((exact + 9999n) / 10000n) * 10000n;
+}
+
+/** Net stake to compare against the minimum, with gross as the fallback while
+ *  the quote is still in flight. */
+function freePeriodNet(net: bigint | undefined, gross: bigint, freePeriod?: boolean): bigint {
+  if (freePeriod) return gross;
+  return net ?? gross;
 }
 
 /** Plain decimal string with no separators — safe to feed back into the input. */
