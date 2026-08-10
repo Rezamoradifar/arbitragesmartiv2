@@ -1300,6 +1300,45 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
         activeStake = stakes[user].amount;
     }
 
+    // ============================================================
+    // ERC-1155 receiver — required to hold Polymarket outcome tokens
+    // ============================================================
+
+    /// @notice Accepts the ERC-1155 outcome tokens the CTF mints on a split.
+    /// @dev Not optional plumbing. `splitPosition` mints to this contract and
+    ///      then, because the recipient is a contract, calls back to confirm
+    ///      it can hold ERC-1155. Without these hooks the callback hits the
+    ///      fallback and the whole split reverts — so every Polymarket call
+    ///      would fail, in every market, permanently. A mock CTF does not
+    ///      perform the acceptance check, which is why this only surfaces
+    ///      against the real contract.
+    ///
+    ///      Deliberately unrestricted: rejecting unsolicited tokens buys
+    ///      nothing here (anyone can send us an NFT regardless) while a
+    ///      stricter check risks refusing a legitimate mint.
+    function onERC1155Received(address, address, uint256, uint256, bytes calldata) external pure returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    /// @notice Batch form of {onERC1155Received}. This is the one the CTF
+    ///         actually uses: a split mints the whole complete set at once.
+    function onERC1155BatchReceived(address, address, uint256[] calldata, uint256[] calldata, bytes calldata)
+        external
+        pure
+        returns (bytes4)
+    {
+        return this.onERC1155BatchReceived.selector;
+    }
+
+    /// @notice ERC-165 support for {IERC1155Receiver} and ERC-165 itself.
+    /// @dev The CTF's acceptance check relies on the return selectors above
+    ///      rather than on this, but wallets and explorers use it to decide
+    ///      whether the contract can safely custody ERC-1155.
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return interfaceId == 0x4e2312e0 // IERC1155Receiver
+            || interfaceId == 0x01ffc9a7; // IERC165
+    }
+
     /// @notice Read-only passthrough to Polymarket's real Conditional Tokens
     ///         ERC-1155 balance for a specific, off-chain-computed position ID.
     ///         Position IDs are not derived on-chain here — see contract notes.

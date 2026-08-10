@@ -37,6 +37,12 @@ contract MockSwapRouter {
     }
 }
 
+interface IERC1155Receiver {
+    function onERC1155BatchReceived(address, address, uint256[] calldata, uint256[] calldata, bytes calldata)
+        external
+        returns (bytes4);
+}
+
 contract MockConditionalTokens {
     uint256 public redeemPayout;
 
@@ -44,8 +50,25 @@ contract MockConditionalTokens {
         redeemPayout = amount;
     }
 
-    function splitPosition(IERC20 collateralToken, bytes32, bytes32, uint256[] calldata, uint256 amount) external {
+    /// @dev Performs the ERC-1155 acceptance callback the real CTF makes
+    ///      after minting. Omitting it let a missing receiver hook pass the
+    ///      unit suite and fail against the live contract, so the mock now
+    ///      reproduces it.
+    function splitPosition(IERC20 collateralToken, bytes32, bytes32, uint256[] calldata partition, uint256 amount)
+        external
+    {
         collateralToken.transferFrom(msg.sender, address(this), amount);
+
+        uint256[] memory ids = new uint256[](partition.length);
+        uint256[] memory values = new uint256[](partition.length);
+        for (uint256 i = 0; i < partition.length; i++) {
+            ids[i] = partition[i];
+            values[i] = amount;
+        }
+        bytes4 ret = IERC1155Receiver(msg.sender).onERC1155BatchReceived(
+            address(this), address(0), ids, values, ""
+        );
+        require(ret == IERC1155Receiver.onERC1155BatchReceived.selector, "ERC1155: rejected");
     }
 
     function mergePositions(IERC20 collateralToken, bytes32, bytes32, uint256[] calldata, uint256 amount) external {
