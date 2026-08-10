@@ -28,6 +28,7 @@ import {
   MIN_STAKE_UNITS,
   PENALTY_SCHEDULE,
   PLANS,
+  PROTOCOL_WALLET_STAKE_UNITS,
   REFERRAL_LEVELS,
   formatAmount,
   formatBps,
@@ -487,12 +488,21 @@ function StakeCard({
   const approveReceipt = useWaitForTransactionReceipt({ hash: approve.data });
   const stake = useContractTx(onDone);
 
+  const freePeriod = Boolean(protocol.isFreePeriod);
+  // The two development-fee wallets are a separate case in the contract: barred
+  // from the free window entirely, and afterwards held to one exact size. Left
+  // unhandled, the form would happily submit and the wallet would get a bare
+  // revert with no explanation of which rule it broke.
+  const isProtocolWallet = Boolean(user.isProtocolWallet);
+
   const belowMin = amountUnits < MIN_STAKE_UNITS;
   const aboveMax = amountUnits > MAX_STAKE_UNITS;
-  const freeMismatch = Boolean(protocol.isFreePeriod) && amountUnits !== MIN_STAKE_UNITS;
+  const freeMismatch = freePeriod && amountUnits !== MIN_STAKE_UNITS;
+  const protocolWalletAmountWrong =
+    isProtocolWallet && !freePeriod && amountUnits !== PROTOCOL_WALLET_STAKE_UNITS;
   // A free stake never calls transferFrom on-chain — the contract skips it
   // entirely — so neither an allowance nor a wallet balance is required.
-  const isFreeStake = Boolean(protocol.isFreePeriod) && amountUnits === MIN_STAKE_UNITS;
+  const isFreeStake = freePeriod && amountUnits === MIN_STAKE_UNITS && !isProtocolWallet;
   const insufficient = !isFreeStake && amountUnits > (user.walletBalance ?? 0n);
   const needsApproval = !isFreeStake && (user.allowance ?? 0n) < amountUnits;
   const freeSlotsGone =
@@ -501,17 +511,21 @@ function StakeCard({
     protocol.maxFreeStakes !== undefined &&
     protocol.freeStakeCount >= protocol.maxFreeStakes;
 
-  const problem = belowMin
-    ? "Minimum deposit is 10 USDT."
-    : aboveMax
-      ? "Maximum deposit is 25,000 USDT."
-      : freeMismatch
-        ? "During the free period a stake must be exactly 10 USDT."
-        : freeSlotsGone
-          ? "All free-stake places have already been taken."
-          : insufficient
-            ? "Amount exceeds your wallet balance."
-            : null;
+  const problem = isProtocolWallet && freePeriod
+    ? "Development-fee wallets cannot open a position during the free-stake window."
+    : protocolWalletAmountWrong
+      ? "A development-fee wallet must deposit exactly 1,000 USDT."
+      : belowMin
+        ? "Minimum deposit is 10 USDT."
+        : aboveMax
+          ? "Maximum deposit is 25,000 USDT."
+          : freeMismatch
+            ? "During the free-stake window every deposit must be exactly 10 USDT."
+            : freeSlotsGone
+              ? "All free-stake places have already been taken."
+              : insufficient
+                ? "Amount exceeds your wallet balance."
+                : null;
 
   return (
     <Section
@@ -560,6 +574,33 @@ function StakeCard({
           {isFreeStake && (
             <p className="mt-2.5 text-xs text-gold-300">
               Free-stake position — no USDT balance or approval needed. One tap below.
+            </p>
+          )}
+
+          {/* The single most-asked question during this window is "why can't I
+              deposit more?". Answer it where it is asked, with the time it
+              stops being true, rather than only rejecting the amount. */}
+          {freePeriod && !isProtocolWallet && (
+            <p className="mt-2.5 text-xs leading-relaxed text-graphite-400">
+              The contract accepts only 10 USDT from any wallet while the launch window is open.
+              Larger deposits — and every plan tier above Starter — unlock automatically in{" "}
+              <span className="text-graphite-200">
+                <Countdown
+                  target={Math.floor(Date.now() / 1000) + Number(protocol.freeTimeLeft ?? 0n)}
+                />
+              </span>
+              . Nothing needs to be done to enable them.
+            </p>
+          )}
+
+          {isProtocolWallet && (
+            <p className="mt-2.5 text-xs leading-relaxed text-graphite-400">
+              This is a development-fee wallet. It cannot take a free position, and once the launch
+              window closes it may open exactly one position of{" "}
+              <span className="text-graphite-200">
+                {formatAmount(PROTOCOL_WALLET_STAKE_UNITS)} USDT
+              </span>
+              , funded like any other deposit.
             </p>
           )}
         </div>

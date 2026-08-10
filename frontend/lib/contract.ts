@@ -97,6 +97,14 @@ export const MIN_STAKE_UNITS = 10_000000n;
 export const MAX_STAKE_UNITS = 25_000_000000n;
 
 /**
+ * The one deposit size the two development-fee wallets are allowed, mirroring
+ * PROTOCOL_WALLET_STAKE. They are also barred from the free-stake window
+ * outright — a free position for a wallet that collects protocol revenue would
+ * be a claim on other depositors' capital with nothing behind it.
+ */
+export const PROTOCOL_WALLET_STAKE_UNITS = 1000_000000n;
+
+/**
  * The deposit fee, mirroring DEVELOPMENT_FEE_BPS_1 + DEVELOPMENT_FEE_BPS_2.
  *
  * Both are immutable constructor parameters, so this cannot drift the way a
