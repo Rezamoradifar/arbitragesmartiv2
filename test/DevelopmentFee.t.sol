@@ -475,6 +475,101 @@ contract DevelopmentFeeTest is Test {
     }
 
     // ---------------------------------------------------------------
+    // Development-wallet staking restriction
+    // ---------------------------------------------------------------
+
+    function test_developmentWalletCanStakeExactlyOneThousand() public {
+        usdc.mint(growth1, 5000_000000);
+        vm.startPrank(growth1, growth1);
+        usdc.approve(address(arbi), type(uint256).max);
+        arbi.stake(1000_000000, address(0));
+        vm.stopPrank();
+
+        // It pays the development fee like anyone else — 900 recorded, not 1000.
+        (uint256 amt,,,,,, bool active,,) = arbi.stakes(growth1);
+        assertEq(amt, 900_000000, "no exemption from the fee");
+        assertTrue(active);
+    }
+
+    function test_developmentWalletCannotStakeAnyOtherSize() public {
+        usdc.mint(growth1, 50_000_000000);
+        vm.startPrank(growth1, growth1);
+        usdc.approve(address(arbi), type(uint256).max);
+
+        vm.expectRevert(ArbiSmartV3.ProtocolWalletStakeInvalid.selector);
+        arbi.stake(999_000000, address(0));
+
+        vm.expectRevert(ArbiSmartV3.ProtocolWalletStakeInvalid.selector);
+        arbi.stake(1001_000000, address(0));
+
+        vm.expectRevert(ArbiSmartV3.ProtocolWalletStakeInvalid.selector);
+        arbi.stake(10_000_000000, address(0));
+        vm.stopPrank();
+    }
+
+    /// @dev The restriction exists so a revenue wallet cannot hold a position
+    ///      nobody funded. The free window is the obvious way around a fixed
+    ///      deposit size, so it is closed to them.
+    function test_developmentWalletCannotTakeAFreeStake() public {
+        ArbiSmartV3 fresh = new ArbiSmartV3(
+            address(usdc), owner, feeWallet1, feeWallet2, profitRecipient, growth1, growth2, BPS1, BPS2
+        );
+        assertTrue(fresh.isFreePeriod(), "still inside the free window");
+
+        vm.startPrank(growth1, growth1);
+        usdc.approve(address(fresh), type(uint256).max);
+        vm.expectRevert(ArbiSmartV3.ProtocolWalletStakeInvalid.selector);
+        fresh.stake(10_000000, address(0));
+        vm.stopPrank();
+
+        // An ordinary address is unaffected.
+        vm.prank(alice, alice);
+        fresh.stake(10_000000, address(0));
+        (,,,,,, bool active,, bool free) = fresh.stakes(alice);
+        assertTrue(active && free, "normal users keep the free window");
+    }
+
+    function test_developmentWalletCannotTopUp() public {
+        usdc.mint(growth1, 5000_000000);
+        vm.startPrank(growth1, growth1);
+        usdc.approve(address(arbi), type(uint256).max);
+        arbi.stake(1000_000000, address(0));
+        vm.expectRevert(ArbiSmartV3.ProtocolWalletStakeInvalid.selector);
+        arbi.topUp(1000_000000);
+        vm.stopPrank();
+    }
+
+    /// @dev The claim-fee wallets are deliberately outside the restriction.
+    function test_claimFeeWalletsStakeOnNormalTerms() public {
+        usdc.mint(feeWallet1, 5000_000000);
+        vm.startPrank(feeWallet1, feeWallet1);
+        usdc.approve(address(arbi), type(uint256).max);
+        arbi.stake(2000_000000, address(0));
+        vm.stopPrank();
+
+        (uint256 amt,,,,,,,,) = arbi.stakes(feeWallet1);
+        assertEq(amt, 1800_000000, "unrestricted, ordinary fee applies");
+    }
+
+    function test_restrictionFollowsTheWalletWhenRepointed() public {
+        address newWallet = makeAddr("newDevWallet");
+        vm.prank(owner);
+        arbi.setDevelopmentFeeWallet(1, newWallet);
+
+        assertTrue(arbi.isProtocolWallet(newWallet), "restriction moves to the new wallet");
+        assertFalse(arbi.isProtocolWallet(growth1), "and leaves the old one");
+
+        // The old wallet may now stake freely.
+        usdc.mint(growth1, 5000_000000);
+        vm.startPrank(growth1, growth1);
+        usdc.approve(address(arbi), type(uint256).max);
+        arbi.stake(2000_000000, address(0));
+        vm.stopPrank();
+        (uint256 amt,,,,,,,,) = arbi.stakes(growth1);
+        assertEq(amt, 1800_000000);
+    }
+
+    // ---------------------------------------------------------------
     // V2 migration
     // ---------------------------------------------------------------
 

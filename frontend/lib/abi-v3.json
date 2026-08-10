@@ -203,6 +203,19 @@
   },
   {
     "type": "function",
+    "name": "PROTOCOL_WALLET_STAKE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "REQUIRED_VOTES",
     "inputs": [],
     "outputs": [
@@ -1182,6 +1195,25 @@
   {
     "type": "function",
     "name": "isPartner",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isProtocolWallet",
     "inputs": [
       {
         "name": "account",
@@ -3016,6 +3048,11 @@
   {
     "type": "error",
     "name": "ProfitFeeTooHigh",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ProtocolWalletStakeInvalid",
     "inputs": []
   },
   {

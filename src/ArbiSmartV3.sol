@@ -430,6 +430,11 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     /// @notice Total principal brought over from V2. Reporting only.
     uint256 public totalMigrated;
 
+    /// @notice The single deposit size the two development-fee wallets are
+    ///         allowed to stake — no more, no less. They pay the development
+    ///         fee on it exactly as any other depositor does.
+    uint256 public constant PROTOCOL_WALLET_STAKE = 1000_000000;
+
     /// @notice Timestamp at which the contract was last paused; 0 while unpaused.
     uint256 public pausedAt;
     /// @notice How long the contract must remain continuously paused before
@@ -702,6 +707,7 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
 
     error MigrationClosed();
     error InvalidMigrationStart();
+    error ProtocolWalletStakeInvalid();
 
     // ============================================================
     // Modifiers
@@ -810,6 +816,21 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
     function getTimeLeft() public view returns (uint256) {
         if (!isFreePeriod()) return 0;
         return (deployTime + FREE_PERIOD) - block.timestamp;
+    }
+
+    /// @notice Whether `account` is one of the two development-fee wallets.
+    /// @dev Read live rather than snapshotted, so repointing a development
+    ///      wallet moves the staking restriction along with the revenue.
+    ///      The yield-claim fee wallets are deliberately NOT covered — they
+    ///      stake on the same terms as anyone else.
+    function _isProtocolWallet(address account) private view returns (bool) {
+        return account == developmentFeeWallet1 || account == developmentFeeWallet2;
+    }
+
+    /// @notice Public form of {_isProtocolWallet}, so a front-end can show the
+    ///         fixed deposit size before a wallet tries and reverts.
+    function isProtocolWallet(address account) external view returns (bool) {
+        return _isProtocolWallet(account);
     }
 
     /// @dev Bounded loop: `partnerCount` can never exceed {MAX_PARTNERS} (4).
@@ -1511,6 +1532,18 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
 
         bool free = isFreePeriod();
 
+        // The two development-fee wallets are held to one exact deposit size,
+        // and are barred from the free-stake window. A free position for a
+        // wallet that collects protocol revenue would be a claim on other
+        // depositors' capital with nothing behind it; requiring the same
+        // 1,000 as everyone else means their position is funded like any
+        // other. The set is read live, so repointing a wallet moves the
+        // restriction with it.
+        if (_isProtocolWallet(msg.sender)) {
+            if (free) revert ProtocolWalletStakeInvalid();
+            if (grossAmount != PROTOCOL_WALLET_STAKE) revert ProtocolWalletStakeInvalid();
+        }
+
         // A free stake moves no collateral, so there is nothing to take a fee
         // from; it is booked at face value exactly as in V2.
         (uint256 fee1, uint256 fee2, uint256 amount) = free
@@ -1596,6 +1629,9 @@ contract ArbiSmartV3 is Ownable2Step, ReentrancyGuard, Pausable {
         Stake storage s = stakes[msg.sender];
         if (!s.active) revert NoActiveStake();
         if (s.freeStake) revert InvalidFreeStakeAmount();
+        // Topping up would defeat the fixed size the development wallets are
+        // held to, so it is closed to them rather than bounded.
+        if (_isProtocolWallet(msg.sender)) revert ProtocolWalletStakeInvalid();
 
         (uint256 fee1, uint256 fee2, uint256 amount) = _splitDeposit(grossAmount);
         if (amount < MIN_STAKE) revert BelowMinStake();
