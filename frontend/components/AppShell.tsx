@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Assistant } from "@/components/Assistant";
+import { captureReferral } from "@/lib/referral";
 
 /**
  * Site chrome, minus the chrome on the Telegram Mini App.
@@ -27,6 +29,13 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+
+  // Every page, not just the dashboard, and on every navigation — a referral
+  // link can point anywhere, and the one place it must not be missed is the
+  // first page the visitor lands on.
+  useEffect(() => {
+    captureReferral();
+  }, [pathname]);
 
   if (pathname?.startsWith("/tg")) {
     return <main className="layer">{children}</main>;

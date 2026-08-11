@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useContractTx, TxStatus } from "@/components/TxButton";
 import {
@@ -22,6 +22,7 @@ import { useProtocol, useUserPosition, useReferralTree, useDepositQuote } from "
 import { hasWalletConnect } from "@/lib/wagmi";
 import {
   COLLATERAL_ADDRESS,
+  CONTRACT_ABI,
   CONTRACT_ADDRESS,
   ERC20_ABI,
   MAX_STAKE_UNITS,
@@ -39,6 +40,7 @@ import {
   projectedYield,
   shortAddress,
 } from "@/lib/contract";
+import { getStoredReferral, normaliseRef } from "@/lib/referral";
 
 const ZERO = "0x0000000000000000000000000000000000000000";
 
@@ -470,9 +472,34 @@ function StakeCard({
   onDone: () => void;
 }) {
   const params = useSearchParams();
-  const refFromUrl = params.get("ref") ?? "";
   const [amount, setAmount] = useState("500");
-  const [referrer, setReferrer] = useState(refFromUrl);
+  const [referrer, setReferrer] = useState("");
+  const [refTouched, setRefTouched] = useState(false);
+  const [refSource, setRefSource] = useState<"link" | "remembered" | null>(null);
+
+  /*
+   * This used to be `useState(refFromUrl)`, which reads the URL exactly once,
+   * on the first render — and this page is prerendered, so on that render
+   * useSearchParams has nothing to give. The referral silently became the zero
+   * address and the deposit went through unattributed. Reading it in an effect
+   * picks it up when it actually resolves, and falls back to the copy saved by
+   * captureReferral, which survives the trip out to a wallet's browser and
+   * back.
+   */
+  useEffect(() => {
+    if (refTouched) return;
+    const fromUrl = normaliseRef(params.get("ref"));
+    if (fromUrl) {
+      setReferrer(fromUrl);
+      setRefSource("link");
+      return;
+    }
+    const stored = getStoredReferral();
+    if (stored) {
+      setReferrer(stored);
+      setRefSource("remembered");
+    }
+  }, [params, refTouched]);
 
   const amountUnits = useMemo(() => {
     try {
@@ -483,6 +510,39 @@ function StakeCard({
   }, [amount]);
 
   const quote = useDepositQuote(amountUnits);
+
+  /*
+   * Whether this referral will actually be recorded.
+   *
+   * stake() takes a referrer it cannot use and carries on without one — no
+   * revert, no event, nothing on screen. The deposit succeeds, the upline gets
+   * nobody, and it cannot be corrected afterwards because referrals[user]
+   * .referrer is only ever written on the way in. So the three conditions the
+   * contract checks are checked here too, before signing, while it is still
+   * free to fix.
+   */
+  const refClean = useMemo(() => normaliseRef(referrer), [referrer]);
+  const refIsSelf = Boolean(
+    refClean && user.address && refClean.toLowerCase() === user.address.toLowerCase(),
+  );
+  const { data: refStakeRaw } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: "getStakeBasic",
+    args: [refClean ?? ZERO],
+    query: { enabled: Boolean(refClean) && !refIsSelf },
+  });
+  const refStake = refStakeRaw as readonly unknown[] | undefined;
+  const refActive = refStake ? Boolean(refStake[4]) : undefined;
+
+  const refProblem =
+    referrer.trim() && !refClean
+      ? "That is not a valid wallet address, so no referral will be recorded."
+      : refIsSelf
+        ? "You cannot refer yourself. No referral will be recorded."
+        : refClean && refActive === false
+          ? "This referrer has no open position, so the contract will ignore the referral. Ask them to open theirs first — it cannot be attached afterwards."
+          : null;
   // The plan tier is decided by what is actually recorded, not by what was
   // sent — so the preview has to use the net figure the contract returns.
   const planIndex = planForAmount(quote.netStake ?? amountUnits);
@@ -625,11 +685,26 @@ function StakeCard({
             id="referrer"
             className="input font-mono text-sm"
             value={referrer}
-            onChange={(e) => setReferrer(e.target.value.trim())}
+            onChange={(e) => {
+              setRefTouched(true);
+              setReferrer(e.target.value.trim());
+            }}
             placeholder="0x…"
           />
-          {refFromUrl && (
-            <p className="mt-1.5 text-xs text-gold-300">Referral link detected and pre-filled.</p>
+          {!refProblem && refSource === "link" && (
+            <p className="mt-1.5 text-xs text-gold-300">Referral link detected and filled in.</p>
+          )}
+          {!refProblem && refSource === "remembered" && (
+            <p className="mt-1.5 text-xs text-gold-300">
+              Using the referral link you arrived through earlier.
+            </p>
+          )}
+          {refProblem && (
+            <div className="mt-2">
+              <Alert tone="warn" title={refProblem}>
+                A referral is recorded at the moment of deposit and can never be added later.
+              </Alert>
+            </div>
           )}
         </div>
 
@@ -678,10 +753,7 @@ function StakeCard({
               className="btn-primary w-full"
               disabled={Boolean(problem) || stake.isPending || stake.isConfirming}
               onClick={() =>
-                stake.call("stake", [
-                  amountUnits,
-                  referrer && referrer.length === 42 ? referrer : ZERO,
-                ])
+                stake.call("stake", [amountUnits, refIsSelf ? ZERO : (refClean ?? ZERO)])
               }
             >
               Deposit {formatAmount(amountUnits)} USDT
