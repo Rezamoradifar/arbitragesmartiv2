@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
-import { RoundCountdown } from "@/components/RoundCountdown";
 import { EcosystemVisual } from "@/components/visuals/FeatureVisuals";
 import { VisualFrame } from "@/components/visuals/primitives";
 import { REFERRAL_LEVELS } from "@/lib/contract";
@@ -9,55 +8,24 @@ import { REFERRAL_LEVELS } from "@/lib/contract";
 export const metadata: Metadata = {
   title: "Gold rewards",
   description:
-    "Physical gold for the builders who bring real volume. Every threshold is an on-chain number anyone can check.",
+    "Physical gold for the builders who bring real volume. Thresholds and round dates are being finalised.",
 };
 
 /**
- * Round 1. Both dates are constants so a new round is a two-line change, and
- * the closing block is what actually decides the winners — the date is the
- * human-readable form of it.
- */
-const ROUND = {
-  name: "Round 1",
-  opensAt: "2026-08-11T00:00:00Z",
-  endsAt: "2026-11-09T00:00:00Z",
-  /** Published before the round closes; until then this stays null. */
-  snapshotBlock: null as number | null,
-};
-
-/**
- * One gram per 3,000 USDT of TEAM volume — all three levels, not just directs.
+ * The prize ladder. Weights only, on purpose.
  *
- * A single ratio rather than a hand-tuned ladder: every tier costs the same
- * percentage of the volume it rewards, so the programme's budget scales with
- * what it brings in instead of getting more expensive at the top. It is also
- * the only version anyone can check in their head.
- *
- * The ratio is set against the entry fee, which is what pays for the metal.
- * Because a tier is awarded on the threshold you clear rather than on your
- * exact total, the average cost lands well under the nominal rate — that gap
- * is the headroom that lets the deeper levels count at all.
+ * The qualifying volume behind each tier is still being set, and publishing a
+ * provisional figure would be worse than publishing none: people would plan
+ * around it and we would be moving the finish line on them later. The weights
+ * are settled, so those are what the page shows until the rest is fixed.
  */
-const GRAMS_PER_VOLUME = 3_000;
-
 const TIERS = [1, 5, 10, 25, 50, 100, 250, 500, 1000].map((grams) => ({
   grams,
-  volume: grams * GRAMS_PER_VOLUME,
   label: grams >= 1000 ? `${grams / 1000} kg` : `${grams} g`,
 }));
 
-/** The four shown as cards; the whole ladder is in the table below them. */
+/** The four shown as cards; the whole ladder is listed below them. */
 const HIGHLIGHT = [1, 50, 250, 1000];
-
-/** Fixed to UTC so the server and the browser print the same string. */
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
 
 const CONDITIONS = [
   {
@@ -68,7 +36,7 @@ const CONDITIONS = [
   {
     n: "02",
     title: "Recorded stake, not deposits",
-    body: "A 1,000 USDT deposit records roughly 900 USDT of stake after the entry fee, and it is the 900 that counts. This is the same number shown on your dashboard, so there is nothing to reconcile.",
+    body: "A deposit records the amount left after the entry fee, and it is that net figure which counts. It is the same number your dashboard shows, so there is nothing to reconcile.",
   },
   {
     n: "03",
@@ -83,7 +51,7 @@ const CONDITIONS = [
   {
     n: "05",
     title: "You need an active position of your own",
-    body: "At the snapshot block your own stake must be active and at least 500 USDT. The programme rewards people building alongside the protocol, not routing around it.",
+    body: "At the snapshot block your own stake has to be active, and above a minimum that will be published with the thresholds. The programme rewards people building alongside the protocol, not routing around it.",
   },
   {
     n: "06",
@@ -154,47 +122,38 @@ export default function RewardsPage() {
 
       {/* --------------------------------------------------------- round */}
       <section className="glass glass-gold p-7 sm:p-9">
-        <div className="flex flex-wrap items-start justify-between gap-6">
-          <div className="min-w-0">
-            <p className="eyebrow">
-              <Icon name="clock" className="h-3.5 w-3.5" />
-              {ROUND.name} · closes {fmtDate(ROUND.endsAt)}
-            </p>
-            <h2 className="h-section mt-4">This round is on a clock</h2>
-            <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-graphite-300">
-              The programme runs in rounds, not forever. {ROUND.name} opened on{" "}
-              {fmtDate(ROUND.opensAt)} and closes on {fmtDate(ROUND.endsAt)}. Volume built after that
-              moment belongs to the next round.
-            </p>
-          </div>
-          <div className="min-w-0">
-            <p className="mb-3 text-xs uppercase tracking-[.14em] text-graphite-500">
-              Time left in {ROUND.name}
-            </p>
-            <RoundCountdown endsAt={ROUND.endsAt} />
-          </div>
-        </div>
-        <p className="mt-6 border-t border-white/[.06] pt-5 text-xs leading-relaxed text-graphite-500">
-          Snapshot block:{" "}
-          {ROUND.snapshotBlock === null ? (
-            <span className="text-graphite-300">
-              published here at least seven days before the closing date
-            </span>
-          ) : (
-            <span className="font-mono text-graphite-200">{ROUND.snapshotBlock}</span>
-          )}
-          . Balances are read at that block and nowhere else.
+        <p className="eyebrow">
+          <Icon name="clock" className="h-3.5 w-3.5" />
+          Being finalised
         </p>
+        <h2 className="h-section mt-4">Thresholds and dates are still being set</h2>
+        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-graphite-300">
+          The rewards themselves are decided — the bars below are what the programme pays. What is
+          not settled yet is how much team volume each one takes and when the first round opens and
+          closes. We would rather publish nothing than publish a figure people plan around and then
+          move.
+        </p>
+        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-graphite-300">
+          Everything goes up here first, complete and in one piece: the volume for every tier, the
+          minimum stake of your own, the opening and closing dates, and the block the snapshot is
+          read at. Nothing starts counting before that announcement.
+        </p>
+        <div className="mt-7 flex flex-wrap gap-3">
+          <a href="https://t.me/arbhub_site" target="_blank" rel="noreferrer" className="btn-primary">
+            Get told when it opens
+          </a>
+          <a href="mailto:support@arbhub.site" className="btn-secondary">
+            Ask a question
+          </a>
+        </div>
       </section>
 
       {/* --------------------------------------------------------- tiers */}
       <section>
-        <h2 className="h-section">The tiers</h2>
+        <h2 className="h-section">The rewards</h2>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-graphite-300">
-          One gram for every {GRAMS_PER_VOLUME.toLocaleString("en-US")} USDT of team volume, counting
-          all three levels. The same ratio from the first gram to the last, so there is no ladder to
-          memorise — divide your team total by {GRAMS_PER_VOLUME.toLocaleString("en-US")} and that is
-          your weight.
+          Nine tiers, from a single gram to a full kilo. Measured on your whole team, three levels
+          deep — you receive the highest tier you clear.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -211,9 +170,8 @@ export default function RewardsPage() {
                 </p>
                 <div className="mt-5 border-t border-white/[.06] pt-4">
                   <p className="text-xs uppercase tracking-wider text-graphite-500">Team volume</p>
-                  <p className="mt-1 font-display text-lg font-semibold text-white">
-                    {t.volume.toLocaleString("en-US")}
-                    <span className="ml-1.5 text-xs font-medium text-graphite-400">USDT</span>
+                  <p className="mt-1 font-display text-lg font-semibold text-graphite-400">
+                    Being set
                   </p>
                 </div>
               </div>
@@ -221,48 +179,24 @@ export default function RewardsPage() {
           })}
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-2xl border border-white/[.07]">
-          <table className="w-full min-w-[30rem] text-sm">
-            <thead>
-              <tr className="border-b border-white/[.07] bg-white/[.02] text-left">
-                <th className="px-5 py-3 font-medium text-graphite-400">Reward</th>
-                <th className="px-5 py-3 text-right font-medium text-graphite-400">
-                  Team volume required
-                </th>
-                <th className="hidden px-5 py-3 text-right font-medium text-graphite-400 sm:table-cell">
-                  Roughly, at 5,000 USDT a head
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {TIERS.map((t) => (
-                <tr
-                  key={t.grams}
-                  className={`border-b border-white/[.04] last:border-0 ${
-                    t.grams === 1000 ? "bg-gold-400/[.05]" : ""
-                  }`}
-                >
-                  <td className="px-5 py-3 font-display font-semibold text-white">
-                    <span className={t.grams === 1000 ? "text-gold-gradient" : undefined}>
-                      {t.label}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 text-right font-mono tabular-nums text-graphite-200">
-                    {t.volume.toLocaleString("en-US")}
-                  </td>
-                  <td className="hidden px-5 py-3 text-right text-graphite-400 sm:table-cell">
-                    {Math.round(t.volume / 5_000).toLocaleString("en-US")} people
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mt-6 flex flex-wrap gap-2.5">
+          {TIERS.map((t) => (
+            <span
+              key={t.grams}
+              className={`rounded-full border px-4 py-2 font-display text-sm font-semibold ${
+                t.grams === 1000
+                  ? "border-gold-400/40 bg-gold-400/[.08] text-gold-300"
+                  : "border-white/[.08] bg-white/[.02] text-graphite-200"
+              }`}
+            >
+              {t.label}
+            </span>
+          ))}
         </div>
 
         <p className="mt-5 text-xs leading-relaxed text-graphite-500">
-          Bars are 999.9 fine, supplied with the refiner&apos;s assay certificate. The last column is
-          only an illustration of what the volume might look like — the threshold is the volume
-          itself, never the number of people.
+          Bars are 999.9 fine, supplied with the refiner&apos;s assay certificate. Tiers do not stack
+          — one bar per address per round, at the highest level you reach.
         </p>
       </section>
 
@@ -383,7 +317,7 @@ export default function RewardsPage() {
   --rpc-url https://polygon-rpc.com
 
 # three values: level 1, level 2, level 3 — in USDT with 6 decimals
-# add all three together, divide by ${GRAMS_PER_VOLUME.toLocaleString("en-US")}, that is your gram count`}
+# add all three together; that sum is what a gold tier is measured on`}
         </pre>
         <p className="mt-4 text-xs leading-relaxed text-graphite-500">
           All three numbers count toward a gold tier. Your referral tier is a separate calculation
@@ -409,12 +343,10 @@ export default function RewardsPage() {
 
       {/* ------------------------------------------------------- closing */}
       <section className="glass glass-gold p-7 text-center sm:p-10">
-        <h2 className="h-section mx-auto max-w-2xl">
-          {ROUND.name} closes {fmtDate(ROUND.endsAt)}
-        </h2>
+        <h2 className="h-section mx-auto max-w-2xl">Start building now, not on the day</h2>
         <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-graphite-300">
-          The snapshot block goes out on Telegram and by email at least a week beforehand, along with
-          the dates for whatever round comes next. Nothing is decided after the fact.
+          Your team volume is already being recorded on-chain, whatever the thresholds turn out to
+          be, and the referral rewards above are live today — they pay every time your team claims.
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
           <a href="https://t.me/arbhub_site" target="_blank" rel="noreferrer" className="btn-primary">
