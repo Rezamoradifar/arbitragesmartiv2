@@ -297,7 +297,7 @@ export function StatCard({
 }: {
   label: string;
   value: ReactNode;
-  sub?: string;
+  sub?: ReactNode;
   lead?: boolean;
   loading?: boolean;
   icon?: ReactNode;

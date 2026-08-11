@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useProtocol } from "@/lib/hooks";
 import { formatAmount } from "@/lib/contract";
 import { Badge, Progress, StatCard } from "@/components/ui";
@@ -53,12 +54,21 @@ export function LiveStats() {
       label: "Realized strategy profit",
       value: p.arbitrageProfit,
       // Only profit actually received in collateral is ever counted here, so
-      // this reads 0 until a position is genuinely closed at a gain. Say that
-      // plainly rather than leaving a bare zero to be read as a fault.
+      // this reads 0 until a position is genuinely closed at a gain — which it
+      // never has. That zero is the most consequential figure on the page, and
+      // it raises a question the visitor deserves an answer to rather than an
+      // assumption about, so it links to one instead of being softened.
       sub:
-        (p.arbitrageProfit ?? 0n) === 0n
-          ? "Nothing realised yet. Only settled gains count."
-          : "After the performance fee, credited to the pool",
+        (p.arbitrageProfit ?? 0n) === 0n ? (
+          <>
+            Nothing realised yet.{" "}
+            <Link href="/strategy" className="text-gold-300 underline underline-offset-2">
+              Why, and where the yield comes from
+            </Link>
+          </>
+        ) : (
+          "After the performance fee, credited to the pool"
+        ),
       icon: "zap" as const,
     },
   ];
