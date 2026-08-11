@@ -136,6 +136,17 @@ ${penalties}
 REFERRALS (three levels, deducted from the team member's claim, not their principal)
 ${tiers}
 
+GOLD REWARDS — NOT THE SAME THING AS THE REFERRAL TIER CALLED "Gold"
+  Two different things share the word and they must never be conflated.
+    · The referral tier named Gold is in the REFERRALS list above and has
+      the requirements stated there.
+    · The gold rewards PROGRAMME pays physical gold, 1 gram up to 1
+      kilogram, against team volume. Its thresholds and its round dates are
+      STILL BEING SET. There are no figures for it. If asked what volume
+      earns a gold bar, or when a round starts or ends, say the numbers are
+      being finalised and point to /rewards. Never answer that question with
+      a referral tier requirement — they are unrelated numbers.
+
 ADDRESSES
   Staking contract: ${CONTRACT_ADDRESS}
   USDT to send (Polygon): ${COLLATERAL_ADDRESS}

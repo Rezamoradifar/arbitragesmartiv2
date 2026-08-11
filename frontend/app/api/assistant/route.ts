@@ -50,7 +50,7 @@ function provider() {
       kind: "openai" as const,
       key,
       url: `${base}/chat/completions`,
-      model: process.env.ASSISTANT_MODEL || "gemini-2.5-flash",
+      model: process.env.ASSISTANT_MODEL || "gemini-flash-lite-latest",
     };
   }
 
@@ -86,7 +86,12 @@ function requestFor(
     headers: { "content-type": "application/json", authorization: `Bearer ${p.key}` },
     body: {
       model: p.model,
-      max_tokens: 600,
+      // Far more than the answer needs. Gemini spends tokens reasoning before
+      // it writes, and that spend counts against this budget — at 600 the
+      // reasoning consumed the lot and a fragment of it came back as the
+      // answer. The reply is still two or three sentences; the headroom just
+      // keeps it from being cut off mid-thought.
+      max_tokens: 2_000,
       temperature: 0.2,
       stream: true,
       messages: [{ role: "system", content: system }, ...messages],
