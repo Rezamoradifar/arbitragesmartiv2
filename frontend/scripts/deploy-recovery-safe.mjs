@@ -34,7 +34,19 @@ const RPC = process.env.POLYGON_RPC_URL || "https://polygon.gateway.tenderly.co"
 // Canonical Safe v1.4.1 deployments. Verified present on Polygon before use —
 // a typo here would send the setup call into nothing and burn the gas.
 const PROXY_FACTORY = "0x4e1DCf7AD4e460CfD30791CCC4F9c8a4f820ec67";
-const SINGLETON = "0x41675C099F32341bf84BFc5382aF534df5C7461a";
+
+/*
+ * SafeL2, not Safe.
+ *
+ * The two are the same wallet logic; SafeL2 additionally emits an event for
+ * every execution. Safe's own transaction service reconstructs a Safe's
+ * history from those events on every chain except Ethereum mainnet, so an L1
+ * singleton deployed to Polygon produces a wallet that holds funds correctly
+ * but that app.safe.global flags as an unsupported version and cannot follow.
+ * A recovery wallet is used exactly once, under pressure, by people who did
+ * not set it up — it has to work in the official interface.
+ */
+const SINGLETON = "0x29fcB43b46531BcA003ddC8FCB67FFE91900C762";
 const FALLBACK_HANDLER = "0xfd0732Dc9E303f09fCEf3a7388Ad10A83459Ec99";
 const ZERO = "0x0000000000000000000000000000000000000000";
 
