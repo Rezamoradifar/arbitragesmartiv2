@@ -398,7 +398,14 @@ function GoldBar({ grams, lead = false }: { grams: number; lead?: boolean }) {
   return (
     <svg
       viewBox="0 0 108 96"
-      className="h-24 w-auto"
+      width={108}
+      height={96}
+      /* Both axes are stated. `w-auto` asks the browser to derive the width
+         from the viewBox, which WebKit does not do for an inline SVG — the
+         element collapses to zero and the bar vanishes on iPhones while
+         looking fine everywhere else. 6.75rem is 108/96 of h-24, so the
+         proportions survive a changed root font size. */
+      className="h-24 w-[6.75rem]"
       role="img"
       aria-label={`${grams >= 1000 ? grams / 1000 + " kilogram" : grams + " gram"} gold bar`}
     >
