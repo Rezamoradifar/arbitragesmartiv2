@@ -4,6 +4,7 @@ import "./globals.css";
 import { Web3Providers } from "@/lib/wagmi";
 import { NavBar, MobileNav } from "@/components/NavBar";
 import { SiteFooter } from "@/components/SiteFooter";
+import { AppShell } from "@/components/AppShell";
 
 // Sora for headlines and figures — geometric, confident at large sizes. Inter
 // for body copy, where legibility at 13-15px matters more than character.
@@ -89,12 +90,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* eslint-disable-next-line react/no-danger */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <Web3Providers>
-          <NavBar />
-          {/* Bottom padding clears the mobile tab bar; the lg breakpoint drops
-              it again once that bar is gone. */}
-          <main className="layer pb-28 lg:pb-0">{children}</main>
-          <SiteFooter />
-          <MobileNav />
+          <AppShell nav={<NavBar />} footer={<SiteFooter />} mobileNav={<MobileNav />}>
+            {children}
+          </AppShell>
         </Web3Providers>
       </body>
     </html>
