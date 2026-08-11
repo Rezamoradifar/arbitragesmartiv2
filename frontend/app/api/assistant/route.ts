@@ -13,9 +13,96 @@ import { buildFacts, SYSTEM_RULES } from "@/lib/assistant/facts";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MODEL = "claude-haiku-4-5-20251001";
 const MAX_INPUT = 1_200;
 const MAX_TURNS = 12;
+
+type Msg = { role: "user" | "assistant"; content: string };
+
+/**
+ * Which model service to talk to, if any.
+ *
+ * Two shapes are supported because the site does not need to pay for this.
+ * Anthropic if an Anthropic key is set; otherwise any OpenAI-compatible
+ * endpoint, which covers the providers with a genuinely free tier — Google AI
+ * Studio, Groq, OpenRouter's free models. Set ASSISTANT_API_KEY and, if it is
+ * not Google, ASSISTANT_BASE_URL and ASSISTANT_MODEL.
+ *
+ * With neither key set this route reports unavailable and the browser answers
+ * from lib/assistant/guide instead, which is the default and costs nothing.
+ */
+function provider() {
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  if (anthropicKey) {
+    return {
+      kind: "anthropic" as const,
+      key: anthropicKey,
+      url: "https://api.anthropic.com/v1/messages",
+      model: process.env.ASSISTANT_MODEL || "claude-haiku-4-5-20251001",
+    };
+  }
+
+  const key = process.env.ASSISTANT_API_KEY;
+  if (key) {
+    const base = (
+      process.env.ASSISTANT_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai"
+    ).replace(/\/+$/, "");
+    return {
+      kind: "openai" as const,
+      key,
+      url: `${base}/chat/completions`,
+      model: process.env.ASSISTANT_MODEL || "gemini-2.5-flash",
+    };
+  }
+
+  return null;
+}
+
+function requestFor(
+  p: NonNullable<ReturnType<typeof provider>>,
+  system: string,
+  messages: Msg[],
+): { headers: Record<string, string>; body: Record<string, unknown> } {
+  if (p.kind === "anthropic") {
+    return {
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": p.key,
+        "anthropic-version": "2023-06-01",
+      },
+      body: {
+        model: p.model,
+        max_tokens: 600,
+        temperature: 0.2,
+        system,
+        messages,
+        stream: true,
+      },
+    };
+  }
+
+  // OpenAI-compatible services carry the system prompt as the first turn
+  // rather than as its own field.
+  return {
+    headers: { "content-type": "application/json", authorization: `Bearer ${p.key}` },
+    body: {
+      model: p.model,
+      max_tokens: 600,
+      temperature: 0.2,
+      stream: true,
+      messages: [{ role: "system", content: system }, ...messages],
+    },
+  };
+}
+
+/** Pull the text out of one SSE frame, whichever provider sent it. */
+function textFrom(kind: "anthropic" | "openai", evt: any): string {
+  if (kind === "anthropic") {
+    return evt?.type === "content_block_delta" && evt?.delta?.type === "text_delta"
+      ? (evt.delta.text as string)
+      : "";
+  }
+  return typeof evt?.choices?.[0]?.delta?.content === "string" ? evt.choices[0].delta.content : "";
+}
 
 /** Requests per window, per address. */
 const LIMIT = 12;
@@ -46,15 +133,15 @@ function clientIp(req: NextRequest): string {
   return (fwd ? fwd.split(",")[0] : req.headers.get("x-real-ip") || "unknown").trim();
 }
 
-/** The widget asks before rendering, so an unconfigured key hides it rather
- *  than leaving a button that fails when pressed. */
+/** The widget asks on mount. Unavailable is not a failure — it means the
+ *  browser answers from the built-in guide instead. */
 export async function GET() {
-  return Response.json({ available: Boolean(process.env.ANTHROPIC_API_KEY) });
+  return Response.json({ available: Boolean(provider()) });
 }
 
 export async function POST(req: NextRequest) {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) {
+  const p = provider();
+  if (!p) {
     return Response.json({ error: "The assistant is not configured." }, { status: 503 });
   }
 
@@ -88,31 +175,21 @@ export async function POST(req: NextRequest) {
       const text = content.trim().slice(0, MAX_INPUT);
       return text ? { role, content: text } : null;
     })
-    .filter((m): m is { role: "user" | "assistant"; content: string } => m !== null);
+    .filter((m): m is Msg => m !== null);
 
   if (messages.length === 0 || messages[messages.length - 1].role !== "user") {
     return Response.json({ error: "No question." }, { status: 400 });
   }
 
   const system = `${SYSTEM_RULES}\n\nFACTS\n\n${await buildFacts()}`;
+  const { headers, body: payload } = requestFor(p, system, messages);
 
   let upstream: Response;
   try {
-    upstream = await fetch("https://api.anthropic.com/v1/messages", {
+    upstream = await fetch(p.url, {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": key,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 600,
-        temperature: 0.2,
-        system,
-        messages,
-        stream: true,
-      }),
+      headers,
+      body: JSON.stringify(payload),
     });
   } catch {
     return Response.json({ error: "The assistant is unreachable right now." }, { status: 502 });
@@ -137,11 +214,11 @@ export async function POST(req: NextRequest) {
       }
       for (const line of decoder.decode(value, { stream: true }).split("\n")) {
         if (!line.startsWith("data:")) continue;
+        const frame = line.slice(5).trim();
+        if (!frame || frame === "[DONE]") continue;
         try {
-          const evt = JSON.parse(line.slice(5).trim());
-          if (evt.type === "content_block_delta" && evt.delta?.type === "text_delta") {
-            controller.enqueue(encoder.encode(evt.delta.text));
-          }
+          const text = textFrom(p.kind, JSON.parse(frame));
+          if (text) controller.enqueue(encoder.encode(text));
         } catch {
           /* keep-alives and partial frames are expected */
         }

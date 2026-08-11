@@ -2,28 +2,26 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
+import { TOPICS, findTopic, NO_MATCH } from "@/lib/assistant/guide";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const SUGGESTIONS = [
-  "How do I start?",
-  "What does it cost to deposit?",
-  "What if I want to leave early?",
-  "How do referrals pay?",
-];
-
 /**
  * A helper for the one question a newcomer actually has, which is usually
- * "where do I even begin". It answers only about this protocol, from figures
- * the server reads off the contract — see lib/assistant/facts.
+ * "where do I even begin".
  *
- * It asks the server whether it is configured before rendering anything. A
- * launcher that opens onto an error is worse than no launcher, and the API
- * key living only on the server means the client genuinely cannot know
- * without asking.
+ * It runs in guide mode by default: the answers live in lib/assistant/guide,
+ * they are written out rather than generated, and every figure in one comes
+ * from the same constants the interface renders. That costs nothing, works
+ * with no key and no network, and cannot invent a rate — which on a page where
+ * people are deciding what to do with money matters more than sounding fluent.
+ *
+ * If the server reports a model configured, the same panel streams from it
+ * instead and the topic list becomes a set of prompts. The mode is the
+ * server's to decide; the browser only asks.
  */
 export function Assistant() {
-  const [available, setAvailable] = useState(false);
+  const [llm, setLlm] = useState(false);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -35,8 +33,10 @@ export function Assistant() {
     let alive = true;
     fetch("/api/assistant")
       .then((r) => r.json())
-      .then((d) => alive && setAvailable(Boolean(d?.available)))
-      .catch(() => {});
+      .then((d) => alive && setLlm(Boolean(d?.available)))
+      .catch(() => {
+        /* guide mode is the fallback, and it is already the default */
+      });
     return () => {
       alive = false;
     };
@@ -46,6 +46,11 @@ export function Assistant() {
     bottom.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, busy]);
 
+  function answerLocally(question: string, history: Msg[]) {
+    const topic = findTopic(question);
+    setMessages([...history, { role: "assistant", content: topic ? topic.answer : NO_MATCH }]);
+  }
+
   async function send(text: string) {
     const question = text.trim();
     if (!question || busy) return;
@@ -53,9 +58,14 @@ export function Assistant() {
     const next: Msg[] = [...messages, { role: "user", content: question }];
     setMessages(next);
     setInput("");
-    setBusy(true);
     setError(null);
 
+    if (!llm) {
+      answerLocally(question, next);
+      return;
+    }
+
+    setBusy(true);
     try {
       const res = await fetch("/api/assistant", {
         method: "POST",
@@ -64,8 +74,9 @@ export function Assistant() {
       });
 
       if (!res.ok || !res.body) {
-        const d = await res.json().catch(() => null);
-        setError(d?.error ?? "Something went wrong. Try again.");
+        // Falling back to the written answer beats showing an error: the user
+        // asked a question, and one of these two can always answer it.
+        answerLocally(question, next);
         setBusy(false);
         return;
       }
@@ -89,13 +100,11 @@ export function Assistant() {
         });
       }
     } catch {
-      setError("Could not reach the assistant.");
+      answerLocally(question, next);
     } finally {
       setBusy(false);
     }
   }
-
-  if (!available) return null;
 
   return (
     <>
@@ -130,24 +139,11 @@ export function Assistant() {
 
           <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3">
             {messages.length === 0 && (
-              <>
-                <p className="text-xs leading-relaxed text-graphite-400">
-                  It will not predict returns, tell you how much to deposit, or answer anything that
-                  is not about this protocol. Every figure it gives comes from the contract.
-                </p>
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {SUGGESTIONS.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => send(s)}
-                      className="rounded-full border border-white/[.08] bg-white/[.02] px-3 py-1.5 text-left text-[11px] text-graphite-300 transition hover:border-gold-400/25 hover:text-gold-300"
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </>
+              <p className="text-xs leading-relaxed text-graphite-400">
+                It will not predict returns, tell you how much to deposit, or answer anything that is
+                not about this protocol. Every figure it gives comes from the contract. Pick a topic
+                below or type a question.
+              </p>
             )}
 
             {messages.map((m, i) => (
@@ -165,6 +161,23 @@ export function Assistant() {
 
             {error && <p className="text-[11px] leading-relaxed text-danger-400">{error}</p>}
             <div ref={bottom} />
+          </div>
+
+          {/* Above the input rather than in the transcript. In the transcript
+              the list grows under every answer and pushes it out of view, so
+              the reply to the question just asked is the thing you cannot
+              see. One line, scrolled sideways, stays out of the way. */}
+          <div className="flex gap-1.5 overflow-x-auto border-t border-white/[.07] px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {TOPICS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => send(t.question)}
+                className="shrink-0 whitespace-nowrap rounded-full border border-white/[.08] bg-white/[.02] px-3 py-1.5 text-[11px] text-graphite-300 transition hover:border-gold-400/25 hover:text-gold-300"
+              >
+                {t.question}
+              </button>
+            ))}
           </div>
 
           <form
