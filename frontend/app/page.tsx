@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LiveStats } from "@/components/LiveStats";
+import { DepositCalculator } from "@/components/DepositCalculator";
 import { PolymarketMarkets } from "@/components/PolymarketMarkets";
 import { HeroVisual } from "@/components/visuals/HeroVisual";
 import { HeroCopy } from "@/components/HeroCopy";
@@ -406,6 +407,26 @@ export default function Home() {
                 })}
               </div>
             </div>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ============ CALCULATOR ============ */}
+      {/* Straight after the plan cards, because the cards state tier minimums
+          and the tier is decided by the stake AFTER the fee — this is where a
+          reader first needs the difference made concrete. */}
+      <section className="container-page py-20">
+        <Reveal>
+          <SectionHead
+            eyebrow="Before you deposit"
+            title="Work out the real numbers"
+            body="No wallet needed. Every figure below comes from the contract itself, including the fee that comes off the top and what leaving early would cost you."
+            align="center"
+          />
+        </Reveal>
+        <Reveal delay={80}>
+          <div className="mx-auto mt-12 max-w-2xl">
+            <DepositCalculator />
           </div>
         </Reveal>
       </section>
