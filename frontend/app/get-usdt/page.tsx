@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useAccount, useBalance, useReadContracts } from "wagmi";
 import { formatUnits } from "viem";
 import { Icon } from "@/components/Icon";
@@ -55,6 +56,20 @@ const POLYGON_TOKENS = [
 
 const JUMPER = `https://jumper.exchange/?toChain=137&toToken=${COLLATERAL_ADDRESS}`;
 
+/**
+ * The converter is a large bundle and most visitors are only reading. It is
+ * loaded when somebody asks for it, not on every page view, and never on the
+ * server — it touches window during module evaluation.
+ */
+const SwapWidget = dynamic(() => import("@/components/SwapWidget"), {
+  ssr: false,
+  loading: () => (
+    <div className="glass grid h-[36rem] place-items-center p-6 text-sm text-graphite-400">
+      Loading the converter…
+    </div>
+  ),
+});
+
 const ROUTES = [
   {
     n: "01",
@@ -84,6 +99,7 @@ const ROUTES = [
 
 export default function GetUsdtPage() {
   const { address, isConnected } = useAccount();
+  const [showSwap, setShowSwap] = useState(false);
 
   const { data: native } = useBalance({ address, query: { enabled: Boolean(address) } });
 
@@ -222,9 +238,41 @@ export default function GetUsdtPage() {
         )}
       </section>
 
+      {/* ------------------------------------------------------ converter */}
+      <section id="convert" className="scroll-mt-24">
+        <h2 className="h-section">Convert anything, right here</h2>
+        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-graphite-300">
+          Any token on any of the major chains, out the other side as USDT on Polygon. Pick what you
+          are holding and where it is; the destination is already set.
+        </p>
+
+        {showSwap ? (
+          <div className="mt-7 flex justify-center">
+            <SwapWidget />
+          </div>
+        ) : (
+          <button type="button" className="btn-primary mt-7" onClick={() => setShowSwap(true)}>
+            Open the converter
+            <Icon name="arrowDown" className="h-4 w-4" />
+          </button>
+        )}
+
+        <div className="glass mt-5 flex items-start gap-3 p-5">
+          <Icon name="shield" className="mt-0.5 h-5 w-5 shrink-0 text-success-400" />
+          <p className="text-sm leading-relaxed text-graphite-300">
+            <span className="font-semibold text-white">Nothing passes through us.</span> The
+            converter routes across public liquidity and you sign every transaction from your own
+            wallet — ArbiSmart never holds the funds at any point in the trade, and could not take
+            them if it wanted to. Rates, routes and fees come from the aggregator, not from us, and
+            we earn nothing on the conversion. Check the quote and the destination on the widget&apos;s
+            own screen before you confirm.
+          </p>
+        </div>
+      </section>
+
       {/* -------------------------------------------------------- routes */}
       <section>
-        <h2 className="h-section">Four ways in</h2>
+        <h2 className="h-section">Or do it your own way</h2>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-graphite-300">
           Find the one that describes you. All of them end in the same place: USDT on Polygon, in a
           wallet you control.
