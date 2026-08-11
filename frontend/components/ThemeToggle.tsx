@@ -15,10 +15,19 @@ export function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
 }
 
+/**
+ * Dark unless the visitor has asked for light.
+ *
+ * This used to follow the operating system, which sounds respectful and in
+ * practice meant most people met the site in the light theme, because that is
+ * what phones ship with. The dark palette is the one this interface was
+ * designed in — the glass surfaces, the gold, and the depth behind the
+ * on-chain figures only read properly against it. The toggle still works and
+ * a stated choice still wins; only the default changed.
+ */
 function preferred(): Theme {
   const stored = localStorage.getItem(THEME_KEY);
-  if (stored === "dark" || stored === "light") return stored;
-  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  return stored === "dark" || stored === "light" ? stored : "dark";
 }
 
 /**
@@ -54,19 +63,6 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     setTheme(preferred());
   }, []);
 
-  // Follow the system while the user has not chosen. Once they have, their
-  // choice wins and the OS switching at sunset stops overriding it.
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: light)");
-    const onChange = (e: MediaQueryListEvent) => {
-      if (localStorage.getItem(THEME_KEY)) return;
-      const next: Theme = e.matches ? "light" : "dark";
-      setTheme(next);
-      applyTheme(next);
-    };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
 
   function toggle() {
     const next: Theme = theme === "light" ? "dark" : "light";
@@ -105,7 +101,7 @@ export const themeScript = `
 (function(){try{
   var k=${JSON.stringify(THEME_KEY)};
   var s=localStorage.getItem(k);
-  var t=(s==="dark"||s==="light")?s:(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");
+  var t=(s==="dark"||s==="light")?s:"dark";
   document.documentElement.dataset.theme=t;
 }catch(e){document.documentElement.dataset.theme="dark";}})();
 `;

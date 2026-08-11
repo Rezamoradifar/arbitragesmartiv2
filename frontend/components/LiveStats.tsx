@@ -117,6 +117,7 @@ export function LiveStats() {
           ceiling={p.arbitrageCeiling}
           liquid={p.balance}
           deployedPct={deployedPct}
+          staked={p.totalStaked}
         />
         <BalanceSheet p={p} />
       </div>
@@ -134,12 +135,29 @@ function StrategyCapacity({
   ceiling,
   liquid,
   deployedPct,
+  staked,
 }: {
   deployed: bigint;
   ceiling?: bigint;
   liquid?: bigint;
   deployedPct: number;
+  staked?: bigint;
 }) {
+  /*
+   * Coverage: what the contract holds against what it owes stakers.
+   *
+   * This panel used to end after the capacity bar and leave half its height
+   * empty next to the balance sheet. What belongs in that space is the one
+   * figure a careful visitor is actually looking for and that a Ponzi cannot
+   * show, because its number does not add up. It is read from the same
+   * contract call as everything else, so it stays true or it stops saying
+   * 100% — either way nobody has to take our word for it.
+   */
+  const owed = staked ?? 0n;
+  const held = (liquid ?? 0n) + deployed;
+  const coverage = owed > 0n ? Number((held * 10000n) / owed) / 100 : null;
+  const fullyCovered = coverage !== null && coverage >= 100;
+
   return (
     <div className="glass p-5 sm:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -178,6 +196,39 @@ function StrategyCapacity({
           </>
         )}
       </p>
+
+      {coverage !== null && (
+        <div className="mt-5 border-t border-white/[.07] pt-5">
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="text-sm font-semibold text-graphite-100">Coverage of staker principal</p>
+            <p
+              className={`font-display text-2xl font-bold tabular-nums ${
+                fullyCovered ? "text-volt-300" : "text-danger-400"
+              }`}
+            >
+              {coverage.toFixed(coverage % 1 === 0 ? 0 : 1)}%
+            </p>
+          </div>
+          <div className="mt-3">
+            <Progress value={Math.min(coverage, 100)} max={100} tone={fullyCovered ? "good" : "bad"} />
+          </div>
+          <dl className="mt-4 space-y-1.5 text-xs">
+            <div className="flex justify-between">
+              <dt className="text-graphite-400">Held by the contract</dt>
+              <dd className="tabular-nums text-graphite-200">{formatAmount(held)} USDT</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-graphite-400">Owed to stakers as principal</dt>
+              <dd className="tabular-nums text-graphite-200">{formatAmount(owed)} USDT</dd>
+            </div>
+          </dl>
+          <p className="mt-3 text-xs leading-relaxed text-graphite-400">
+            {fullyCovered
+              ? "Every dollar of principal is backed right now. Read from the contract at this block, not from a report — check it yourself on Polygonscan."
+              : "The contract currently holds less than the principal it owes. This is shown rather than hidden; ask us about it before depositing."}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
