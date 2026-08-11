@@ -16,6 +16,7 @@ const columns: Array<{ title: string; links: Array<{ label: string; href: string
       { label: "Portfolio", href: "/portfolio" },
       { label: "Activity", href: "/activity" },
       { label: "Gold rewards", href: "/rewards" },
+      { label: "Dobrna (soon)", href: "/dobrna" },
       { label: "Governance", href: "/partners" },
     ],
   },
