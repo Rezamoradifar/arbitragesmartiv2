@@ -12,6 +12,7 @@ const columns: Array<{ title: string; links: Array<{ label: string; href: string
     title: "Platform",
     links: [
       { label: "Dashboard", href: "/dashboard" },
+      { label: "Get USDT on Polygon", href: "/get-usdt" },
       { label: "Portfolio", href: "/portfolio" },
       { label: "Activity", href: "/activity" },
       { label: "Gold rewards", href: "/rewards" },

@@ -198,7 +198,8 @@ function HowToJoin() {
     },
     {
       title: "Get USDT on Polygon",
-      body: `Buy it on an exchange and withdraw on the Polygon network, or bridge it. It has to be this exact token: ${USDT.slice(0, 10)}…${USDT.slice(-6)}. Any other token with "USDT" in the name will be rejected by the contract.`,
+      body: `The step people get stuck on. It has to be this exact token: ${USDT.slice(0, 10)}…${USDT.slice(-6)} — several others on Polygon also call themselves USDT and the contract rejects all of them. Already hold USDT somewhere else? A bridge moves it across in one transaction.`,
+      link: { label: "Open the funding guide", href: `${SITE}/get-usdt` },
     },
     {
       title: "Keep a little POL for gas",
@@ -245,6 +246,20 @@ function HowToJoin() {
             <div className="min-w-0">
               <h3 className="font-display text-sm font-semibold text-white">{s.title}</h3>
               <p className="mt-1 text-xs leading-relaxed text-graphite-300">{s.body}</p>
+              {"link" in s && s.link && (
+                <button
+                  type="button"
+                  className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-gold-300 underline underline-offset-2"
+                  onClick={() => {
+                    const app = tg();
+                    if (app?.openLink) app.openLink(s.link.href);
+                    else window.open(s.link.href, "_blank", "noreferrer");
+                  }}
+                >
+                  {s.link.label}
+                  <Icon name="external" className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
           </div>
         </div>
