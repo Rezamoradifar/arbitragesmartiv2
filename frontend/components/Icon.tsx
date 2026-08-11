@@ -11,7 +11,7 @@ export type IconName =
   | "home" | "grid" | "chart" | "shield" | "users" | "activity" | "settings"
   | "wallet" | "arrowUp" | "arrowDown" | "check" | "copy" | "external"
   | "lock" | "globe" | "layers" | "zap" | "bell" | "plus" | "minus" | "info"
-  | "clock" | "swap";
+  | "clock" | "swap" | "sun" | "moon";
 
 const paths: Record<IconName, JSX.Element> = {
   home: <path d="M3 10.2 12 3l9 7.2V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
@@ -36,6 +36,8 @@ const paths: Record<IconName, JSX.Element> = {
   minus: <path d="M5 12h14" />,
   info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v5.5" /><circle cx="12" cy="7.8" r="1" fill="currentColor" stroke="none" /></>,
   clock: <><circle cx="12" cy="12" r="9" /><path d="M12 6.8V12l3.4 2.2" /></>,
+  sun: <><circle cx="12" cy="12" r="4.2" /><path d="M12 2.4v2.4M12 19.2v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.4 12h2.4M19.2 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7" /></>,
+  moon: <path d="M20 13.6A8.2 8.2 0 1 1 10.4 4a6.6 6.6 0 0 0 9.6 9.6z" />,
   swap: <><path d="M6.5 4v14M6.5 4 3 7.5M6.5 4 10 7.5" /><path d="M17.5 20V6M17.5 20 21 16.5M17.5 20 14 16.5" /></>,
 };
 

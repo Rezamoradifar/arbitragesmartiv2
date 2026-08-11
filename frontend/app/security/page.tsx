@@ -212,7 +212,7 @@ export default function SecurityPage() {
                   <span
                     className={`grid h-8 w-8 shrink-0 place-items-center rounded-full font-display text-sm font-bold ${
                       i === 1
-                        ? "bg-gold-sheen text-graphite-950 shadow-gold"
+                        ? "bg-gold-sheen text-onGold shadow-gold"
                         : "border border-white/10 bg-white/[.04] text-graphite-200"
                     }`}
                   >

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useGovernance } from "@/lib/hooks";
 import { Icon, type IconName } from "@/components/Icon";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 /**
  * Desktop header. The mobile counterpart is {MobileNav} — a bottom bar rather
@@ -77,6 +78,7 @@ export function NavBar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <a
             href="https://t.me/arbhub_site"
             target="_blank"

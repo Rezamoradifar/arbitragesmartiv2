@@ -5,6 +5,7 @@ import { Web3Providers } from "@/lib/wagmi";
 import { NavBar, MobileNav } from "@/components/NavBar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AppShell } from "@/components/AppShell";
+import { themeScript } from "@/components/ThemeToggle";
 
 // Sora for headlines and figures — geometric, confident at large sizes. Inter
 // for body copy, where legibility at 13-15px matters more than character.
@@ -85,7 +86,14 @@ const jsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable}`}>
+    <html lang="en" className={`${sans.variable} ${display.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Sets data-theme before the first paint. Without it the page renders
+            dark, then repaints light for anyone who chose light — a flash that
+            is worse than having no light theme at all. */}
+        {/* eslint-disable-next-line react/no-danger */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body>
         {/* eslint-disable-next-line react/no-danger */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />

@@ -41,7 +41,10 @@ export function HeroVisual({ className = "" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 640 400"
-      className={`h-full w-full ${className}`}
+      /* text-graphite-950 is what the canvas and the edge fades resolve their
+         currentColor against, so the illustration follows the theme without
+         putting a var() inside an SVG attribute — WebKit is unreliable there. */
+      className={`h-full w-full text-graphite-950 ${className}`}
       role="img"
       aria-label="Abstract visualisation of a decentralised financial network: interconnected nodes over a receding grid, with data flowing along the links."
       preserveAspectRatio="xMidYMid slice"
@@ -49,7 +52,7 @@ export function HeroVisual({ className = "" }: { className?: string }) {
       <Defs id={ID} />
 
       {/* Backdrop wash — the light source everything else is lit by. */}
-      <rect width="640" height="400" fill="#05060b" />
+      <rect width="640" height="400" fill="currentColor" />
       <ellipse cx="320" cy="200" rx="300" ry="190" fill={`url(#${ID}-halo-volt)`} opacity=".5" />
       <ellipse cx="320" cy="200" rx="150" ry="110" fill={`url(#${ID}-halo)`} opacity=".55" />
 
@@ -133,8 +136,8 @@ export function HeroVisual({ className = "" }: { className?: string }) {
       <rect x="0" y="300" width="640" height="100" fill="url(#hero-fade)" />
       <defs>
         <linearGradient id="hero-fade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#05060b" stopOpacity="0" />
-          <stop offset="100%" stopColor="#05060b" stopOpacity=".9" />
+          <stop offset="0%" stopColor="currentColor" stopOpacity="0" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity=".9" />
         </linearGradient>
       </defs>
     </svg>

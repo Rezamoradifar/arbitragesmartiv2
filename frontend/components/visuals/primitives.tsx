@@ -40,8 +40,17 @@ export function VisualFrame({
       style={{ contentVisibility: "auto", containIntrinsicBlockSize: "400px" }}
     >
       {children}
-      {/* Vignette: pulls the eye to the centre and hides the hard crop. */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(5,6,11,.85)_100%)]" />
+      {/* Vignette: pulls the eye to the centre and hides the hard crop. The
+          colour has to be the page's own background, not a fixed near-black —
+          on the light theme a black vignette turned every illustration into a
+          grey box with dark corners. */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(ellipse at center, transparent 35%, rgb(var(--c-graphite-950) / .85) 100%)",
+        }}
+      />
     </div>
   );
 }

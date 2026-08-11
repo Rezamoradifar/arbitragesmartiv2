@@ -104,7 +104,7 @@ export default function DobrnaPage() {
                 <span
                   className={`grid h-8 w-8 shrink-0 place-items-center rounded-full font-display text-sm font-bold ${
                     s.state === "building"
-                      ? "bg-gold-sheen text-graphite-950 shadow-gold"
+                      ? "bg-gold-sheen text-onGold shadow-gold"
                       : "border border-white/10 bg-white/[.04] text-graphite-400"
                   }`}
                 >

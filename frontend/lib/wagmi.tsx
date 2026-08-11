@@ -1,7 +1,12 @@
 "use client";
 
 import "@rainbow-me/rainbowkit/styles.css";
-import { connectorsForWallets, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
+import {
+  connectorsForWallets,
+  RainbowKitProvider,
+  darkTheme,
+  lightTheme,
+} from "@rainbow-me/rainbowkit";
 import {
   injectedWallet,
   metaMaskWallet,
@@ -14,7 +19,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { hashFn } from "wagmi/query";
 import { WagmiProvider, createConfig, http, fallback } from "wagmi";
 import { polygon } from "wagmi/chains";
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
+import { useThemeName } from "@/components/ThemeToggle";
 
 export const APP_NAME = "ArbiSmart";
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://arbhub.site";
@@ -102,7 +108,56 @@ export const wagmiConfig = createConfig({
   ssr: true,
 });
 
+/**
+ * RainbowKit is themed with a JavaScript object, not CSS, so it cannot ride
+ * the variable swap the rest of the app uses — it has to be rebuilt when the
+ * theme changes. Gold stays gold in both; only the surfaces move.
+ */
+function useWalletTheme() {
+  const theme = useThemeName();
+
+  return useMemo(() => {
+    const base = { accentColor: "#e0ad3c", accentColorForeground: "#05060b" };
+    const opts = { ...base, borderRadius: "large", overlayBlur: "small" } as const;
+
+    if (theme === "light") {
+      const t = lightTheme(opts);
+      return {
+        ...t,
+        colors: {
+          ...t.colors,
+          ...base,
+          modalBackground: "#ffffff",
+          modalBorder: "rgba(13,17,26,.08)",
+          profileForeground: "#f4f6fa",
+          connectButtonBackground: "#ffffff",
+          connectButtonInnerBackground: "#f0f3f8",
+          menuItemBackground: "#f0f3f8",
+          generalBorder: "rgba(13,17,26,.08)",
+        },
+      };
+    }
+
+    const t = darkTheme(opts);
+    return {
+      ...t,
+      colors: {
+        ...t.colors,
+        ...base,
+        modalBackground: "#0d0f18",
+        modalBorder: "rgba(255,255,255,.07)",
+        profileForeground: "#131622",
+        connectButtonBackground: "#131622",
+        connectButtonInnerBackground: "#191d2c",
+        menuItemBackground: "#191d2c",
+        generalBorder: "rgba(255,255,255,.07)",
+      },
+    };
+  }, [theme]);
+}
+
 export function Web3Providers({ children }: { children: ReactNode }) {
+  const walletTheme = useWalletTheme();
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -140,33 +195,8 @@ export function Web3Providers({ children }: { children: ReactNode }) {
         {/* The connect button is the most prominent control on every page, so
             it has to be the palette's primary action rather than RainbowKit's
             default teal — an off-brand accent there reads as a third-party
-            widget bolted onto the design. Gold on near-black, matching
-            .btn-primary, with the modal surfaces pulled down to the same
-            graphite the rest of the app sits on. */}
-        <RainbowKitProvider
-          theme={{
-            ...darkTheme({
-              accentColor: "#e0ad3c",
-              accentColorForeground: "#05060b",
-              borderRadius: "large",
-              overlayBlur: "small",
-            }),
-            colors: {
-              ...darkTheme().colors,
-              accentColor: "#e0ad3c",
-              accentColorForeground: "#05060b",
-              modalBackground: "#0d0f18",
-              modalBorder: "rgba(255,255,255,.07)",
-              profileForeground: "#131622",
-              connectButtonBackground: "#131622",
-              connectButtonInnerBackground: "#191d2c",
-              menuItemBackground: "#191d2c",
-              generalBorder: "rgba(255,255,255,.07)",
-            },
-          }}
-          appInfo={{ appName: APP_NAME }}
-          initialChain={polygon}
-        >
+            widget bolted onto the design. See useWalletTheme for the surfaces. */}
+        <RainbowKitProvider theme={walletTheme} appInfo={{ appName: APP_NAME }} initialChain={polygon}>
           {children}
         </RainbowKitProvider>
       </QueryClientProvider>

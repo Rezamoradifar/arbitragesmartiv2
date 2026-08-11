@@ -21,10 +21,10 @@ import { Defs, Link, Node, ParticleField, GOLD, VOLT, rand } from "./primitives"
 export function SecurityVisual() {
   const ID = "vis-sec";
   return (
-    <svg viewBox="0 0 640 400" className="h-full w-full" role="img"
+    <svg viewBox="0 0 640 400" className="h-full w-full text-graphite-950" role="img"
       aria-label="Layered shield architecture protecting an encrypted core.">
       <Defs id={ID} />
-      <rect width="640" height="400" fill="#05060b" />
+      <rect width="640" height="400" fill="currentColor" />
       <ellipse cx="320" cy="200" rx="230" ry="160" fill={`url(#${ID}-halo)`} opacity=".4" />
 
       {/* Nested shields — each ring is one more layer between outside and core. */}
@@ -79,10 +79,10 @@ export function SecurityVisual() {
 export function StrategyVisual() {
   const ID = "vis-str";
   return (
-    <svg viewBox="0 0 640 400" className="h-full w-full" role="img"
+    <svg viewBox="0 0 640 400" className="h-full w-full text-graphite-950" role="img"
       aria-label="Branching algorithmic decision paths flowing across a market trace.">
       <Defs id={ID} />
-      <rect width="640" height="400" fill="#05060b" />
+      <rect width="640" height="400" fill="currentColor" />
       <ellipse cx="200" cy="200" rx="240" ry="170" fill={`url(#${ID}-halo-volt)`} opacity=".38" />
 
       {/* Candles, back layer: market context the algorithm reads. */}
@@ -149,10 +149,10 @@ export function GlobalVisual() {
     [268, 148], [372, 162], [316, 116], [252, 244], [392, 240], [320, 200],
   ];
   return (
-    <svg viewBox="0 0 640 400" className="h-full w-full" role="img"
+    <svg viewBox="0 0 640 400" className="h-full w-full text-graphite-950" role="img"
       aria-label="A dot-matrix globe with financial routes arcing between network hubs.">
       <Defs id={ID} />
-      <rect width="640" height="400" fill="#05060b" />
+      <rect width="640" height="400" fill="currentColor" />
       <circle cx="320" cy="200" r="190" fill={`url(#${ID}-halo-volt)`} opacity=".4" />
 
       <g>
@@ -208,10 +208,10 @@ export function AnalyticsVisual() {
     );
   };
   return (
-    <svg viewBox="0 0 640 400" className="h-full w-full" role="img"
+    <svg viewBox="0 0 640 400" className="h-full w-full text-graphite-950" role="img"
       aria-label="Layered analytics planes showing performance, liquidity and allocation.">
       <Defs id={ID} />
-      <rect width="640" height="400" fill="#05060b" />
+      <rect width="640" height="400" fill="currentColor" />
       <ellipse cx="340" cy="210" rx="250" ry="160" fill={`url(#${ID}-halo)`} opacity=".3" />
 
       {/* Gridded backplane, skewed to sit under the traces. */}
@@ -260,10 +260,10 @@ export function EcosystemVisual() {
     return { x: 320 + Math.cos(a) * R, y: 200 + Math.sin(a) * R * 0.82, i };
   });
   return (
-    <svg viewBox="0 0 640 400" className="h-full w-full" role="img"
+    <svg viewBox="0 0 640 400" className="h-full w-full text-graphite-950" role="img"
       aria-label="A protocol hub surrounded by connected wallets, liquidity venues and chains.">
       <Defs id={ID} />
-      <rect width="640" height="400" fill="#05060b" />
+      <rect width="640" height="400" fill="currentColor" />
       <ellipse cx="320" cy="200" rx="220" ry="160" fill={`url(#${ID}-halo)`} opacity=".34" />
 
       <ellipse cx="320" cy="200" rx={R} ry={R * 0.82} fill="none" stroke={VOLT.mid} strokeWidth=".8" opacity=".26" />
@@ -298,7 +298,7 @@ export function EcosystemVisual() {
       <g filter={`url(#${ID}-glow)`}>
         <path d="M320 168 L348 184 L348 216 L320 232 L292 216 L292 184 Z"
           fill={`url(#${ID}-gold)`} opacity=".9" />
-        <path d="M320 178 L339 189 L339 211 L320 222 L301 211 L301 189 Z" fill="#05060b" opacity=".55" />
+        <path d="M320 178 L339 189 L339 211 L320 222 L301 211 L301 189 Z" fill="currentColor" opacity=".55" />
       </g>
       <ParticleField id={ID} count={24} seed={13} />
     </svg>
@@ -312,10 +312,10 @@ export function VerificationVisual() {
   const ID = "vis-ver";
   const blocks = [0, 1, 2, 3];
   return (
-    <svg viewBox="0 0 640 400" className="h-full w-full" role="img"
+    <svg viewBox="0 0 640 400" className="h-full w-full text-graphite-950" role="img"
       aria-label="A chain of verified ledger blocks, each linked to the last.">
       <Defs id={ID} />
-      <rect width="640" height="400" fill="#05060b" />
+      <rect width="640" height="400" fill="currentColor" />
       <ellipse cx="320" cy="200" rx="240" ry="150" fill={`url(#${ID}-halo-volt)`} opacity=".32" />
 
       {blocks.map((b) => {
@@ -333,9 +333,9 @@ export function VerificationVisual() {
               fill={isLast ? `url(#${ID}-gold)` : "#131622"} opacity={isLast ? ".16" : ".9"}
               stroke={isLast ? GOLD.mid : VOLT.deep} strokeWidth={isLast ? 1.4 : 0.9} />
             <path d={`M${x} ${y} L${x + 18} ${y - 16} L${x + 110} ${y - 16} L${x + 92} ${y} Z`}
-              fill="#191d2c" stroke={isLast ? GOLD.deep : VOLT.deep} strokeWidth=".7" opacity=".9" />
+              fill="currentColor" stroke={isLast ? GOLD.deep : VOLT.deep} strokeWidth=".7" opacity=".9" />
             <path d={`M${x + 92} ${y} L${x + 110} ${y - 16} L${x + 110} ${y + 52} L${x + 92} ${y + 68} Z`}
-              fill="#0d0f18" stroke={isLast ? GOLD.deep : VOLT.deep} strokeWidth=".7" opacity=".9" />
+              fill="currentColor" stroke={isLast ? GOLD.deep : VOLT.deep} strokeWidth=".7" opacity=".9" />
 
             {/* Hash lines inside each block. */}
             <g opacity=".5">

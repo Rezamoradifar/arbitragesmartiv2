@@ -53,22 +53,43 @@ module.exports = {
          * is a distinct elevation, so depth comes from the palette instead of
          * from borders everywhere.
          */
+        /**
+         * Every step reads from a CSS variable rather than a literal, so the
+         * light theme is a different set of values for the same scale instead
+         * of a second set of class names. The scale is used semantically
+         * throughout — 950 is always "furthest back", 50 is always "primary
+         * text" — which is what makes swapping the values sufficient. Roughly
+         * four hundred call sites follow automatically and none had to change.
+         */
         graphite: {
-          50: "#f4f6f9",
-          100: "#e6eaf1",
-          200: "#c8d0de",
-          300: "#9aa6bc",
-          400: "#6b7791",
-          500: "#4b5670",
-          600: "#38405a",
-          700: "#2a3048",
-          750: "#212639",
-          800: "#191d2c",
-          850: "#131622",
-          900: "#0d0f18",
-          925: "#090a11",
-          950: "#05060b",
+          50: "rgb(var(--c-graphite-50) / <alpha-value>)",
+          100: "rgb(var(--c-graphite-100) / <alpha-value>)",
+          200: "rgb(var(--c-graphite-200) / <alpha-value>)",
+          300: "rgb(var(--c-graphite-300) / <alpha-value>)",
+          400: "rgb(var(--c-graphite-400) / <alpha-value>)",
+          500: "rgb(var(--c-graphite-500) / <alpha-value>)",
+          600: "rgb(var(--c-graphite-600) / <alpha-value>)",
+          700: "rgb(var(--c-graphite-700) / <alpha-value>)",
+          750: "rgb(var(--c-graphite-750) / <alpha-value>)",
+          800: "rgb(var(--c-graphite-800) / <alpha-value>)",
+          850: "rgb(var(--c-graphite-850) / <alpha-value>)",
+          900: "rgb(var(--c-graphite-900) / <alpha-value>)",
+          925: "rgb(var(--c-graphite-925) / <alpha-value>)",
+          950: "rgb(var(--c-graphite-950) / <alpha-value>)",
         },
+        /**
+         * `white` is overridden, not merely aliased. It is used here for
+         * primary text and for the faint overlays that make surfaces and
+         * hairlines — all three want to become dark on a light background,
+         * so one variable flips text-white, bg-white/[.02] and
+         * border-white/[.07] together.
+         */
+        white: "rgb(var(--c-ink) / <alpha-value>)",
+        /**
+         * Text sitting on the gold gradient. Gold stays gold in both themes,
+         * so this one must not flip with everything else.
+         */
+        onGold: "rgb(var(--c-on-gold) / <alpha-value>)",
         // Semantic aliases so state colours are not hand-picked per component.
         success: { 400: "#34d399", 500: "#10b981", 600: "#059669" },
         danger: { 400: "#f87171", 500: "#ef4444", 600: "#dc2626" },
@@ -77,10 +98,11 @@ module.exports = {
       boxShadow: {
         // Glass surfaces: a hairline plus a deep, soft drop. The inset top
         // highlight is what makes a panel read as lit from above.
-        glass:
-          "inset 0 1px 0 0 rgba(255,255,255,.06), 0 1px 2px 0 rgba(0,0,0,.4), 0 24px 48px -24px rgba(0,0,0,.9)",
-        "glass-lg":
-          "inset 0 1px 0 0 rgba(255,255,255,.08), 0 2px 4px 0 rgba(0,0,0,.5), 0 48px 96px -32px rgba(0,0,0,.95)",
+        // The inset highlight and the drop both come from variables: on a
+        // light surface the highlight has nothing to lift against and the
+        // drop has to be far softer or every card looks like it is hovering.
+        glass: "var(--shadow-glass)",
+        "glass-lg": "var(--shadow-glass-lg)",
         gold: "0 0 0 1px rgba(224,173,60,.25), 0 8px 32px -8px rgba(224,173,60,.35)",
         "gold-lg": "0 0 0 1px rgba(224,173,60,.35), 0 20px 64px -16px rgba(224,173,60,.45)",
         volt: "0 0 0 1px rgba(51,132,251,.25), 0 8px 32px -8px rgba(51,132,251,.4)",

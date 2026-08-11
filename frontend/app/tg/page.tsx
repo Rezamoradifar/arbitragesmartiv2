@@ -129,7 +129,7 @@ export default function MiniApp() {
               onClick={() => pick(t.id)}
               className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
                 tab === t.id
-                  ? "bg-gold-sheen text-graphite-950 shadow-gold"
+                  ? "bg-gold-sheen text-onGold shadow-gold"
                   : "border border-white/[.08] bg-white/[.02] text-graphite-300"
               }`}
             >
@@ -237,7 +237,7 @@ function HowToJoin() {
             <span
               className={`grid h-7 w-7 shrink-0 place-items-center rounded-full font-display text-xs font-bold ${
                 i === steps.length - 1
-                  ? "bg-gold-sheen text-graphite-950"
+                  ? "bg-gold-sheen text-onGold"
                   : "border border-white/10 bg-white/[.04] text-graphite-200"
               }`}
             >
