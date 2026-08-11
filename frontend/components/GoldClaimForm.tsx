@@ -28,14 +28,46 @@ import { formatAmount } from "@/lib/contract";
  * for months is a liability that buys nothing at this stage.
  */
 
+/*
+ * Placeholders are shapes, not names.
+ *
+ * A sample person's name sitting in a legal-name field gets typed in by
+ * somebody, and a courier label is the wrong place to discover that. Each
+ * placeholder here shows the format expected and nothing that could be
+ * mistaken for an answer.
+ */
 const FIELDS = [
-  { id: "name", label: "Full legal name", hint: "As it appears on the ID you will show at delivery", required: true },
-  { id: "country", label: "Country", hint: "", required: true },
-  { id: "city", label: "City", hint: "", required: true },
-  { id: "address", label: "Street address", hint: "Including any building or unit number", required: true },
-  { id: "postcode", label: "Postal code", hint: "", required: true },
-  { id: "phone", label: "Phone number", hint: "The courier will need it", required: true },
-  { id: "email", label: "Email", hint: "Where we reply about the shipment", required: true },
+  {
+    id: "name",
+    label: "Full legal name",
+    hint: "As it appears on the ID you will show at delivery",
+    placeholder: "First and last name",
+    required: true,
+  },
+  { id: "country", label: "Country", hint: "", placeholder: "Country", required: true },
+  { id: "city", label: "City", hint: "", placeholder: "City", required: true },
+  {
+    id: "address",
+    label: "Street address",
+    hint: "Including any building or unit number",
+    placeholder: "Street, number, building, unit",
+    required: true,
+  },
+  { id: "postcode", label: "Postal code", hint: "", placeholder: "Postal code", required: true },
+  {
+    id: "phone",
+    label: "Phone number",
+    hint: "The courier will need it",
+    placeholder: "With country code",
+    required: true,
+  },
+  {
+    id: "email",
+    label: "Email",
+    hint: "Where we reply about the shipment",
+    placeholder: "you@example.com",
+    required: true,
+  },
 ] as const;
 
 type FieldId = (typeof FIELDS)[number]["id"];
@@ -145,6 +177,7 @@ export function GoldClaimForm() {
                 id={`claim-${f.id}`}
                 className="input"
                 value={values[f.id] ?? ""}
+                placeholder={f.placeholder}
                 onChange={(e) => setValues((v) => ({ ...v, [f.id]: e.target.value }))}
                 autoComplete={
                   ({
