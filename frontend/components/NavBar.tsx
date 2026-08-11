@@ -7,22 +7,32 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useGovernance } from "@/lib/hooks";
 import { Icon, type IconName } from "@/components/Icon";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LocaleSwitcher } from "@/components/LocaleSwitcher";
+import { useT } from "@/components/LocaleProvider";
 
 /**
- * Desktop header. The mobile counterpart is {MobileNav} — a bottom bar rather
- * than a hamburger, because on a phone the primary destinations should be
- * reachable by thumb without opening anything.
+ * Desktop header. The counterpart is {MobileNav} — a bottom bar rather than a
+ * hamburger, because on a phone the primary destinations should be reachable
+ * by thumb without opening anything.
+ *
+ * The full row appears at xl, not lg. Eight items fit at 1024px in English and
+ * in almost nothing else: German and Japanese labels are half again as wide
+ * and wrapped the header onto two lines, taking the connect button with them.
+ * Below xl the bottom bar carries navigation, which it already did on phones.
  */
 
-const baseLinks: Array<{ href: string; label: string; icon: IconName }> = [
-  { href: "/", label: "Home", icon: "home" },
-  { href: "/dashboard", label: "Dashboard", icon: "grid" },
-  { href: "/get-usdt", label: "Exchange", icon: "swap" },
-  { href: "/portfolio", label: "Portfolio", icon: "chart" },
-  { href: "/rewards", label: "Rewards", icon: "zap" },
-  { href: "/security", label: "Security", icon: "shield" },
-  { href: "/partners", label: "Governance", icon: "users" },
-  { href: "/activity", label: "Activity", icon: "activity" },
+/** `key` indexes the dictionary; the visible label is resolved at render. */
+type NavKey = keyof ReturnType<typeof useT>["nav"];
+
+const baseLinks: Array<{ href: string; key: NavKey; icon: IconName }> = [
+  { href: "/", key: "home", icon: "home" },
+  { href: "/dashboard", key: "dashboard", icon: "grid" },
+  { href: "/get-usdt", key: "exchange", icon: "swap" },
+  { href: "/portfolio", key: "portfolio", icon: "chart" },
+  { href: "/rewards", key: "rewards", icon: "zap" },
+  { href: "/security", key: "security", icon: "shield" },
+  { href: "/partners", key: "governance", icon: "users" },
+  { href: "/activity", key: "activity", icon: "activity" },
 ];
 
 export function NavBar() {
@@ -39,7 +49,10 @@ export function NavBar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const links = gov.isOwner ? [...baseLinks, { href: "/admin", label: "Admin", icon: "settings" as IconName }] : baseLinks;
+  const t = useT();
+  const links = gov.isOwner
+    ? [...baseLinks, { href: "/admin", key: "admin" as NavKey, icon: "settings" as IconName }]
+    : baseLinks;
 
   return (
     <header
@@ -57,18 +70,18 @@ export function NavBar() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-0.5 lg:flex">
+        <nav className="hidden items-center gap-0.5 xl:flex">
           {links.map((l) => {
             const active = pathname === l.href;
             return (
               <Link
                 key={l.href}
                 href={l.href}
-                className={`relative rounded-lg px-3.5 py-2 text-[13px] font-medium transition ${
+                className={`relative whitespace-nowrap rounded-lg px-2.5 py-2 text-[13px] font-medium transition ${
                   active ? "text-white" : "text-graphite-300 hover:text-white"
                 }`}
               >
-                {l.label}
+                {t.nav[l.key]}
                 {active && (
                   <span className="absolute inset-x-3 -bottom-px h-px bg-gradient-to-r from-transparent via-gold-400 to-transparent" />
                 )}
@@ -78,12 +91,13 @@ export function NavBar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <LocaleSwitcher />
           <ThemeToggle />
           <a
             href="https://t.me/arbhub_site"
             target="_blank"
             rel="noreferrer"
-            aria-label="Join our Telegram"
+            aria-label={t.header.telegram}
             className="hidden shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.03] p-2 text-graphite-300 transition hover:border-volt-400/30 hover:text-volt-300 sm:flex"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -133,19 +147,21 @@ export function MobileNav() {
   const pathname = usePathname();
   const gov = useGovernance();
 
-  const items: Array<{ href: string; label: string; icon: IconName }> = [
-    { href: "/", label: "Home", icon: "home" },
-    { href: "/dashboard", label: "Dashboard", icon: "grid" },
-    { href: "/get-usdt", label: "Exchange", icon: "swap" },
-    { href: "/portfolio", label: "Portfolio", icon: "chart" },
+  const t = useT();
+
+  const items: Array<{ href: string; key: NavKey; icon: IconName }> = [
+    { href: "/", key: "home", icon: "home" },
+    { href: "/dashboard", key: "dashboard", icon: "grid" },
+    { href: "/get-usdt", key: "exchange", icon: "swap" },
+    { href: "/portfolio", key: "portfolio", icon: "chart" },
     gov.isOwner
-      ? { href: "/admin", label: "Admin", icon: "settings" }
-      : { href: "/security", label: "Security", icon: "shield" },
+      ? { href: "/admin", key: "admin", icon: "settings" }
+      : { href: "/security", key: "security", icon: "shield" },
   ];
 
   return (
     <nav
-      className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/[.07] bg-graphite-950/85 backdrop-blur-2xl lg:hidden"
+      className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/[.07] bg-graphite-950/85 backdrop-blur-2xl xl:hidden"
       aria-label="Primary"
     >
       <div className="mx-auto flex max-w-md items-stretch justify-between px-2">
@@ -170,7 +186,7 @@ export function MobileNav() {
                   active ? "text-white" : "text-graphite-400"
                 }`}
               >
-                {it.label}
+                {t.nav[it.key]}
               </span>
             </Link>
           );

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LiveStats } from "@/components/LiveStats";
 import { PolymarketMarkets } from "@/components/PolymarketMarkets";
 import { HeroVisual } from "@/components/visuals/HeroVisual";
+import { HeroCopy } from "@/components/HeroCopy";
 import {
   SecurityVisual,
   StrategyVisual,
@@ -199,47 +200,7 @@ export default function Home() {
         </div>
 
         <div className="container-page relative flex min-h-[86vh] flex-col justify-center py-20 lg:min-h-[88vh]">
-          <div className="max-w-2xl">
-            <span className="eyebrow animate-fade-up">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold-400 opacity-70" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold-400" />
-              </span>
-              Live on Polygon mainnet
-            </span>
-
-            <h1 className="h-display mt-7 animate-fade-up animate-delay-100">
-              ARBI<span className="text-gold-gradient">SMART</span>
-            </h1>
-
-            <p className="mt-5 animate-fade-up animate-delay-200 font-display text-xl font-medium tracking-tight text-graphite-100 sm:text-2xl">
-              Advanced Digital Asset Infrastructure
-            </p>
-
-            <p className="mt-5 max-w-xl animate-fade-up animate-delay-300 text-[15px] leading-relaxed text-graphite-300 sm:text-base">
-              Fixed-rate staking on Polygon. The contract is published and verified, the amount that
-              can go into the strategy is capped, and you can withdraw without asking us.
-            </p>
-
-            <div className="mt-9 flex animate-fade-up animate-delay-500 flex-wrap items-center gap-3">
-              <Link href="/dashboard" className="btn-primary">
-                Launch Platform
-                <Icon name="arrowUp" className="h-4 w-4 rotate-45" />
-              </Link>
-              <Link href="/security" className="btn-secondary">
-                Explore Platform
-              </Link>
-            </div>
-
-            <div className="mt-10 flex animate-fade-in animate-delay-700 flex-wrap items-center gap-x-6 gap-y-3 text-xs text-graphite-400">
-              {["Verified on Sourcify", "Non-custodial", "Exit always open"].map((t) => (
-                <span key={t} className="inline-flex items-center gap-1.5">
-                  <Icon name="check" className="h-3.5 w-3.5 text-gold-400" strokeWidth={2.4} />
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
+          <HeroCopy />
         </div>
       </section>
 

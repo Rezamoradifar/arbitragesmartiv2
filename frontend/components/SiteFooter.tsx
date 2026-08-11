@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { BrandMark } from "@/components/NavBar";
+import { useT } from "@/components/LocaleProvider";
 
 const CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 
@@ -7,9 +10,9 @@ const CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const BASED_IN = "Malaysia";
 const CONTACT_EMAIL = "support@arbhub.site";
 
-const columns: Array<{ title: string; links: Array<{ label: string; href: string; external?: boolean }> }> = [
+const columns: Array<{ titleKey: "platform" | "trust" | "community"; links: Array<{ label: string; href: string; external?: boolean }> }> = [
   {
-    title: "Platform",
+    titleKey: "platform" as const,
     links: [
       { label: "Dashboard", href: "/dashboard" },
       { label: "Get USDT on Polygon", href: "/get-usdt" },
@@ -21,7 +24,7 @@ const columns: Array<{ title: string; links: Array<{ label: string; href: string
     ],
   },
   {
-    title: "Trust",
+    titleKey: "trust" as const,
     links: [
       { label: "Security model", href: "/security" },
       { label: "Bug bounty", href: "/security#bounty" },
@@ -30,7 +33,7 @@ const columns: Array<{ title: string; links: Array<{ label: string; href: string
     ],
   },
   {
-    title: "Community",
+    titleKey: "community" as const,
     links: [
       { label: "Telegram", href: "https://t.me/arbhub_site", external: true },
       { label: "Contact us", href: "mailto:support@arbhub.site", external: true },
@@ -40,6 +43,8 @@ const columns: Array<{ title: string; links: Array<{ label: string; href: string
 ];
 
 export function SiteFooter() {
+  const t = useT();
+
   return (
     <footer className="layer mt-24 border-t border-white/[.06] bg-graphite-950/40">
       <div className="container-page py-14">
@@ -52,15 +57,14 @@ export function SiteFooter() {
               </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-graphite-400">
-              Staking infrastructure on Polygon. The source is open, the deployed code is verified
-              against it, and you can withdraw without asking us.
+              {t.footer.tagline}
             </p>
             <p className="mt-4 flex items-center gap-2 text-sm text-graphite-400">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
                 <path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z" />
                 <circle cx="12" cy="10" r="2.4" />
               </svg>
-              Operating from {BASED_IN}
+              {t.footer.operatingFrom}
             </p>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
@@ -75,8 +79,8 @@ export function SiteFooter() {
           </div>
 
           {columns.map((col) => (
-            <div key={col.title}>
-              <h3 className="text-xs font-semibold uppercase tracking-[.14em] text-graphite-400">{col.title}</h3>
+            <div key={col.titleKey}>
+              <h3 className="text-xs font-semibold uppercase tracking-[.14em] text-graphite-400">{t.footer[col.titleKey]}</h3>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
                   <li key={l.label}>

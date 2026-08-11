@@ -34,9 +34,10 @@ export function AppShell({
   return (
     <>
       {nav}
-      {/* Bottom padding clears the mobile tab bar; the lg breakpoint drops it
-          again once that bar is gone. */}
-      <main className="layer pb-28 lg:pb-0">{children}</main>
+      {/* Bottom padding clears the bottom tab bar; xl drops it again once that
+          bar is gone. Must track MobileNav's own breakpoint — if the two
+          disagree, the bar covers the last row of content. */}
+      <main className="layer pb-28 xl:pb-0">{children}</main>
       {footer}
       {mobileNav}
     </>

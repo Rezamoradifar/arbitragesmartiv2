@@ -6,6 +6,7 @@ import { NavBar, MobileNav } from "@/components/NavBar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AppShell } from "@/components/AppShell";
 import { themeScript } from "@/components/ThemeToggle";
+import { LocaleProvider } from "@/components/LocaleProvider";
 
 // Sora for headlines and figures — geometric, confident at large sizes. Inter
 // for body copy, where legibility at 13-15px matters more than character.
@@ -98,9 +99,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* eslint-disable-next-line react/no-danger */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <Web3Providers>
-          <AppShell nav={<NavBar />} footer={<SiteFooter />} mobileNav={<MobileNav />}>
+          <LocaleProvider>
+            <AppShell nav={<NavBar />} footer={<SiteFooter />} mobileNav={<MobileNav />}>
             {children}
-          </AppShell>
+            </AppShell>
+          </LocaleProvider>
         </Web3Providers>
       </body>
     </html>
