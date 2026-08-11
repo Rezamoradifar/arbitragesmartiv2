@@ -268,6 +268,46 @@ export default function GetUsdtPage() {
             own screen before you confirm.
           </p>
         </div>
+
+        {/* Everyone meets this once, and the widget's own message lists four
+            possible causes without saying which one applies. */}
+        <div className="glass mt-4 p-5 sm:p-6">
+          <h3 className="flex items-center gap-2 font-display font-semibold text-warn-400">
+            <Icon name="info" className="h-5 w-5" />
+            If it says &ldquo;No routes available&rdquo;
+          </h3>
+          <p className="mt-2.5 text-sm leading-relaxed text-graphite-300">
+            Almost always the <span className="text-graphite-100">Get gas</span> toggle. With it on,
+            the aggregator has to find one bridge that delivers both your USDT and a little POL in
+            the same transaction, and far fewer bridges can do that — on small amounts, none of
+            them. Turn it off and the same trade usually routes immediately.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            {[
+              {
+                t: "Turn off Get gas",
+                b: "Then handle gas separately — bridge the USDT first, then swap a dollar of it for POL on Polygon.",
+              },
+              {
+                t: "Send more than a few dollars",
+                b: "Bridge fees are close to fixed, so tiny amounts get eaten by them. Anything under about 5 USDT struggles to route at all.",
+              },
+              {
+                t: "Leave headroom",
+                b: "Sending your entire balance leaves nothing for the fee on the source chain. Keep a little back.",
+              },
+            ].map((x) => (
+              <div key={x.t} className="rounded-xl border border-white/[.07] bg-white/[.02] p-4">
+                <p className="font-display text-sm font-semibold text-white">{x.t}</p>
+                <p className="mt-1.5 text-xs leading-relaxed text-graphite-400">{x.b}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-xs leading-relaxed text-graphite-500">
+            Worth knowing before you start: the smallest deposit the contract accepts is 11.37 USDT
+            sent, so there is no point bridging less than that if staking is the plan.
+          </p>
+        </div>
       </section>
 
       {/* -------------------------------------------------------- routes */}
