@@ -17,7 +17,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const baseLinks: Array<{ href: string; label: string; icon: IconName }> = [
   { href: "/", label: "Home", icon: "home" },
   { href: "/dashboard", label: "Dashboard", icon: "grid" },
-  { href: "/get-usdt", label: "Swap", icon: "swap" },
+  { href: "/get-usdt", label: "Exchange", icon: "swap" },
   { href: "/portfolio", label: "Portfolio", icon: "chart" },
   { href: "/rewards", label: "Rewards", icon: "zap" },
   { href: "/security", label: "Security", icon: "shield" },
@@ -117,10 +117,14 @@ export function BrandMark({ size = 30 }: { size?: number }) {
  * still above the ~44px comfortable minimum, but the labels start to crowd, so
  * the fifth slot is spent rather than added to.
  *
- * Swap takes the slot Activity had. Activity is a decoded event feed, which is
- * a page for people already deposited and curious; converting funds is the
- * step every single new user is stuck on, and it was reachable only from the
- * footer. It stays one tap from the footer and the Mini App either way.
+ * Exchange takes the slot Activity had. Activity is a decoded event feed,
+ * which is a page for people already deposited and curious; converting funds
+ * is the step every single new user is stuck on, and it was reachable only
+ * from the footer. Activity stays in the desktop nav and the footer.
+ *
+ * Labelled Exchange, not Swap, because that is the word the converter itself
+ * puts at the top of its own panel — two names for one destination is how a
+ * user decides they are different things.
  *
  * `safe-bottom` keeps the bar clear of the iOS home indicator, and the layout
  * adds matching padding so it never covers the last row of content.
@@ -132,7 +136,7 @@ export function MobileNav() {
   const items: Array<{ href: string; label: string; icon: IconName }> = [
     { href: "/", label: "Home", icon: "home" },
     { href: "/dashboard", label: "Dashboard", icon: "grid" },
-    { href: "/get-usdt", label: "Swap", icon: "swap" },
+    { href: "/get-usdt", label: "Exchange", icon: "swap" },
     { href: "/portfolio", label: "Portfolio", icon: "chart" },
     gov.isOwner
       ? { href: "/admin", label: "Admin", icon: "settings" }
