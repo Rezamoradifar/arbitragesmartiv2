@@ -17,6 +17,7 @@ const baseLinks: Array<{ href: string; label: string; icon: IconName }> = [
   { href: "/", label: "Home", icon: "home" },
   { href: "/dashboard", label: "Dashboard", icon: "grid" },
   { href: "/portfolio", label: "Portfolio", icon: "chart" },
+  { href: "/rewards", label: "Rewards", icon: "zap" },
   { href: "/security", label: "Security", icon: "shield" },
   { href: "/partners", label: "Governance", icon: "users" },
   { href: "/activity", label: "Activity", icon: "activity" },
