@@ -26,14 +26,19 @@ const ROUND = {
 };
 
 /**
- * One gram per 5,000 USDT of direct volume, all the way up.
+ * One gram per 3,000 USDT of TEAM volume — all three levels, not just directs.
  *
  * A single ratio rather than a hand-tuned ladder: every tier costs the same
  * percentage of the volume it rewards, so the programme's budget scales with
  * what it brings in instead of getting more expensive at the top. It is also
  * the only version anyone can check in their head.
+ *
+ * The ratio is set against the entry fee, which is what pays for the metal.
+ * Because a tier is awarded on the threshold you clear rather than on your
+ * exact total, the average cost lands well under the nominal rate — that gap
+ * is the headroom that lets the deeper levels count at all.
  */
-const GRAMS_PER_VOLUME = 5_000;
+const GRAMS_PER_VOLUME = 3_000;
 
 const TIERS = [1, 5, 10, 25, 50, 100, 250, 500, 1000].map((grams) => ({
   grams,
@@ -57,8 +62,8 @@ function fmtDate(iso: string) {
 const CONDITIONS = [
   {
     n: "01",
-    title: "The number that counts is direct volume",
-    body: "Your direct volume is the total recorded stake of the people you referred yourself — the same figure the contract exposes through getTeamVolume, and the same one your tier is calculated from. Second and third level volume does not count toward a gold tier.",
+    title: "The number that counts is your whole team",
+    body: "All three levels, added together: the people you referred, the people they referred, and one level below that. It is the sum of the three values getTeamVolume returns for your address, and it is the same total your dashboard shows. Nothing is weighted or discounted by depth — a dollar on level three counts exactly like a dollar on level one.",
   },
   {
     n: "02",
@@ -73,7 +78,7 @@ const CONDITIONS = [
   {
     n: "04",
     title: "Volume that left does not count",
-    body: "When someone you referred exits, their stake stops counting toward your volume, exactly as it stops counting toward your referral tier. Building volume that stays is the point.",
+    body: "When anyone in your three levels exits, their stake stops counting toward your team total the same day, exactly as it stops counting toward your referral tier. Building volume that stays is the point.",
   },
   {
     n: "05",
@@ -128,13 +133,13 @@ export default function RewardsPage() {
             Real <span className="text-gold-gradient">gold</span> for real volume
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-graphite-300">
-            Bring people who stake and stay, and we send you metal. Every threshold below is a
-            number the contract already publishes, so you can check where you stand at any moment
-            without asking us.
+            Build a team that stakes and stays, and we send you metal. It is measured on your whole
+            team, three levels deep — a number the contract already publishes, so you can check
+            where you stand at any moment without asking us.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href="/dashboard" className="btn-primary">
-              See your volume
+              See your team volume
               <Icon name="arrowUp" className="h-4 w-4 rotate-45" />
             </Link>
             <a href="#conditions" className="btn-secondary">
@@ -186,9 +191,10 @@ export default function RewardsPage() {
       <section>
         <h2 className="h-section">The tiers</h2>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-graphite-300">
-          One gram for every {GRAMS_PER_VOLUME.toLocaleString("en-US")} USDT of direct volume — the
-          recorded stake of people you referred yourself. The same ratio from the first gram to the
-          last, so there is no ladder to memorise.
+          One gram for every {GRAMS_PER_VOLUME.toLocaleString("en-US")} USDT of team volume, counting
+          all three levels. The same ratio from the first gram to the last, so there is no ladder to
+          memorise — divide your team total by {GRAMS_PER_VOLUME.toLocaleString("en-US")} and that is
+          your weight.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -204,7 +210,7 @@ export default function RewardsPage() {
                   {lead ? "The top of the ladder" : "999.9 fine, assay included"}
                 </p>
                 <div className="mt-5 border-t border-white/[.06] pt-4">
-                  <p className="text-xs uppercase tracking-wider text-graphite-500">Direct volume</p>
+                  <p className="text-xs uppercase tracking-wider text-graphite-500">Team volume</p>
                   <p className="mt-1 font-display text-lg font-semibold text-white">
                     {t.volume.toLocaleString("en-US")}
                     <span className="ml-1.5 text-xs font-medium text-graphite-400">USDT</span>
@@ -221,10 +227,10 @@ export default function RewardsPage() {
               <tr className="border-b border-white/[.07] bg-white/[.02] text-left">
                 <th className="px-5 py-3 font-medium text-graphite-400">Reward</th>
                 <th className="px-5 py-3 text-right font-medium text-graphite-400">
-                  Direct volume required
+                  Team volume required
                 </th>
                 <th className="hidden px-5 py-3 text-right font-medium text-graphite-400 sm:table-cell">
-                  Equivalent at 10,000 USDT each
+                  Roughly, at 5,000 USDT a head
                 </th>
               </tr>
             </thead>
@@ -245,7 +251,7 @@ export default function RewardsPage() {
                     {t.volume.toLocaleString("en-US")}
                   </td>
                   <td className="hidden px-5 py-3 text-right text-graphite-400 sm:table-cell">
-                    {Math.round(t.volume / 10_000).toLocaleString("en-US")} stakers
+                    {Math.round(t.volume / 5_000).toLocaleString("en-US")} people
                   </td>
                 </tr>
               ))}
@@ -368,7 +374,7 @@ export default function RewardsPage() {
           How to check where you stand
         </h2>
         <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-graphite-300">
-          Your direct volume is on your dashboard, and it is the same number the contract returns to
+          Your team volume is on your dashboard, and it is the same number the contract returns to
           anyone who asks it. You do not have to take our figure for it:
         </p>
         <pre className="mt-5 overflow-x-auto rounded-xl border border-white/[.06] bg-graphite-950/70 p-4 font-mono text-xs leading-relaxed text-graphite-300">
@@ -376,11 +382,12 @@ export default function RewardsPage() {
   "getTeamVolume(address)(uint256,uint256,uint256)" <YOUR_ADDRESS> \\
   --rpc-url https://polygon-rpc.com
 
-# first value = direct volume, in USDT with 6 decimals`}
+# three values: level 1, level 2, level 3 — in USDT with 6 decimals
+# add all three together, divide by ${GRAMS_PER_VOLUME.toLocaleString("en-US")}, that is your gram count`}
         </pre>
         <p className="mt-4 text-xs leading-relaxed text-graphite-500">
-          The first number returned is the one the tiers are measured on. The second and third are
-          your deeper levels, which earn referral rewards but do not count toward a gold tier.
+          All three numbers count toward a gold tier. Your referral tier is a separate calculation
+          and looks only at the first one — the two are measured differently on purpose.
         </p>
       </section>
 
