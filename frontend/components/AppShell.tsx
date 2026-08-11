@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { Assistant } from "@/components/Assistant";
 
 /**
  * Site chrome, minus the chrome on the Telegram Mini App.
@@ -40,6 +41,7 @@ export function AppShell({
       <main className="layer pb-28 xl:pb-0">{children}</main>
       {footer}
       {mobileNav}
+      <Assistant />
     </>
   );
 }

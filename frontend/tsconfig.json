@@ -4,7 +4,11 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    // viem needs this. Without strictNullChecks its `prop?: T | undefined`
+    // optionals collapse, and readContract/multicall start demanding required
+    // fields such as authorizationList that no caller ever passes — which
+    // makes every server-side chain read uncompilable.
+    "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",

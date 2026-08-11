@@ -5,6 +5,8 @@ import { CONTRACT_ABI, CONTRACT_ADDRESS, COLLATERAL_ADDRESS, ERC20_ABI } from ".
 
 const base = { address: CONTRACT_ADDRESS, abi: CONTRACT_ABI } as const;
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
+
 function call(functionName: string, args: unknown[] = []) {
   return { ...base, functionName, args } as const;
 }
@@ -147,6 +149,7 @@ export function useDownline() {
 export function useUserPosition() {
   const { address } = useAccount();
   const enabled = Boolean(address);
+  const holder = address ?? ZERO_ADDRESS;
 
   const { data, isLoading, refetch } = useReadContracts({
     contracts: [
@@ -157,12 +160,15 @@ export function useUserPosition() {
       call("getUserStatsExtended", [address]),
       call("emergencyWithdrawOpen"),
       call("blacklisted", [address]),
-      { address: COLLATERAL_ADDRESS, abi: ERC20_ABI, functionName: "balanceOf", args: [address] },
+      // The ERC20 entries are typed strictly, unlike call(), so they need a
+      // concrete address. `enabled` keeps these from running while the wallet
+      // is disconnected, so the placeholder is never actually queried.
+      { address: COLLATERAL_ADDRESS, abi: ERC20_ABI, functionName: "balanceOf", args: [holder] },
       {
         address: COLLATERAL_ADDRESS,
         abi: ERC20_ABI,
         functionName: "allowance",
-        args: [address, CONTRACT_ADDRESS],
+        args: [holder, CONTRACT_ADDRESS],
       },
       // --- V4 ---
       call("userDepositBreakdown", [address]),
