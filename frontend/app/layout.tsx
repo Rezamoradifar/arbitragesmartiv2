@@ -20,6 +20,21 @@ const TITLE = "ArbiSmart — Advanced Digital Asset Infrastructure";
 const DESCRIPTION =
   "Staking on Polygon with a fixed daily rate, a four-tier referral programme, and a withdrawal nobody can block. Every control that could reach your principal is capped, delayed, or put to a partner vote.";
 
+/**
+ * The card every chat app renders when someone pastes the link.
+ *
+ * 1200x630 is what Telegram, X and WhatsApp all crop toward, and a link with
+ * no card is a link people scroll past. Without an explicit `images` entry
+ * Next.js emits no og:image at all, so this is the difference between a
+ * preview and a bare grey rectangle.
+ */
+const OG_IMAGE = {
+  url: "/og.png",
+  width: 1200,
+  height: 630,
+  alt: "ArbiSmart — fixed-rate USDT staking on Polygon, with the contract published.",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: TITLE, template: "%s · ArbiSmart" },
@@ -34,11 +49,13 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: "ArbiSmart",
     type: "website",
+    images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: "Fixed-rate staking on Polygon, on a contract you can read.",
+    images: [OG_IMAGE.url],
   },
   robots: { index: true, follow: true },
   verification: {

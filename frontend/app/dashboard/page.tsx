@@ -1056,14 +1056,15 @@ function ReferralCard({
         <span className="text-graphite-200">
           {tier.f3Bps === 0 ? "nothing at Base tier" : formatBps(tier.f3Bps)}
         </span>
-        . All three levels are credited when your referral claims their yield, and come from the
-        pool rather than out of their payout.
+        . All three levels are credited when someone in your team claims, and the amount is
+        deducted from that claim — never from their principal.
       </p>
 
       {next && (
         <p className="mt-3 text-xs leading-relaxed text-graphite-400">
-          Reach {next.name} with {next.needRefs} active referrals and{" "}
-          {next.needStake.toLocaleString("en-US")} USDT staked.
+          Reach {next.name} with {next.needRefs} active referrals,{" "}
+          {next.needVolume.toLocaleString("en-US")} USDT of direct volume, and{" "}
+          {next.needStake.toLocaleString("en-US")} USDT staked yourself. All three are required.
         </p>
       )}
 
@@ -1086,14 +1087,42 @@ function ReferralCard({
         >
           {link}
         </button>
-        <button type="button" className="btn-secondary mt-2 w-full" onClick={copy}>
-          <Icon name={copied ? "check" : "copy"} className="h-4 w-4" />
-          {copied ? "Copied" : "Copy link"}
-        </button>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <button type="button" className="btn-secondary" onClick={copy}>
+            <Icon name={copied ? "check" : "copy"} className="h-4 w-4" />
+            {copied ? "Copied" : "Copy link"}
+          </button>
+          {/* Telegram's share endpoint prefills the message but still makes the
+              sender pick a chat and press send, so nothing goes out without
+              them seeing it. */}
+          <a
+            className="btn-secondary"
+            href={`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(SHARE_TEXT)}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Icon name="external" className="h-4 w-4" />
+            Share
+          </a>
+        </div>
+        <p className="mt-2.5 text-xs leading-relaxed text-graphite-500">
+          Your link only credits you while your own stake is active. Every claim your team makes
+          pays you again, for as long as they stay.
+        </p>
       </div>
     </Section>
   );
 }
+
+/**
+ * The message that rides along with a shared referral link.
+ *
+ * Deliberately free of a return figure. A rate quoted by a friend reads as a
+ * promise from that friend, and the rates here are contract settings that the
+ * recipient should read for themselves — which is what the link is for.
+ */
+const SHARE_TEXT =
+  "USDT staking on Polygon. Fixed daily rate, fees published in full, and early exit open at any time. Read the contract before you decide:";
 
 /* -------------------------------------------------------------------- exit */
 

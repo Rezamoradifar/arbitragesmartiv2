@@ -489,7 +489,22 @@ export default function Home() {
               <Link href="/security" className="btn-secondary">
                 Read the security model
               </Link>
+              <a
+                href="https://t.me/arbhub_site"
+                target="_blank"
+                rel="noreferrer"
+                className="btn-ghost"
+              >
+                Join on Telegram
+              </a>
             </div>
+            {/* Named here rather than left as a bare icon in the header: the
+                impersonation risk is real, and the defence is that people know
+                which handle is the right one before they go looking. */}
+            <p className="mt-5 text-xs text-graphite-500">
+              Weekly numbers with an explorer link under each one. The only official channel is{" "}
+              <span className="text-graphite-300">@arbhub_site</span>.
+            </p>
           </div>
         </Reveal>
       </section>
