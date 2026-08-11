@@ -352,6 +352,9 @@ export default function RewardsPage() {
           <a href="https://t.me/arbhub_site" target="_blank" rel="noreferrer" className="btn-primary">
             Get round announcements
           </a>
+          <Link href="/rewards/claim" className="btn-secondary">
+            Claim a reward
+          </Link>
           <a href="mailto:support@arbhub.site" className="btn-secondary">
             Ask a question
           </a>
