@@ -78,6 +78,18 @@ const injectedOnly = [
   },
 ];
 
+/*
+ * walletConnectWallet makes WalletConnect's Core log "already initialized —
+ * Init() was called 2 times" once per page load. Measured by elimination:
+ * every other wallet here is silent, and this one warns on its own with
+ * nothing else in the list. It is wagmi's connector double-initialising under
+ * ssr:true, inside the library, not something this file controls.
+ *
+ * It stays anyway. Dropping it would silence the warning and take with it the
+ * QR option for every wallet not named below — a real capability traded for a
+ * clean console. The Core is idempotent and connections work; if the warning
+ * ever turns into a symptom, this comment is where to start.
+ */
 const withWalletConnect = [
   {
     groupName: "Popular",
