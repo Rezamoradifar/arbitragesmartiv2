@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Alert, Row, Skeleton } from "@/components/ui";
 import { useDepositQuote } from "@/lib/hooks";
@@ -9,12 +9,15 @@ import {
   MIN_STAKE_UNITS,
   PENALTY_SCHEDULE,
   PLANS,
+  REFERRAL_DEDUCTION_MAX_BPS,
+  REFERRAL_DEDUCTION_MIN_BPS,
   claimFeeBpsFor,
   formatAmount,
   grossForNet,
   parseUnits6,
   planForAmount,
 } from "@/lib/contract";
+import { getStoredReferral } from "@/lib/referral";
 
 /**
  * What a deposit actually buys, before anyone connects a wallet.
@@ -35,6 +38,14 @@ const MIN_GROSS = grossForNet(10);
 
 export function DepositCalculator() {
   const [amount, setAmount] = useState("500");
+
+  /*
+   * Whether this visitor arrived through a referral link, which decides
+   * whether the upline deduction below applies to them at all. Read after
+   * mount so the server-rendered markup and the first client render agree.
+   */
+  const [referred, setReferred] = useState(false);
+  useEffect(() => setReferred(Boolean(getStoredReferral())), []);
 
   const units = useMemo(() => {
     try {
@@ -59,6 +70,24 @@ export function DepositCalculator() {
   const gross = daily * (plan?.durationDays ?? 0);
   const claimFeeBps = claimFeeBpsFor(planIndex);
   const afterClaimFee = gross * (1 - claimFeeBps / 10_000);
+
+  /*
+   * The deduction this calculator used to leave out entirely.
+   *
+   * `claim()` pays `reward - claimFee - referralPaid`, and `referralPaid` goes
+   * to the claimer's own upline out of the claimer's own yield. Showing only
+   * the claim fee overstated a referred user's take-home by 8% of the yield at
+   * best and 35% at worst — and since the whole growth model runs on referral
+   * links, being referred is the ordinary case, not the exception.
+   *
+   * The upline's tier is not knowable before a wallet is connected, so a band
+   * is quoted rather than a single figure. The dashboard reads the real chain
+   * and shows the exact number.
+   */
+  const uplineBest = gross * (REFERRAL_DEDUCTION_MIN_BPS / 10_000);
+  const uplineWorst = gross * (REFERRAL_DEDUCTION_MAX_BPS / 10_000);
+  const takeHomeLow = afterClaimFee - uplineWorst;
+  const takeHomeHigh = afterClaimFee - uplineBest;
 
   const ready = units > 0n && netStake !== undefined && !belowMin && !aboveMax;
 
@@ -168,9 +197,47 @@ export function DepositCalculator() {
             <Row label="Yield per day" value={`${daily.toFixed(4)} USDT`} />
             <Row label={`Yield over ${plan.durationDays} days`} value={`${gross.toFixed(2)} USDT`} />
             <Row
-              label={`After the ${claimFeeBps / 100}% claim fee`}
-              value={<span className="text-gold-300">{afterClaimFee.toFixed(2)} USDT</span>}
+              label={`Less the ${claimFeeBps / 100}% claim fee`}
+              value={`−${(gross - afterClaimFee).toFixed(2)} USDT`}
             />
+            {referred ? (
+              <Row
+                label={`Less your upline's share (${REFERRAL_DEDUCTION_MIN_BPS / 100}–${
+                  REFERRAL_DEDUCTION_MAX_BPS / 100
+                }% of yield)`}
+                value={`−${uplineBest.toFixed(2)} to −${uplineWorst.toFixed(2)} USDT`}
+              />
+            ) : null}
+            <Row
+              label="You receive"
+              value={
+                <span className="text-gold-300">
+                  {referred
+                    ? `${takeHomeLow.toFixed(2)} – ${takeHomeHigh.toFixed(2)} USDT`
+                    : `${afterClaimFee.toFixed(2)} USDT`}
+                </span>
+              }
+            />
+          </div>
+
+          {/* The deduction nobody is told about until their first claim lands
+              smaller than the calculator said. It is disclosed elsewhere from
+              the referrer's side — "your share comes out of their claim" — but
+              never from the side of the person actually paying it. */}
+          <div className="mt-4 rounded-xl border border-white/[.07] bg-white/[.02] p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-graphite-400">
+              If you join through someone&apos;s referral link
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-graphite-400">
+              Your upline&apos;s reward is taken{" "}
+              <span className="text-graphite-200">out of your claim</span>, not paid on top of it by
+              the protocol — between {REFERRAL_DEDUCTION_MIN_BPS / 100}% and{" "}
+              {REFERRAL_DEDUCTION_MAX_BPS / 100}% of your yield, depending on how many people are
+              above you and what tier they hold. Your principal is never touched by it.
+              {referred
+                ? " You arrived through a referral link, so this applies to you and the figures above already show it."
+                : " You did not arrive through a referral link, so the figure above is what you would receive."}
+            </p>
           </div>
 
           {/* The part most calculators leave out. Someone deciding whether to
@@ -191,6 +258,24 @@ export function DepositCalculator() {
                 <Row key={p.label} label={p.label} value={`−${p.bps / 100}% of principal · you get ${formatAmount((netStake * BigInt(10_000 - p.bps)) / 10_000n)} USDT`} />
               ))}
             </div>
+            {/* The row that is not in the schedule because the schedule has no
+                row for it. `_earlyExitPenaltyBps` returns PENALTY_AF for every
+                week from the fifth onwards, and there is no maturity function
+                anywhere in the contract — `earlyExit` is the only way out at
+                any age. Reading the table alone, everybody assumes the last
+                row stops applying once the term is served. It never stops. */}
+            <p className="mt-3 border-t border-white/[.06] pt-3 text-xs leading-relaxed text-graphite-400">
+              <span className="text-graphite-200">
+                There is no penalty-free withdrawal at the end of the term.
+              </span>{" "}
+              The contract has no maturity function — after day {plan.durationDays} yield simply
+              stops accruing, and the only exit is still this one, at the Week 5+ rate. Holding to
+              term returns{" "}
+              <span className="text-graphite-200">
+                {formatAmount((netStake * 9_000n) / 10_000n)} USDT
+              </span>{" "}
+              of your {formatAmount(netStake)} USDT principal, not all of it.
+            </p>
           </div>
 
           <p className="mt-4 text-xs leading-relaxed text-graphite-500">

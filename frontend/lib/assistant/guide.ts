@@ -120,7 +120,9 @@ There is no penalty-free withdrawal at the end of the term either: after the ter
     keywords: ["claim", "harvest", "collect", "payout", "when do i get paid", "reward", "yield"],
     answer: `Yield accrues every day and you claim it whenever you want from /dashboard. Nothing is sent automatically and nothing compounds by itself.
 
-The claim fee is 10% of the amount claimed, or 5% on Advanced and Elite. Principal is never charged.`,
+The claim fee is 10% of the amount claimed, or 5% on Advanced and Elite. Principal is never charged.
+
+Two things come out of a claim, not one. If you joined through somebody's referral link, their reward is also taken out of your claim rather than paid by the protocol on top of it — between 8% and 35% of your yield, depending on how many active people are above you and what tier they hold. If you joined without a referral link, nothing is deducted for that. Your principal is not touched either way. The dashboard shows your exact figure once your wallet is connected.`,
   },
   {
     id: "referral",

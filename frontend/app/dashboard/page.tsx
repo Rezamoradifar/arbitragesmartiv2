@@ -18,7 +18,13 @@ import {
 } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { HeroVisual } from "@/components/visuals/HeroVisual";
-import { useProtocol, useUserPosition, useReferralTree, useDepositQuote } from "@/lib/hooks";
+import {
+  useProtocol,
+  useUserPosition,
+  useReferralTree,
+  useDepositQuote,
+  useUplineDeduction,
+} from "@/lib/hooks";
 import { hasWalletConnect } from "@/lib/wagmi";
 import {
   COLLATERAL_ADDRESS,
@@ -32,6 +38,7 @@ import {
   PROTOCOL_WALLET_STAKE_UNITS,
   REFERRAL_LEVELS,
   claimFeeBpsFor,
+  netClaimAmount,
   formatAmount,
   formatBps,
   parseUnits6,
@@ -1053,6 +1060,16 @@ function RewardsCard({
   const feeBps = BigInt(claimFeeBpsFor(Number(user.plan ?? 0n)));
   const fee = (pending * feeBps) / 10000n;
 
+  // The claim fee is not the only thing taken out. `claim()` pays
+  // `reward - fee - referralPaid`, and the upline share comes out of this
+  // wallet's own yield — so quoting `pending - fee` as the payout was simply
+  // wrong for anybody with a referrer. The chain is read live rather than
+  // banded, because at this point the wallet is connected and the real answer
+  // is available.
+  const upline = useUplineDeduction();
+  const uplineCut = (pending * BigInt(upline.bps)) / 10000n;
+  const receives = netClaimAmount(pending, Number(feeBps), upline.bps);
+
   // A giveaway position earns from day one but cannot withdraw until it has
   // been funded. Saying so here is the difference between a locked button and
   // an unexplained revert.
@@ -1069,8 +1086,18 @@ function RewardsCard({
         <span className="ml-1.5 text-base font-semibold text-graphite-400">USDT</span>
       </p>
       {pending > 0n && (
-        <p className="mt-2 text-xs text-graphite-400">
-          You receive {formatAmount(pending - fee, 4)} USDT after the {formatBps(feeBps)} claim fee.
+        <p className="mt-2 text-xs leading-relaxed text-graphite-400">
+          You receive{" "}
+          <span className="text-graphite-200">{formatAmount(receives, 4)} USDT</span> — the{" "}
+          {formatBps(feeBps)} claim fee takes {formatAmount(fee, 4)}
+          {upline.hasUpline && upline.bps > 0
+            ? `, and ${formatAmount(uplineCut, 4)} goes to your upline as their ${formatBps(
+                BigInt(upline.bps),
+              )} referral share.`
+            : "."}
+          {upline.hasUpline && upline.bps === 0 && !upline.isLoading
+            ? " Your upline has no active position, so nothing is deducted for them."
+            : ""}
         </p>
       )}
       {locked && (

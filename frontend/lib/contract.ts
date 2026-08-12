@@ -148,6 +148,61 @@ export function claimFeeBpsFor(planIndex: number): number {
 }
 
 /**
+ * Mirrors `referralRate(level, depth)`.
+ *
+ * `level` is the UPLINE's own tier, not the claimer's, and `depth` is how far
+ * up the chain they sit: 0 is the direct referrer.
+ */
+export function referralRateBps(level: number, depth: number): number {
+  const row = REFERRAL_LEVELS[level] ?? REFERRAL_LEVELS[0];
+  return depth === 0 ? row.f1Bps : depth === 1 ? row.f2Bps : row.f3Bps;
+}
+
+/**
+ * The share of a claim that leaves for the upline, in basis points of the
+ * gross accrual.
+ *
+ * THIS COMES OUT OF THE CLAIMER'S OWN YIELD. `claim()` computes
+ *
+ *     userAmount = reward - totalFee - referralPaid
+ *
+ * so the claim fee is not the only deduction, and a page that shows only the
+ * claim fee overstates what a referred user actually receives by 8 to 35
+ * percent of their yield. Almost everybody arrives through a referral link,
+ * which makes the understated figure the common case rather than the edge one.
+ *
+ * `levels` is the tier of each active, non-blacklisted upline in order, direct
+ * referrer first. An inactive or blacklisted upline is skipped by the contract
+ * but does not break the chain, so pass `null` for it rather than dropping it.
+ */
+export function referralDeductionBps(levels: readonly (number | null)[]): number {
+  return levels
+    .slice(0, 3)
+    .reduce<number>((sum, level, depth) => sum + (level === null ? 0 : referralRateBps(level, depth)), 0);
+}
+
+/**
+ * The band a visitor should be quoted before their upline is known: nothing if
+ * they were not referred, a Base direct referrer alone at the bottom, three
+ * Platinum uplines at the top.
+ */
+export const REFERRAL_DEDUCTION_MIN_BPS = REFERRAL_LEVELS[0].f1Bps;
+export const REFERRAL_DEDUCTION_MAX_BPS = referralDeductionBps([3, 3, 3]);
+
+/**
+ * What actually reaches the wallet on a claim, mirroring `claim()` exactly,
+ * including the cap that stops the upline share exceeding the post-fee
+ * remainder.
+ */
+export function netClaimAmount(reward: bigint, claimBps: number, deductionBps: number): bigint {
+  const fee = (reward * BigInt(claimBps)) / 10_000n;
+  const budget = reward - fee;
+  let referral = (reward * BigInt(deductionBps)) / 10_000n;
+  if (referral > budget) referral = budget;
+  return budget - referral;
+}
+
+/**
  * The deposit needed for a given amount to survive the fee and be recorded.
  *
  * Plan tiers are decided by the *recorded* stake, so someone sending exactly a

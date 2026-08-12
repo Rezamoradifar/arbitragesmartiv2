@@ -1,7 +1,13 @@
 "use client";
 
 import { useAccount, useReadContract, useReadContracts } from "wagmi";
-import { CONTRACT_ABI, CONTRACT_ADDRESS, COLLATERAL_ADDRESS, ERC20_ABI } from "./contract";
+import {
+  CONTRACT_ABI,
+  CONTRACT_ADDRESS,
+  COLLATERAL_ADDRESS,
+  ERC20_ABI,
+  referralDeductionBps,
+} from "./contract";
 
 const base = { address: CONTRACT_ADDRESS, abi: CONTRACT_ABI } as const;
 
@@ -302,5 +308,81 @@ export function useReferralTree() {
       amount: result?.[1]?.[i] ?? 0n,
       plan: Number(result?.[2]?.[i] ?? 0n),
     })),
+  };
+}
+
+/**
+ * The exact share of the connected wallet's next claim that leaves for its
+ * upline.
+ *
+ * Worth three round trips because it is the difference between what the
+ * dashboard promises and what the wallet receives. `claim()` subtracts the
+ * upline share from the claimer's own yield, so a card showing only the claim
+ * fee is wrong for anybody who arrived through a referral link — which is most
+ * people here.
+ *
+ * The chain is walked one level at a time because each referrer's address is
+ * only known once the level below has been read. The contract skips an
+ * inactive or blacklisted upline WITHOUT breaking the chain, so a skipped
+ * level is recorded as `null` and the walk continues past it — dropping it
+ * would shift the level above into a higher-paying depth.
+ */
+type UplineRead = { data?: readonly { result?: unknown }[]; isLoading: boolean };
+
+function uplineOf(r: UplineRead) {
+  const ref = r.data?.[0]?.result as
+    | readonly [`0x${string}`, bigint, bigint, bigint, bigint]
+    | undefined;
+  const stake = r.data?.[1]?.result as
+    | readonly [bigint, bigint, bigint, bigint, boolean, boolean, bigint, bigint]
+    | undefined;
+  const banned = r.data?.[2]?.result as boolean | undefined;
+  const referrer = ref?.[0];
+  return {
+    referrer: referrer && referrer !== ZERO_ADDRESS ? referrer : undefined,
+    // A level the contract would skip still occupies its depth.
+    level: stake?.[4] && !banned ? Number(ref?.[4] ?? 0n) : null,
+    loading: r.isLoading,
+  };
+}
+
+function uplineQuery(holder: `0x${string}` | undefined) {
+  return {
+    contracts: [
+      call("getReferralInfo", [holder]),
+      call("getStakeBasic", [holder]),
+      call("blacklisted", [holder]),
+    ],
+    query: { enabled: Boolean(holder), refetchInterval: 60_000 },
+  } as const;
+}
+
+export function useUplineDeduction() {
+  const { address } = useAccount();
+
+  // Three fixed hook calls in a fixed order — the addresses change, the number
+  // of hooks never does.
+  const selfRead = useReadContracts(uplineQuery(address));
+  const self = uplineOf(selfRead);
+  const up1Read = useReadContracts(uplineQuery(self.referrer));
+  const up1 = uplineOf(up1Read);
+  const up2Read = useReadContracts(uplineQuery(up1.referrer));
+  const up2 = uplineOf(up2Read);
+
+  // The tier that prices depth 0 is the direct referrer's own tier, which is
+  // read AT that referrer — one step behind the walk.
+  const levels: (number | null)[] = [];
+  if (self.referrer) levels.push(up1.level);
+  if (up1.referrer) levels.push(up2.level);
+  // The third depth would need a fourth hop. Rather than assume it is empty,
+  // it is priced at the Platinum ceiling when the chain is known to reach that
+  // far: overstating the deduction understates the payout, which is the safe
+  // direction to be wrong in.
+  if (up2.referrer) levels.push(3);
+
+  return {
+    hasUpline: Boolean(self.referrer),
+    bps: referralDeductionBps(levels),
+    isLoading: self.loading || up1.loading || up2.loading,
   };
 }

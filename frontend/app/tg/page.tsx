@@ -335,8 +335,18 @@ function Plans() {
           </div>
         </div>
         <p className="mt-2.5 text-[11px] leading-relaxed text-graphite-500">
-          That is the complete list. The claim fee is charged on yield only, never on principal, and
-          the schedule is compiled into the contract with no function to change it.
+          That is the complete list of fees. The claim fee is charged on yield only, never on
+          principal, and the schedule is compiled into the contract with no function to change it.
+        </p>
+        {/* Not a fee, but it leaves the claim exactly like one does, and
+            saying "complete list" without it reads as a promise that nothing
+            else is deducted. */}
+        <p className="mt-2 text-[11px] leading-relaxed text-graphite-500">
+          One further deduction that is not a fee: if you joined through a referral link, your
+          upline&apos;s reward{" "}
+          <span className="text-graphite-300">also comes out of your claim</span> — 8% to 35% of
+          your yield depending on the chain above you. Nothing is deducted if you joined without
+          one, and principal is never touched either way.
         </p>
       </Card>
     </div>

@@ -123,6 +123,19 @@ CLAIM FEE
   10% of the yield claimed, halved to 5% on the Advanced and Elite plans.
   Charged on yield only, never on principal.
 
+WHAT A CLAIM ACTUALLY PAYS — THE CLAIM FEE IS NOT THE ONLY DEDUCTION
+  claim() pays: yield accrued, MINUS the claim fee, MINUS the upline's
+  referral share. The referral share comes out of the CLAIMER'S OWN yield.
+  It is not paid by the protocol on top.
+  So if someone joined through a referral link, they receive between 8% and
+  35% LESS of their yield than the claim fee alone suggests, depending on how
+  many active uplines they have and what tier those uplines hold. With no
+  referrer at all, there is no such deduction.
+  Principal is never touched by this. Only yield.
+  Never quote "yield minus claim fee" as what someone receives without saying
+  the upline share also comes out, unless they have said they have no
+  referrer. The connected dashboard shows their exact figure.
+
 MINIMUM DEPOSIT
   The contract's minimum stake is 10 USDT measured AFTER the entry fee, so
   the smallest deposit that works is ${minGross.toFixed(2)} USDT. Sending
