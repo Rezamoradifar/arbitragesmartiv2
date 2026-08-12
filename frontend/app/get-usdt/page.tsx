@@ -8,6 +8,7 @@ import { formatUnits } from "viem";
 import { Icon } from "@/components/Icon";
 import { ERC20_ABI, COLLATERAL_ADDRESS } from "@/lib/contract";
 import { CopyButton } from "@/components/CopyButton";
+import { BuyWithCard } from "@/components/BuyWithCard";
 
 /**
  * Getting the right token onto the right chain is the single hardest step for
@@ -349,6 +350,14 @@ export default function GetUsdtPage() {
           it — check the destination address on its own screen before you sign anything. Any bridge
           you already trust works just as well; the destination is what matters.
         </p>
+      </section>
+
+      {/* ------------------------------------------------- buy with a card */}
+      {/* After the swap routes, because someone arriving with crypto already
+          has a cheaper path. This is for the visitor who has none at all,
+          which is the case the rest of the page cannot help with. */}
+      <section className="glass p-6 sm:p-8">
+        <BuyWithCard />
       </section>
 
       {/* ---------------------------------------------------------- gas */}
