@@ -159,7 +159,8 @@ LIVE ON-CHAIN${
   Total staked: ${l.totalStaked} USDT
   Contract USDT balance: ${l.contractBalance} USDT
   Paused: ${l.paused ? "YES" : "no"}
-  Registered partners: ${l.partnerCount} (a fund rescue needs 3 of 5 votes plus a 48-hour delay)
+  Registered partners: ${l.partnerCount}. The voting body is the owner plus
+  registered partners, and a rescue needs 3 votes plus a 48-hour delay.
   Emergency withdrawal open: ${l.emergencyOpen ? "YES" : "no"}${
     l.partnerCount < 3
       ? `
@@ -176,7 +177,8 @@ PAGES
   Home /  ·  Dashboard /dashboard  ·  Exchange and funding /get-usdt
   Gold rewards /rewards  ·  Security model /security  ·  Governance /partners
   Activity /activity  ·  Portfolio /portfolio  ·  Dobrna game (in development) /dobrna
-  Telegram: https://t.me/arbhub_site  ·  Support: support@arbhub.site
+  Telegram: https://t.me/arbhub_site — the ONLY support channel. There is no
+  support email; any address claiming to be ours is an impersonator.
   Operating from Malaysia.
 `.trim();
 }

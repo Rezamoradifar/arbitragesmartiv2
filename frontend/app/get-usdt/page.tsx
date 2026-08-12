@@ -9,6 +9,7 @@ import { Icon } from "@/components/Icon";
 import { ERC20_ABI, COLLATERAL_ADDRESS } from "@/lib/contract";
 import { CopyButton } from "@/components/CopyButton";
 import { BuyWithCard } from "@/components/BuyWithCard";
+import { CONTACT_HREF } from "@/lib/contact";
 
 /**
  * Getting the right token onto the right chain is the single hardest step for
@@ -382,7 +383,7 @@ export default function GetUsdtPage() {
           <Link href="/dashboard" className="btn-primary">
             Go to the dashboard
           </Link>
-          <a href="mailto:support@arbhub.site" className="btn-secondary">
+          <a href={CONTACT_HREF} target="_blank" rel="noreferrer" className="btn-secondary">
             Stuck? Email support
           </a>
         </div>

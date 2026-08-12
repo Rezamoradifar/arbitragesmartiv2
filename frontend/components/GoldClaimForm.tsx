@@ -7,6 +7,7 @@ import { Alert, Row } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { useUserPosition } from "@/lib/hooks";
 import { formatAmount } from "@/lib/contract";
+import { CONTACT_HREF, CONTACT_LABEL, EMAIL_LIVE } from "@/lib/contact";
 
 /**
  * Claiming a physical gold bar.
@@ -237,8 +238,8 @@ export function GoldClaimForm() {
         <div className="glass glass-gold p-6 sm:p-8">
           <h3 className="font-display text-lg font-semibold text-white">4. Send it to us</h3>
           <p className="mt-1.5 text-sm leading-relaxed text-graphite-300">
-            Copy the block below and email it to support@arbhub.site, or use the button to open your
-            mail app with it already filled in.
+            Copy the block below and send it to us on Telegram at {CONTACT_LABEL}. Nothing is
+            transmitted from this page — you send it yourself, to a place you can see.
           </p>
 
           <pre className="mt-4 max-h-64 overflow-auto whitespace-pre-wrap rounded-xl border border-white/[.07] bg-white/[.02] p-4 text-[11px] leading-relaxed text-graphite-300">
@@ -257,20 +258,15 @@ export function GoldClaimForm() {
             >
               {copied ? "Copied" : "Copy the claim"}
             </button>
-            <a
-              className="btn-secondary"
-              href={`mailto:support@arbhub.site?subject=${encodeURIComponent(
-                `Gold reward claim — ${address}`,
-              )}&body=${encodeURIComponent(claim)}`}
-            >
-              Open in my mail app
+            <a className="btn-secondary" href={CONTACT_HREF} target="_blank" rel="noreferrer">
+              {EMAIL_LIVE ? "Open in my mail app" : "Open Telegram"}
             </a>
           </div>
 
           <p className="mt-5 text-xs leading-relaxed text-graphite-400">
-            We will reply from support@arbhub.site to arrange the shipment and to check your ID at
-            that point. We will never ask for a seed phrase, a private key, or a payment to release
-            a prize — anyone who does is not us.
+            We will reply from {CONTACT_LABEL} to arrange the shipment and to check your ID at that
+            point. We will never ask for a seed phrase, a private key, or a payment to release a
+            prize — anyone who does is not us.
           </p>
         </div>
       )}

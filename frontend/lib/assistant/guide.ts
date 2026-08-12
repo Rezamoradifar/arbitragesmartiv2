@@ -215,7 +215,9 @@ Read /security before you decide. It is written to include the parts that do not
       "agent", "email", "telegram", "who are you", "where are you", "complaint",
     ],
     answer: `Telegram: https://t.me/arbhub_site
-Email: support@arbhub.site
+
+That is the only way to reach us. There is no support email yet — anything
+claiming to be an ArbiSmart support address is not us.
 
 The operation is based in Malaysia. Support will never message you first and will never ask for a seed phrase.`,
   },

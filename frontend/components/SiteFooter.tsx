@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/NavBar";
 import { useT } from "@/components/LocaleProvider";
+import { CONTACT_HREF, CONTACT_LABEL, EMAIL_LIVE } from "@/lib/contact";
 
 const CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 
 /** Operating base, and the address users should write to. */
 const BASED_IN = "Malaysia";
-const CONTACT_EMAIL = "support@arbhub.site";
+
 
 const columns: Array<{ titleKey: "platform" | "trust" | "community"; links: Array<{ label: string; href: string; external?: boolean }> }> = [
   {
@@ -36,7 +37,7 @@ const columns: Array<{ titleKey: "platform" | "trust" | "community"; links: Arra
     titleKey: "community" as const,
     links: [
       { label: "Telegram", href: "https://t.me/arbhub_site", external: true },
-      { label: "Contact us", href: "mailto:support@arbhub.site", external: true },
+      { label: "Contact us", href: CONTACT_HREF, external: true },
       { label: "Blockscout", href: `https://polygon.blockscout.com/address/${CONTRACT}?tab=contract`, external: true },
     ],
   },
@@ -67,14 +68,22 @@ export function SiteFooter() {
               {t.footer.operatingFrom}
             </p>
             <a
-              href={`mailto:${CONTACT_EMAIL}`}
+              href={CONTACT_HREF}
+              target={EMAIL_LIVE ? undefined : "_blank"}
+              rel={EMAIL_LIVE ? undefined : "noreferrer"}
               className="mt-2 inline-flex items-center gap-2 text-sm text-graphite-300 transition hover:text-gold-300"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-                <rect x="2.5" y="4.5" width="19" height="15" rx="2.4" />
-                <path d="m3 6 9 7 9-7" />
-              </svg>
-              {CONTACT_EMAIL}
+              {EMAIL_LIVE ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                  <rect x="2.5" y="4.5" width="19" height="15" rx="2.4" />
+                  <path d="m3 6 9 7 9-7" />
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                  <path d="m21.9 4.3-3.1 14.6c-.2 1-.9 1.3-1.7.8l-4.7-3.5-2.3 2.2c-.3.3-.5.5-.9.5l.3-4.7 8.6-7.8c.4-.3-.1-.5-.6-.2L6.9 12.9l-4.6-1.4c-1-.3-1-1 .2-1.5l18-6.9c.8-.3 1.6.2 1.4 1.2z" />
+                </svg>
+              )}
+              {CONTACT_LABEL}
             </a>
           </div>
 

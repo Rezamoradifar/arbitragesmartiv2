@@ -4,6 +4,7 @@ import { Icon } from "@/components/Icon";
 import { EcosystemVisual } from "@/components/visuals/FeatureVisuals";
 import { VisualFrame } from "@/components/visuals/primitives";
 import { REFERRAL_LEVELS } from "@/lib/contract";
+import { CONTACT_HREF } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Gold rewards",
@@ -142,7 +143,7 @@ export default function RewardsPage() {
           <a href="https://t.me/arbhub_site" target="_blank" rel="noreferrer" className="btn-primary">
             Get told when it opens
           </a>
-          <a href="mailto:support@arbhub.site" className="btn-secondary">
+          <a href={CONTACT_HREF} target="_blank" rel="noreferrer" className="btn-secondary">
             Ask a question
           </a>
         </div>
@@ -355,7 +356,7 @@ export default function RewardsPage() {
           <Link href="/rewards/claim" className="btn-secondary">
             Claim a reward
           </Link>
-          <a href="mailto:support@arbhub.site" className="btn-secondary">
+          <a href={CONTACT_HREF} target="_blank" rel="noreferrer" className="btn-secondary">
             Ask a question
           </a>
         </div>

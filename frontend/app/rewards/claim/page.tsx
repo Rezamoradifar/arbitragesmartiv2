@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { GoldClaimForm } from "@/components/GoldClaimForm";
 import { Icon } from "@/components/Icon";
+import { CONTACT_LABEL } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Claim a gold reward",
@@ -60,7 +61,7 @@ export default function ClaimPage() {
         <h2 className="font-display text-lg font-semibold text-white">If someone else asks you for this</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-graphite-300">
           This page, at arbhub.site, is the only place we ever collect delivery details, and
-          support@arbhub.site is the only address we reply from. We will never ask for a seed
+          {" "}{CONTACT_LABEL} on Telegram is the only place we reply from. We will never ask for a seed
           phrase, a private key, or a fee to release a prize. A prize that requires a payment first
           is not a prize, and it is not us.
         </p>

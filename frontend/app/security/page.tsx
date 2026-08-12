@@ -3,6 +3,7 @@ import { GovernanceSnapshot } from "@/components/GovernanceSnapshot";
 import { SecurityVisual, VerificationVisual } from "@/components/visuals/FeatureVisuals";
 import { VisualFrame } from "@/components/visuals/primitives";
 import { Icon } from "@/components/Icon";
+import { EMAIL_LIVE, SECURITY_EMAIL as SECURITY_ADDRESS, TELEGRAM_HANDLE, TELEGRAM_URL } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Security",
@@ -12,9 +13,16 @@ export const metadata: Metadata = {
 
 const CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "";
 
-/** Where vulnerability reports go. On the project's own domain, so a
- *  researcher can tell it apart from someone impersonating the project. */
-const SECURITY_EMAIL = "security@arbhub.site";
+/*
+ * Where a vulnerability report should go.
+ *
+ * A researcher will expect an address. There is no mailbox on the domain yet,
+ * and a bounced disclosure is the worst possible outcome here — the finder
+ * concludes nobody is listening and their next move is public. So the page
+ * offers the channel that actually receives messages until the mailbox exists.
+ */
+const REPORT_HREF = EMAIL_LIVE ? `mailto:${SECURITY_ADDRESS}` : TELEGRAM_URL;
+const REPORT_LABEL = EMAIL_LIVE ? SECURITY_ADDRESS : TELEGRAM_HANDLE;
 
 const canDo = [
   {
@@ -283,12 +291,14 @@ export default function SecurityPage() {
         <div className="glass mt-4 p-5 sm:p-6">
           <h3 className="font-display font-semibold text-white">How to report</h3>
           <p className="mt-2.5 text-sm leading-relaxed text-graphite-300">
-            Email{" "}
+            {EMAIL_LIVE ? "Email" : "Message us on Telegram at"}{" "}
             <a
               className="text-gold-300 underline underline-offset-2 hover:text-gold-200"
-              href={`mailto:${SECURITY_EMAIL}`}
+              href={REPORT_HREF}
+              target={EMAIL_LIVE ? undefined : "_blank"}
+              rel={EMAIL_LIVE ? undefined : "noreferrer"}
             >
-              {SECURITY_EMAIL}
+              {REPORT_LABEL}
             </a>{" "}
             with a description and, if you can, a proof of concept against a fork rather than
             mainnet. Tell us privately first. Posting it publicly or exploiting it on-chain before a
