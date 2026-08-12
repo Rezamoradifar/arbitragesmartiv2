@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { StrategyTruth } from "@/components/StrategyTruth";
+import { TheArithmetic } from "@/components/TheArithmetic";
 import { Icon } from "@/components/Icon";
 
 export const metadata: Metadata = {
@@ -39,6 +40,18 @@ export default function StrategyPage() {
 
       {/* --------------------------------------------------- live figures */}
       <StrategyTruth />
+
+      {/* ------------------------------------------------- the arithmetic */}
+      <section>
+        <h2 className="h-section">The arithmetic, in full</h2>
+        <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-graphite-300">
+          Anyone can work this out from the rates and fees we publish. Doing it here first, with the
+          live figures, is the only version of this page that is worth reading.
+        </p>
+        <div className="mt-8">
+          <TheArithmetic />
+        </div>
+      </section>
 
       {/* ------------------------------------------------ what it can do */}
       <section>
