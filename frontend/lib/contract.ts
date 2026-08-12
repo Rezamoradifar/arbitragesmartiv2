@@ -92,7 +92,19 @@ export const REFERRAL_LEVELS = [
   },
 ] as const;
 
-/** Early-exit penalty schedule, mirroring PENALTY_W1..PENALTY_AF. */
+/**
+ * Early-exit penalty schedule, mirroring PENALTY_W1..PENALTY_AF.
+ *
+ * THESE ARE PERCENTAGES OF PRINCIPAL, NOT OF YIELD.
+ *
+ * earlyExit computes `penalty = backed * bps / 10_000` where `backed` is the
+ * recorded stake, and returns `backed - penalty`. Accrued but unclaimed yield
+ * is separately lost — the function pays none of it out. So exiting a 900 USDT
+ * position in week 1 returns 450 USDT and forfeits the yield on top.
+ *
+ * Measured, not inferred: test/EarlyExitAmount.t.sol stakes 1,000, exits at
+ * three days, and asserts the wallet receives exactly 450.
+ */
 export const PENALTY_SCHEDULE = [
   { label: "Week 1", bps: 5000 },
   { label: "Week 2", bps: 4000 },

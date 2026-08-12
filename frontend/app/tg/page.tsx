@@ -419,8 +419,9 @@ function Safety() {
         <h2 className="font-display text-base font-semibold text-white">You can always leave</h2>
         <p className="mt-1.5 text-xs leading-relaxed text-graphite-300">
           Early exit is open at every moment, including while the protocol is paused and including
-          if your address has been blacklisted. It costs a share of accrued yield, and your
-          principal is never part of that calculation.
+          if your address has been blacklisted. It costs a percentage of your
+          principal — 50% in week 1, falling to 10% from week 5 — and any unclaimed yield is lost
+          on top.
         </p>
         <div className="mt-3 flex gap-1.5">
           {PENALTY_SCHEDULE.map((p) => (

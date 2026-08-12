@@ -88,8 +88,8 @@ const limitations = [
     body: "The daily rates are settings in the contract, not a return the project has shown it can sustain. Yield is simple rather than compounded, and paying it depends on how the strategy performs and on money coming in.",
   },
   {
-    title: "Blacklisting can cost you accrued yield",
-    body: "You can always get your principal back, but a blocked address cannot claim yield it has already earned.",
+    title: "Early exit is charged on principal, not on yield",
+    body: "Leaving is always possible and needs nobody's approval, but it is not free: the penalty comes off the stake itself — 50% in week 1, settling at 10% from week 5 — and unclaimed yield is lost on top. There is no penalty-free withdrawal even after the term ends. A blacklisted address can still exit, but cannot claim yield it has already earned.",
   },
 ];
 

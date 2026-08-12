@@ -44,7 +44,7 @@ const feeLines = [...DEPOSIT_FEE_BANDS]
   .map((b) => (b.from === 0 ? `• under 500 USDT — ${pct(b.bps)}` : `• ${b.from} USDT and above — ${pct(b.bps)}`))
   .join("\n");
 
-const penaltyLines = PENALTY_SCHEDULE.map((p) => `• ${p.label} — ${pct(p.bps)} of the accrued yield`).join("\n");
+const penaltyLines = PENALTY_SCHEDULE.map((p) => `• ${p.label} — you lose ${pct(p.bps)} of your principal`).join("\n");
 
 const tierLines = REFERRAL_LEVELS.map((r) =>
   r.level === 0
@@ -106,11 +106,13 @@ These are settings compiled into the contract, not a forecast. What the contract
       "exit", "leave", "early", "withdraw", "withdrawal", "unstake", "penalty", "cancel",
       "money back", "my money", "quit", "stop", "take it out", "get out",
     ],
-    answer: `Exit is open at all times — while paused, and even for a blacklisted address. Your principal is never touched by the penalty. What you forfeit is a share of the yield you have accrued:
+    answer: `Exit is open at all times — while paused, and even for a blacklisted address, and nobody has to approve it. But it is expensive early, and the penalty comes out of your PRINCIPAL, not out of your yield:
 
 ${penaltyLines}
 
-Unclaimed yield is lost on exit, so claim first, then exit. That order matters and the interface will not do it for you.`,
+Those are percentages of your recorded stake. Exiting a 900 USDT position in week 1 returns 450 USDT. Any yield you have not claimed is lost on top of that, so claim before you exit — but claiming does not reduce the penalty on the principal.
+
+There is no penalty-free withdrawal at the end of the term either: after the term ends, yield stops accruing and exit still charges the week 5+ rate of 10%.`,
   },
   {
     id: "claim",
@@ -154,7 +156,9 @@ You need very little, well under a dollar's worth for many transactions. The Exc
     id: "safety",
     question: "Can you take my money?",
     keywords: ["safe", "safety", "secure", "security", "rug", "scam", "trust", "audit", "risk", "owner", "admin", "steal", "custody"],
-    answer: `Not the principal, no. Exit is permissionless and open at all times, including while the contract is paused, so withdrawal does not depend on us being cooperative or even present.
+    answer: `We cannot take it — there is no function that sends staked principal to an owner wallet, and exit is permissionless and open at all times, so withdrawing does not depend on us being cooperative or even present.
+
+But you can lose principal to the early-exit penalty, which is charged on the stake itself: 50% in week 1, down to 10% from week 5. That is a real way to end up with less than you put in, and it is worth knowing before you deposit rather than after.
 
 What you should weigh instead: the yield is paid from what the contract holds, so it depends on the strategy performing and on the contract being funded. That is a real risk and no code removes it.
 
@@ -203,7 +207,7 @@ Only two things are ours: this site at arbhub.site, and @arbhub_site on Telegram
     ],
     answer: `That is your decision and I will not push it either way — not how much, not whether.
 
-What should inform it: the rate is a setting compiled into a contract, not a forecast; the yield is paid from what the contract holds, so it depends on the strategy performing; your principal is never taken by a penalty and exit is open at all times; and the entry and claim fees are real money off the top.
+What should inform it: the rate is a setting compiled into a contract, not a forecast; the yield is paid from what the contract holds, so it depends on the strategy performing; exit is open at all times but the early-exit penalty is charged on principal, not on yield; and the entry and claim fees are real money off the top.
 
 Read /security before you decide. It is written to include the parts that do not flatter us.`,
   },

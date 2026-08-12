@@ -181,12 +181,14 @@ export function DepositCalculator() {
               If you exit early
             </p>
             <p className="mt-2 text-xs leading-relaxed text-graphite-400">
-              Your {formatAmount(netStake)} USDT principal comes back in full at any time. What you
-              forfeit is a share of the yield accrued by then:
+              Exit is open at any time and needs nobody&apos;s approval, but it is not free. The
+              penalty comes off your{" "}
+              <span className="text-graphite-200">{formatAmount(netStake)} USDT principal</span>,
+              and any yield you have not already claimed is lost on top of it:
             </p>
             <div className="mt-3 space-y-1">
               {PENALTY_SCHEDULE.map((p) => (
-                <Row key={p.label} label={p.label} value={`${p.bps / 100}% of accrued yield`} />
+                <Row key={p.label} label={p.label} value={`−${p.bps / 100}% of principal · you get ${formatAmount((netStake * BigInt(10_000 - p.bps)) / 10_000n)} USDT`} />
               ))}
             </div>
           </div>

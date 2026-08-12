@@ -128,10 +128,14 @@ MINIMUM DEPOSIT
   the smallest deposit that works is ${minGross.toFixed(2)} USDT. Sending
   exactly 10 is rejected. Maximum stake is 25,000 USDT.
 
-EARLY EXIT (share of ACCRUED YIELD forfeited; principal is never touched)
+EARLY EXIT (percentage of PRINCIPAL forfeited — NOT of yield)
 ${penalties}
-  Exit is open at all times, including while paused and including for a
-  blacklisted address. Unclaimed yield is lost on exit, so claim first.
+  These come off the recorded stake itself. A 900 USDT position exited in
+  week 1 returns 450 USDT. Unclaimed yield is lost on top, so claim first —
+  but claiming does not reduce the penalty on the principal.
+  Exit is open at all times, including while paused and for a blacklisted
+  address. There is NO penalty-free withdrawal at the end of the term: yield
+  stops accruing and exit still charges the week 5+ rate of 10%.
 
 REFERRALS (three levels, deducted from the team member's claim, not their principal)
 ${tiers}
