@@ -440,7 +440,7 @@ function Safety() {
           <li>· Withdraw principal to a wallet. No such function exists, at any size, under any name.</li>
           <li>· Spend collected fees as if they were pool capital.</li>
           <li>· Raise the fee after you have deposited.</li>
-          <li>· Move funds without three of five partner votes and a 48-hour delay.</li>
+          <li>· Move pooled funds without three partner votes and a 48-hour delay.</li>
         </ul>
       </Card>
 

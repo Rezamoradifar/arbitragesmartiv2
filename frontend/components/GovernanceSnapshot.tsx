@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useGovernance, useProtocol } from "@/lib/hooks";
-import { AddressLink, Badge, Progress, Skeleton } from "@/components/ui";
+import { Alert, AddressLink, Badge, Progress, Skeleton } from "@/components/ui";
 import { formatAmount } from "@/lib/contract";
 
 export function GovernanceSnapshot() {
@@ -10,6 +10,7 @@ export function GovernanceSnapshot() {
   const protocol = useProtocol();
 
   const required = Number(gov.requiredVotes ?? 3n);
+  const voterCount = gov.voters.length;
   const emergencyVotes = Number(gov.emergencyVoteCount ?? 0n);
   const rescueVotes = Number(gov.rescueVoteCount ?? 0n);
 
@@ -30,6 +31,30 @@ export function GovernanceSnapshot() {
           <Badge tone="good">Operating normally</Badge>
         )}
       </div>
+
+      {/*
+        A voting body smaller than the quorum cannot ever reach it, which means
+        the protections described everywhere else on this page are not in place
+        yet. Stating that where the numbers are shown is the only version of
+        this page that is true today, and it corrects itself the moment enough
+        partners are registered rather than needing anyone to remember.
+      */}
+      {!gov.isLoading && voterCount < required && (
+        <div className="mb-6">
+          <Alert
+            tone="warn"
+            title={`Quorum cannot currently be reached — ${voterCount} ${
+              voterCount === 1 ? "voter" : "voters"
+            } against ${required} required`}
+          >
+            The voting body is the owner plus registered partners, and{" "}
+            {gov.partnerCount !== undefined ? Number(gov.partnerCount) : 0} partners are registered.
+            Until at least {required} voters exist, neither an emergency freeze nor a fund rescue
+            can pass — including the ones that exist to check the owner. This is read from the
+            contract, so it disappears on its own once the registry is filled.
+          </Alert>
+        </div>
+      )}
 
       {gov.isLoading ? (
         <Skeleton className="h-24 w-full" />

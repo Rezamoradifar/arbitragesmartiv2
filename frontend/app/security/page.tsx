@@ -58,11 +58,11 @@ const cannotDo = [
   },
   {
     title: "Sweep funds without partners and a delay",
-    body: "A fund rescue needs three of five votes and then a 48-hour wait enforced on-chain. While any vote is outstanding, the destination address cannot be changed.",
+    body: "A fund rescue needs three votes from the body of the owner plus registered partners, and then a 48-hour wait enforced on-chain. While any vote is outstanding, the destination address cannot be changed.",
   },
   {
     title: "Override a partner vote",
-    body: "The owner has one vote out of five. They cannot unpause their way out of emergency mode, and they cannot add or remove partners while a vote is running.",
+    body: "The owner holds one vote in that body and cannot outvote it. They cannot unpause their way out of emergency mode, and they cannot add or remove partners while a vote is running.",
   },
 ];
 
@@ -194,7 +194,7 @@ export default function SecurityPage() {
               {
                 day: "Hour 0",
                 title: "Quorum reached",
-                body: "Three of five have voted. The protocol pauses straight away and no new capital goes into the strategy.",
+                body: "Three votes have been cast. The protocol pauses straight away and no new capital goes into the strategy.",
               },
               {
                 day: "Hour 12",
