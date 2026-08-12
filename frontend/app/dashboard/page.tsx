@@ -96,7 +96,7 @@ function Dashboard() {
           ) : (
             <StakeCard user={user} protocol={protocol} onDone={refreshAll} />
           )}
-          {user.active && <ManagePosition user={user} onDone={refreshAll} />}
+          {user.active && <ManagePosition user={user} protocol={protocol} onDone={refreshAll} />}
           <ReferralTeam />
         </div>
 
@@ -883,9 +883,11 @@ function formatUnitsPlain(value: bigint | undefined): string {
 
 function ManagePosition({
   user,
+  protocol,
   onDone,
 }: {
   user: ReturnType<typeof useUserPosition>;
+  protocol: ReturnType<typeof useProtocol>;
   onDone: () => void;
 }) {
   const [topUp, setTopUp] = useState("100");
@@ -907,22 +909,53 @@ function ManagePosition({
   const eligiblePlan = planForAmount(user.amount ?? 0n);
   const canUpgrade = eligiblePlan > currentPlan;
 
-  if (user.freeStake) {
-    return (
-      <Section title="Manage position">
-        <Alert tone="neutral" title="Free-period positions cannot be topped up or upgraded">
-          Exit this position and open a regular stake to access the paid tiers.
-        </Alert>
-      </Section>
-    );
-  }
+  /*
+   * A free position is not a dead end.
+   *
+   * This panel used to tell free-stake holders that they could neither top up
+   * nor upgrade, and to exit and start again. Both halves were wrong and the
+   * advice was harmful: topUp explicitly accepts free positions — V4 opened
+   * that door precisely because V3 stranding its giveaway users was the
+   * problem — and exiting throws the giveaway away for nothing.
+   *
+   * It also hid the thing that matters most to them. A free position accrues
+   * yield but cannot CLAIM any of it until the holder has deposited real
+   * collateral, so a free user who is never shown this panel watches a balance
+   * grow that they can never touch, with no explanation anywhere.
+   */
+  const activationTarget = protocol.minActivationDeposit ?? MIN_STAKE_UNITS;
+  const depositedSoFar = user.grossDeposited ?? 0n;
+  const activated = depositedSoFar >= activationTarget;
+  const stillNeeded = activated ? 0n : activationTarget - depositedSoFar;
 
   return (
     <Section
       title="Manage position"
-      description="Add funds to grow your position and unlock higher tiers."
+      description={
+        user.freeStake && !activated
+          ? "Your free position earns from the day it was issued, but claiming needs a real deposit first."
+          : "Add funds to grow your position and unlock higher tiers."
+      }
     >
       <div className="space-y-5">
+        {user.freeStake && !activated && (
+          <Alert
+            tone="warn"
+            title={`Deposit ${formatAmount(stillNeeded, 2)} USDT more to unlock claiming`}
+          >
+            Your free stake earns from the day it was issued, but the contract will not release
+            yield to a position that has never held real collateral — a giveaway is not a
+            withdrawal facility. Top up here and the accrued yield becomes claimable; the free
+            principal itself stays walled off and is never withdrawable. You do not lose it by
+            funding the position, and you do lose it by exiting.
+          </Alert>
+        )}
+        {user.freeStake && activated && (
+          <Alert tone="good" title="Your free position is funded and claiming is open">
+            The free principal remains separate and is not withdrawable, but everything you have
+            deposited on top of it, and all the yield, behaves like any other position.
+          </Alert>
+        )}
         <div>
           <label className="label" htmlFor="topup">
             Top up (USDT)
