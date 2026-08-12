@@ -67,6 +67,20 @@ cd "$APP_DIR/frontend"
 # Written as a loop rather than `[ -n x ] && VAR=...` lines: under `set -e` a
 # false test at the end of such a line exits non-zero and kills the script, so
 # not overriding anything would abort the deploy.
+#
+# .env.local is not only used for public overrides. It is also the only place
+# the assistant's API key can live, because that key is a real credential and
+# .env.production is committed. Removing the file wholesale to clear a stale
+# public override therefore also deletes the key — and nothing fails: the
+# build succeeds, the site serves, and the assistant silently drops to its
+# offline written-guide fallback until somebody notices it stopped answering
+# free-form questions. So anything that is not a NEXT_PUBLIC_ key this script
+# manages is read out first and written back.
+PRESERVED=""
+if [ -f .env.local ]; then
+  PRESERVED="$(grep -v '^NEXT_PUBLIC_' .env.local || true)"
+fi
+
 OVERRIDES=""
 for pair in \
   "APP_URL:NEXT_PUBLIC_APP_URL" \
@@ -83,17 +97,26 @@ do
   fi
 done
 
-if [ -n "$OVERRIDES" ]; then
-  say "Writing .env.local with your overrides"
-  printf '%s' "$OVERRIDES" > .env.local
-  chmod 600 .env.local
-  cat .env.local
-else
-  if [ -f .env.local ]; then
-    say "Removing stale .env.local so .env.production is what ships"
-    rm -f .env.local
+if [ -n "$OVERRIDES" ] || [ -n "$PRESERVED" ]; then
+  if [ -n "$OVERRIDES" ]; then
+    say "Writing .env.local with your overrides"
+  else
+    say "Rewriting .env.local — clearing stale public overrides, keeping secrets"
   fi
+  { [ -n "$PRESERVED" ] && printf '%s\n' "$PRESERVED"; printf '%s' "$OVERRIDES"; } > .env.local
+  chmod 600 .env.local
+  # Values are masked: this file holds the assistant's API key, and deploy
+  # output ends up in scrollback, CI logs and screenshots.
+  sed -E 's/=.*/=<set>/' .env.local | sed 's/^/  /'
+else
   say "Using committed .env.production"
+fi
+
+# The assistant needs a key to answer anything beyond its written topics.
+# Saying so here is the difference between a deliberate choice and a silent
+# regression nobody spots for a month.
+if ! grep -q '^ASSISTANT_API_KEY=' .env.local 2>/dev/null && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+  say "NOTE: no ASSISTANT_API_KEY in .env.local — the assistant will answer only from its written topics."
 fi
 
 # Print what the build will actually use, so a wrong address is visible here
