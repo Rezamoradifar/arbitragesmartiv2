@@ -17,6 +17,7 @@ import {
   StatCard,
 } from "@/components/ui";
 import { Icon } from "@/components/Icon";
+import { DepositGate } from "@/components/DepositGate";
 import { HeroVisual } from "@/components/visuals/HeroVisual";
 import {
   useProtocol,
@@ -101,7 +102,9 @@ function Dashboard() {
           {user.active ? (
             <PositionCard user={user} />
           ) : (
-            <StakeCard user={user} protocol={protocol} onDone={refreshAll} />
+            <DepositGate>
+              <StakeCard user={user} protocol={protocol} onDone={refreshAll} />
+            </DepositGate>
           )}
           {user.active && <ManagePosition user={user} protocol={protocol} onDone={refreshAll} />}
           <ReferralTeam />
