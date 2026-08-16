@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui";
 import { PENALTY_SCHEDULE, PLANS, REFERRAL_DEDUCTION_MAX_BPS } from "@/lib/contract";
 
 /**
@@ -22,7 +23,7 @@ import { PENALTY_SCHEDULE, PLANS, REFERRAL_DEDUCTION_MAX_BPS } from "@/lib/contr
  * boxes rather than one blanket "I agree" because a single checkbox is
  * clicked without reading and everyone involved knows it.
  *
- * The point is not paperwork. Someone who reads these four lines and still
+ * The point is not paperwork. Someone who reads these five lines and still
  * deposits has made a decision; someone who was shown a rate and a button has
  * not, and is the person who later says they were not told.
  */
@@ -94,13 +95,17 @@ export function DepositGate({ children }: { children: React.ReactNode }) {
     setUnlocked(true);
   }
 
-  if (!ready) return null;
+  // Whether the gate has already been passed is only knowable on the client,
+  // so the first paint cannot know which of the two to show. A skeleton holds
+  // the space rather than collapsing it — returning null here dropped the card
+  // out of the layout for a frame and everything below it jumped.
+  if (!ready) return <Skeleton className="h-72 w-full rounded-2xl" />;
   if (unlocked) return <>{children}</>;
 
   return (
     <div className="glass p-6 sm:p-8">
       <h3 className="font-display text-lg font-semibold text-white">
-        Before you deposit, four things the rate does not tell you
+        Before you deposit, five things the rate does not tell you
       </h3>
       <p className="mt-2 max-w-prose text-sm leading-relaxed text-graphite-300">
         Every one of these is in the contract and verifiable on-chain. Read them, then tick each
