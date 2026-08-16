@@ -128,6 +128,8 @@ export function LiveStats() {
           liquid={p.balance}
           deployedPct={deployedPct}
           staked={p.totalStaked}
+          paidOut={p.totalPaidOut}
+          realizedProfit={p.arbitrageProfit}
         />
         <BalanceSheet p={p} />
       </div>
@@ -146,12 +148,16 @@ function StrategyCapacity({
   liquid,
   deployedPct,
   staked,
+  paidOut,
+  realizedProfit,
 }: {
   deployed: bigint;
   ceiling?: bigint;
   liquid?: bigint;
   deployedPct: number;
   staked?: bigint;
+  paidOut?: bigint;
+  realizedProfit?: bigint;
 }) {
   /*
    * Coverage: what the contract holds against what it owes stakers.
@@ -167,6 +173,29 @@ function StrategyCapacity({
   const held = (liquid ?? 0n) + deployed;
   const coverage = owed > 0n ? Number((held * 10000n) / owed) / 100 : null;
   const fullyCovered = coverage !== null && coverage >= 100;
+
+  /*
+   * A red bar with no figure beside it is worse than the number it is hiding.
+   * "Holds less than it owes" could mean a dollar or half the pool, so a
+   * reader supplies the worst case — and the gap here has a precise size and
+   * a precise cause, both of which are less alarming than the guess.
+   *
+   * The cause is not a mystery to be investigated: yield has been claimed
+   * while realized strategy profit is zero, so it was paid out of deposited
+   * capital. There is nowhere else it could have come from. Saying that
+   * plainly is the difference between a warning and an accusation the reader
+   * makes on our behalf.
+   *
+   * `totalStaked` counts funded stake only — `stake()` runs
+   * `if (!free) totalStaked += amount`, so launch giveaways are never in this
+   * figure and the gap is real money, not an accounting artefact.
+   */
+  const shortfall = owed > held ? owed - held : 0n;
+  const yieldPaid = paidOut ?? 0n;
+  const profit = realizedProfit ?? 0n;
+  // Only claim the gap IS the paid-out yield when the arithmetic actually
+  // says so; otherwise state both figures and let them speak.
+  const gapIsPaidYield = shortfall > 0n && profit === 0n && yieldPaid >= shortfall;
 
   return (
     <div className="glass p-5 sm:p-6">
@@ -232,10 +261,31 @@ function StrategyCapacity({
               <dd className="tabular-nums text-graphite-200">{formatAmount(owed)} USDT</dd>
             </div>
           </dl>
+          {!fullyCovered && shortfall > 0n && (
+            <div className="mt-2 flex justify-between border-t border-white/[.06] pt-2 text-xs">
+              <dt className="font-semibold text-danger-400">Short by</dt>
+              <dd className="tabular-nums font-semibold text-danger-400">
+                {formatAmount(shortfall)} USDT
+              </dd>
+            </div>
+          )}
+
           <p className="mt-3 text-xs leading-relaxed text-graphite-400">
-            {fullyCovered
-              ? "Every dollar of principal is backed right now. Read from the contract at this block, not from a report — check it yourself on Polygonscan."
-              : "The contract currently holds less than the principal it owes. This is shown rather than hidden; ask us about it before depositing."}
+            {fullyCovered ? (
+              "Every dollar of principal is backed right now. Read from the contract at this block, not from a report — check it yourself on Polygonscan."
+            ) : gapIsPaidYield ? (
+              <>
+                <span className="text-graphite-200">Where the gap came from:</span>{" "}
+                {formatAmount(yieldPaid)} USDT has been claimed as yield while realized strategy
+                profit is <span className="text-graphite-200">zero</span> — so it was paid out of
+                deposited capital, because there was nowhere else for it to come from. That is this
+                gap. It is not a loss, a fee or a withdrawal by anyone; it is yield paid before
+                anything earned it. Sending {formatAmount(shortfall)} USDT to the contract restores
+                full coverage, and this figure is read live, so it would say so.
+              </>
+            ) : (
+              "The contract currently holds less than the principal it owes. This is shown rather than hidden; ask us about it before depositing."
+            )}
           </p>
         </div>
       )}
