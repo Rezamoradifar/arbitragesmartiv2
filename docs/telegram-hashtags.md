@@ -44,6 +44,19 @@ English only, matching the channel.
 Never invent one for a single post. If a subject is worth a tag it is worth
 adding to the table above first.
 
+## Language
+
+**Every post is written in English.** The tag line already said "English only,
+matching the channel", which assumed a channel language that was never written
+down — and posts went out in Persian on that ambiguity. So it is stated here
+plainly: body text, headings and captions are English, on every post, without
+being asked each time.
+
+Persian material still exists and still gets shared — the full guide is a
+Persian PDF and is linked from the channel. A translated document sent as an
+attachment is a different thing from the channel's own voice, and only the
+second one is fixed to English.
+
 ## Placement note
 
 A photo caption caps at 1024 characters and a text post at 4096. When the body
