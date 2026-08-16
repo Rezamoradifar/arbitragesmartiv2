@@ -52,6 +52,22 @@ export function HeroCopy() {
           </span>
         ))}
       </div>
+
+      {/*
+        The headline says what this is built to do. The strategy is not
+        trading yet, and the live panel a screen below reports realized
+        profit as zero — so without this line the two contradict each other
+        within one scroll, and the visitor decides which one is the lie.
+        Saying it here first costs a claim and buys the only thing that makes
+        the rest of the page worth reading.
+      */}
+      <p className="mt-6 max-w-xl animate-fade-in animate-delay-700 text-xs leading-relaxed text-graphite-500">
+        The strategy is not trading yet — realized profit is 0, and today&apos;s yield is paid from
+        capital, not from earnings.{" "}
+        <Link href="/strategy" className="text-gold-400 underline underline-offset-2 hover:text-gold-300">
+          Why, and the arithmetic behind it
+        </Link>
+      </p>
     </div>
   );
 }
