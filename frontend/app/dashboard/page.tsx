@@ -645,7 +645,15 @@ function StakeCard({
                 <button
                   key={p.name}
                   type="button"
-                  onClick={() => setAmount(String(p.minStake))}
+                  // A plan's threshold is a NET figure — what the contract must
+                  // record — not a gross figure to send. Filling the field with
+                  // `p.minStake` directly sent 500 for "Growth", which nets to
+                  // 450 after the fee and lands the deposit on Starter: the
+                  // button's own name became false the moment it was clicked.
+                  // grossForNet solves the fee band for the amount that actually
+                  // clears this tier, which is the same figure the warning below
+                  // already recommends when a typed amount falls short.
+                  onClick={() => setAmount(grossForNet(p.minStake).toFixed(2))}
                   className="rounded-lg border border-white/10 px-2.5 py-1 text-graphite-300 transition hover:border-gold-400/40 hover:text-gold-300"
                 >
                   {p.name}
