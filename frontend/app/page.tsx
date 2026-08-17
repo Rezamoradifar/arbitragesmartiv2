@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LiveStats } from "@/components/LiveStats";
 import { DepositCalculator } from "@/components/DepositCalculator";
 import { PolymarketMarkets } from "@/components/PolymarketMarkets";
+import { ArbitrageScanner } from "@/components/ArbitrageScanner";
 import { HeroVisual } from "@/components/visuals/HeroVisual";
 import { HeroCopy } from "@/components/HeroCopy";
 import {
@@ -264,6 +265,11 @@ export default function Home() {
             </div>
           </Reveal>
         ))}
+      </section>
+
+      {/* ============ ARBITRAGE SCANNER ============ */}
+      <section className="container-page py-20">
+        <ArbitrageScanner />
       </section>
 
       {/* ============ LIVE MARKET DATA ============ */}

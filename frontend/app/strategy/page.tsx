@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { StrategyTruth } from "@/components/StrategyTruth";
 import { TheArithmetic } from "@/components/TheArithmetic";
+import { ArbitrageScanner } from "@/components/ArbitrageScanner";
 import { Icon } from "@/components/Icon";
 
 export const metadata: Metadata = {
@@ -40,6 +41,9 @@ export default function StrategyPage() {
 
       {/* --------------------------------------------------- live figures */}
       <StrategyTruth />
+
+      {/* ------------------------------------------------- the scanner */}
+      <ArbitrageScanner />
 
       {/* ------------------------------------------------- the arithmetic */}
       <section>
