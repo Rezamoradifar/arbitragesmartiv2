@@ -126,14 +126,27 @@ say "Effective configuration"
 # and must not abort the deploy under `set -e`.
 grep -E '^NEXT_PUBLIC_' .env.local .env.production 2>/dev/null | sed 's/^/  /' || true
 
-# --- 4. Build -------------------------------------------------------------
+# --- 4. Seed the arbitrage scanner -----------------------------------------
+#
+# Has to run BEFORE the PM2 (re)start, not after — the first real deploy ran
+# it last, and the file it wrote 404'd until the process was restarted, even
+# though it was sitting right there in public/ the whole time. Writing it
+# here means the restart a few steps down is the only restart needed, and
+# the site is correct from the moment it comes back up. Updates the cron job
+# makes later, to a path already served once, do not need this — only a
+# brand-new path seems to.
+say "Running the arbitrage scanner once, to seed the site with a real number"
+( cd "$APP_DIR/bot" && node publish-scan.mjs ) || \
+  echo "  scan failed this time (usually a transient network error) — the cron job later will retry"
+
+# --- 5. Build -------------------------------------------------------------
 say "Installing dependencies"
 npm install --no-audit --no-fund
 
 say "Building"
 npm run build
 
-# --- 5. PM2 ---------------------------------------------------------------
+# --- 6. PM2 ---------------------------------------------------------------
 command -v pm2 >/dev/null 2>&1 || sudo npm install -g pm2
 
 say "Writing ecosystem.config.js for port $PORT"
@@ -160,7 +173,7 @@ pm2 save --force
 say "Run the command pm2 prints below once, so the app survives reboots:"
 pm2 startup | tail -2 || true
 
-# --- 6. nginx -------------------------------------------------------------
+# --- 7. nginx -------------------------------------------------------------
 command -v nginx >/dev/null 2>&1 || sudo apt-get install -y nginx
 
 say "Configuring nginx for $DOMAIN"
@@ -189,7 +202,7 @@ sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl reload nginx
 
-# --- 7. TLS ---------------------------------------------------------------
+# --- 8. TLS ---------------------------------------------------------------
 say "Checking DNS before requesting a certificate"
 RESOLVED="$(getent hosts "$DOMAIN" | awk '{print $1}' | head -1 || true)"
 MYIP="$(curl -fsS --max-time 10 https://api.ipify.org || echo unknown)"
@@ -217,22 +230,20 @@ else
     echo "certbot failed — re-run manually: sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN"
 fi
 
-# --- 8. Arbitrage scanner --------------------------------------------------
+# --- 9. Arbitrage scanner on a timer ----------------------------------------
 #
 # The scanner in bot/ is read-only and holds no keys — it cannot place an
-# order, only read Polymarket's order books and count what it finds. Next
-# serves anything under frontend/public/ as a static file with no rebuild, so
-# a cron job writing there is enough; the running site picks it up on its next
-# fetch, no restart needed.
+# order, only read Polymarket's order books and count what it finds. The
+# first number is already seeded, in step 4, before the app started; this
+# just keeps it current on a 20-minute cron. Writes go straight to
+# frontend/public/ and the already-running server serves the new content on
+# its next request — no restart needed for an UPDATE, only for the very
+# first file to exist (which step 4 handled).
 #
 # The cron line is removed and re-added rather than only added, so re-running
 # this script — which the header promises is safe — cannot accumulate a
 # second and third copy of the same job over successive deploys.
 command -v crontab >/dev/null 2>&1 || sudo apt-get install -y cron
-
-say "Running the arbitrage scanner once, to seed the site with a real number"
-( cd "$APP_DIR/bot" && node publish-scan.mjs ) || \
-  echo "  scan failed this time (usually a transient network error) — the cron job below will retry"
 
 say "Installing the scanner on a 20-minute timer"
 NODE_BIN="$(command -v node)"
