@@ -217,6 +217,44 @@ else
     echo "certbot failed — re-run manually: sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN"
 fi
 
+# --- 8. Arbitrage scanner --------------------------------------------------
+#
+# The scanner in bot/ is read-only and holds no keys — it cannot place an
+# order, only read Polymarket's order books and count what it finds. Next
+# serves anything under frontend/public/ as a static file with no rebuild, so
+# a cron job writing there is enough; the running site picks it up on its next
+# fetch, no restart needed.
+#
+# The cron line is removed and re-added rather than only added, so re-running
+# this script — which the header promises is safe — cannot accumulate a
+# second and third copy of the same job over successive deploys.
+command -v crontab >/dev/null 2>&1 || sudo apt-get install -y cron
+
+say "Running the arbitrage scanner once, to seed the site with a real number"
+( cd "$APP_DIR/bot" && node publish-scan.mjs ) || \
+  echo "  scan failed this time (usually a transient network error) — the cron job below will retry"
+
+say "Installing the scanner on a 20-minute timer"
+NODE_BIN="$(command -v node)"
+CRON_LINE="*/20 * * * * cd $APP_DIR/bot && $NODE_BIN publish-scan.mjs >> scan.log 2>&1"
+( crontab -l 2>/dev/null | grep -vF "publish-scan.mjs"; echo "$CRON_LINE" ) | crontab -
+echo "  $CRON_LINE"
+
 say "Done. Local check:"
 curl -s -o /dev/null -w "  http://127.0.0.1:$PORT  ->  %{http_code}\n" http://127.0.0.1:$PORT/ || true
+curl -s -o /dev/null -w "  http://127.0.0.1:$PORT/arbitrage-status.json  ->  %{http_code}\n" http://127.0.0.1:$PORT/arbitrage-status.json || true
 pm2 status arbismart-frontend || true
+
+if ! grep -q '^ASSISTANT_API_KEY=' .env.local 2>/dev/null && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+  cat <<'EOF'
+
+  ONE THING THIS SCRIPT CANNOT DO FOR YOU:
+  The assistant has no API key. Add one line to frontend/.env.local —
+
+      echo "ASSISTANT_API_KEY=your-gemini-key" >> .env.local
+
+  — then re-run this script (or just `npm run build && pm2 restart arbismart-frontend`).
+  ASSISTANT_BASE_URL and ASSISTANT_MODEL already default correctly for a
+  Google AI Studio key, so that one line is genuinely all it takes.
+EOF
+fi
