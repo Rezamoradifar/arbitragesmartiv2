@@ -37,6 +37,7 @@ const columns: Array<{ titleKey: "platform" | "trust" | "community"; links: Arra
     titleKey: "community" as const,
     links: [
       { label: "Telegram", href: "https://t.me/arbhub_site", external: true },
+      { label: "Promo kit", href: "/promo" },
       { label: "Contact us", href: CONTACT_HREF, external: true },
       { label: "Blockscout", href: `https://polygon.blockscout.com/address/${CONTRACT}?tab=contract`, external: true },
     ],
