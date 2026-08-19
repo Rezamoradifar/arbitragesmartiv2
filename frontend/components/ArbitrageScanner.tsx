@@ -34,11 +34,15 @@ type ScanStatus = {
   minProfitThreshold: number;
   opportunitiesFound: number;
   topOpportunity: { profit: number } | null;
-  sampleMarkets?: string[];
+  sampleMarkets?: Array<{ question: string; feeFree: boolean }>;
 };
 
-function timeAgo(iso: string): string {
-  const ms = Date.now() - new Date(iso).getTime();
+/** The cron interval publish-scan.mjs is deployed with (deploy.sh). Used only
+ *  to show an honest countdown to the next pass, never to imply this page
+ *  itself is polling live. */
+const SCAN_INTERVAL_MS = 20 * 60 * 1000;
+
+function timeAgo(ms: number): string {
   const min = Math.round(ms / 60_000);
   if (min < 1) return "moments ago";
   if (min < 60) return `${min} minute${min === 1 ? "" : "s"} ago`;
@@ -47,8 +51,28 @@ function timeAgo(iso: string): string {
   return `${Math.round(hr / 24)} days ago`;
 }
 
+function countdown(ms: number): string {
+  const s = Math.max(0, Math.round(ms / 1000));
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${m}:${r.toString().padStart(2, "0")}`;
+}
+
+/** Ticks once a second — nothing here is re-fetched, only the clock reads
+ *  are recomputed, so "next scan in 4:12" actually counts down instead of
+ *  sitting frozen at whatever it read on page load. */
+function useNow() {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return now;
+}
+
 export function ArbitrageScanner() {
   const [status, setStatus] = useState<ScanStatus | null | "unavailable">(null);
+  const now = useNow();
 
   useEffect(() => {
     let cancelled = false;
@@ -63,7 +87,9 @@ export function ArbitrageScanner() {
 
   if (status === "unavailable") return null;
 
-  const stale = status !== null && Date.now() - new Date(status.scannedAt).getTime() > 6 * 60 * 60 * 1000;
+  const scannedMsAgo = status !== null ? now - new Date(status.scannedAt).getTime() : 0;
+  const stale = status !== null && scannedMsAgo > 6 * 60 * 60 * 1000;
+  const nextScanIn = SCAN_INTERVAL_MS - (scannedMsAgo % SCAN_INTERVAL_MS);
 
   return (
     <div className="glass overflow-hidden p-6 sm:p-8">
@@ -73,10 +99,17 @@ export function ArbitrageScanner() {
           <h3 className="font-display text-lg font-semibold text-white">Watching Polymarket, live</h3>
         </div>
         {status && status !== null && (
-          <Badge tone={stale ? "warn" : "neutral"}>
-            {stale ? "Scan is stale — " : "Last scan "}
-            {timeAgo(status.scannedAt)}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge tone={stale ? "warn" : "neutral"}>
+              {stale ? "Scan is stale — " : "Last scan "}
+              {timeAgo(scannedMsAgo)}
+            </Badge>
+            {!stale && (
+              <Badge tone="brand">
+                <span className="font-mono tabular-nums">{countdown(nextScanIn)}</span> to next scan
+              </Badge>
+            )}
+          </div>
         )}
       </div>
 
@@ -151,15 +184,27 @@ export function ArbitrageScanner() {
   );
 }
 
-/** Percentage ring, same construction as the dashboard's term-progress indicator. */
+/** Percentage ring, same construction as the dashboard's term-progress indicator,
+ *  plus a bright marker dot at the arc's leading edge — purely decorative,
+ *  same real percentage as the number in the middle. */
 function FeeFreeGauge({ percent }: { percent: number }) {
   const r = 46;
+  const cx = 58;
+  const cy = 58;
   const c = 2 * Math.PI * r;
-  const dash = (Math.min(100, Math.max(0, percent)) / 100) * c;
+  const clamped = Math.min(100, Math.max(0, percent));
+  const dash = (clamped / 100) * c;
+
+  // The ring is drawn rotated -90deg (start at 12 o'clock); the marker is
+  // placed with plain trig in unrotated space, so its angle starts at the
+  // same 12-o'clock reference: -90deg plus the swept fraction.
+  const angle = (-90 + (clamped / 100) * 360) * (Math.PI / 180);
+  const markerX = cx + r * Math.cos(angle);
+  const markerY = cy + r * Math.sin(angle);
 
   return (
     <div className="relative mx-auto h-[116px] w-[116px] shrink-0 sm:mx-0">
-      <svg width="116" height="116" viewBox="0 0 116 116" className="-rotate-90">
+      <svg width="116" height="116" viewBox="0 0 116 116">
         <defs>
           <linearGradient id="scannerRing" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#f4df9c" />
@@ -167,18 +212,22 @@ function FeeFreeGauge({ percent }: { percent: number }) {
             <stop offset="100%" stopColor="#b3741f" />
           </linearGradient>
         </defs>
-        <circle cx="58" cy="58" r={r} fill="none" stroke="rgba(255,255,255,.07)" strokeWidth="7" />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,.07)" strokeWidth="7" />
         <circle
-          cx="58"
-          cy="58"
+          cx={cx}
+          cy={cy}
           r={r}
           fill="none"
           stroke="url(#scannerRing)"
           strokeWidth="7"
           strokeLinecap="round"
           strokeDasharray={`${dash} ${c}`}
+          transform={`rotate(-90 ${cx} ${cy})`}
           className="transition-all duration-1000 ease-out"
         />
+        {clamped > 0 && (
+          <circle cx={markerX} cy={markerY} r="5" fill="#f4df9c" className="drop-shadow-[0_0_6px_rgba(224,173,60,.9)]" />
+        )}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="font-display text-xl font-bold tabular-nums text-white">{percent.toFixed(1)}%</span>
@@ -188,8 +237,10 @@ function FeeFreeGauge({ percent }: { percent: number }) {
   );
 }
 
-/** Titles only, looping — see the file-level note on why prices never appear here. */
-function MarketTicker({ items }: { items: string[] }) {
+/** Titles + fee status, looping — see the file-level note on why prices never
+ *  appear here. The dot colour is real per-market data (fee-free or not),
+ *  not decoration standing in for something we didn't measure. */
+function MarketTicker({ items }: { items: Array<{ question: string; feeFree: boolean }> }) {
   // Rendered twice back to back so translateX(-50%) loops with no visible seam.
   const doubled = [...items, ...items];
 
@@ -198,13 +249,16 @@ function MarketTicker({ items }: { items: string[] }) {
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-graphite-950 to-transparent" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-graphite-950 to-transparent" />
       <div className="flex w-max animate-marquee gap-3 motion-reduce:animate-none">
-        {doubled.map((q, i) => (
+        {doubled.map((m, i) => (
           <span
             key={i}
             className="flex shrink-0 items-center gap-2 rounded-full border border-white/[.07] bg-white/[.03] px-3.5 py-1.5 text-xs text-graphite-300"
           >
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-graphite-500" />
-            {q}
+            <span
+              className={`h-1.5 w-1.5 shrink-0 rounded-full ${m.feeFree ? "bg-success-400" : "bg-graphite-500"}`}
+              title={m.feeFree ? "fee-free market" : "fees apply"}
+            />
+            {m.question}
           </span>
         ))}
       </div>

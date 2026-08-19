@@ -58,13 +58,16 @@ const payload = {
   topOpportunity: opportunities[0]
     ? { profit: Math.round(opportunities[0].profit * 100) / 100 }
     : null,
-  // Titles only — the same list anyone browsing polymarket.com already sees,
-  // no price or combined-cost data. Purely so the page can show that a real,
-  // varied set of markets is what "400 scanned" actually means, without
-  // repeating the never-publish-a-price rule above.
+  // Title + fee status only — the same thing anyone browsing polymarket.com
+  // already sees, no price or combined-cost data. Purely so the page can show
+  // that a real, varied set of markets is what "400 scanned" actually means,
+  // without repeating the never-publish-a-price rule above.
   sampleMarkets: sample(result.markets, 16)
-    .map((m) => m.question)
-    .filter(Boolean),
+    .filter((m) => m.question)
+    .map((m) => ({
+      question: m.question,
+      feeFree: !m.feesEnabled || !m.feeSchedule?.rate,
+    })),
 };
 
 writeFileSync(OUT, JSON.stringify(payload, null, 2));
