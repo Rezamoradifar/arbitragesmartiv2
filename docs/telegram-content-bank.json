@@ -1,0 +1,171 @@
+{
+  "_readme": [
+    "Content bank for @arbhub_site, posted 2-3 items/day by a scheduled routine.",
+    "Every fact here was verified this session against the deployed bytecode at",
+    "0x5589105c61154f93D11aa350a25c634d5B324bFB (41 checks, zero mismatches) or",
+    "measured directly with a Foundry test. Nothing here is invented, and nothing",
+    "new should be appended to this file unless it is equally verified first.",
+    "",
+    "postedAt is null until sent; the routine picks the next null item in array",
+    "order, posts it, sets postedAt, commits and pushes. Never reorders or",
+    "reuses a posted item — when the array runs out, the routine says so instead",
+    "of inventing content or repeating an old post."
+  ],
+  "items": [
+    {
+      "id": "yield-simple",
+      "postedAt": null,
+      "text": "Yield here is simple interest, not compounded. It accrues on the recorded stake alone, every second, and stops the moment the plan's term ends — Starter at day 180, Elite at day 90. Claiming does not restart the clock and unclaimed yield does not compound while it waits.\n\n#ArbiSmart #Polygon #USDT #Staking"
+    },
+    {
+      "id": "min-deposit-real",
+      "postedAt": null,
+      "text": "The advertised minimum is 10 USDT. The real one is 11.37. The contract requires 10 USDT to remain AFTER the entry fee, and small deposits pay 12% — so 11.37 sent is the smallest amount that actually clears. Send exactly 10 and it reverts; you lose only gas, but you lose it for nothing.\n\n#ArbiSmart #Polygon #USDT #HowTo"
+    },
+    {
+      "id": "tier-by-net",
+      "postedAt": null,
+      "text": "Your plan is decided by what gets RECORDED, not what you send. Send 500 and 450 is recorded — below the Growth threshold, so you land on Starter. To actually reach Growth you need to send 555.56. The site's calculator works this out before you sign; read it before you pick a round number.\n\n#ArbiSmart #Polygon #USDT #Staking #HowTo"
+    },
+    {
+      "id": "claim-fee-halves",
+      "postedAt": null,
+      "text": "Claim fee is 10% of yield on Starter and Growth, half that — 5% — on Advanced and Elite. It is charged on yield only; principal is never touched by it. claimFeeBps() is a pure function in the contract, which means not even the owner can change it later.\n\n#ArbiSmart #Polygon #USDT #Staking"
+    },
+    {
+      "id": "upline-deduction",
+      "postedAt": null,
+      "text": "If you joined through a referral link, part of your claim goes to the people above you — 8% of your yield for one Base-tier referrer, up to 35% for three Platinum uplines stacked. It comes out of YOUR claim, not paid by the protocol on top. No referrer, no deduction. Your dashboard shows your exact number once your wallet is connected.\n\n#ArbiSmart #Polygon #USDT #Referral #Transparency"
+    },
+    {
+      "id": "exit-penalty-schedule",
+      "postedAt": null,
+      "text": "Exit is open at all times, no approval needed. The penalty on principal declines every week: 50% in week 1, 40% in week 2, 30% in week 3, 20% in week 4, 10% from week 5 onward — and it never goes lower than 10%. Unclaimed yield is lost separately when you exit, so claim first if you're leaving.\n\n#ArbiSmart #Polygon #USDT #Staking"
+    },
+    {
+      "id": "no-maturity",
+      "postedAt": null,
+      "text": "There is no maturity function in this contract. After the full term, yield simply stops accruing — the only way out is still earlyExit(), still at the week-5+ rate. Hold a position to the very end and you still get 90% of principal back, not 100%. We'd rather you read that here than find out at withdrawal.\n\n#ArbiSmart #Polygon #USDT #Staking #Transparency"
+    },
+    {
+      "id": "exit-always-open",
+      "postedAt": null,
+      "text": "Exit works even if the contract is paused, and even if your address is blacklisted. Blacklisting blocks new stakes and claims — it does not freeze your principal. There is no state the owner can put the contract into that traps your exit.\n\n#ArbiSmart #Polygon #USDT #Security"
+    },
+    {
+      "id": "emergency-withdraw",
+      "postedAt": null,
+      "text": "Two independent ways to unlock a zero-penalty full withdrawal, and neither needs the owner's cooperation: the contract has been paused for 30 continuous days, or 3 votes from the partner body flip emergency mode and 12 hours pass. Either path, principal comes back whole.\n\n#ArbiSmart #Polygon #USDT #Security"
+    },
+    {
+      "id": "rescue-function",
+      "postedAt": null,
+      "text": "There is a rescue function that can move the contract's full balance — and it needs 3 votes from the voting body plus a 48-hour delay before it's callable, and it can only ever send funds to a pre-set Gnosis Safe multisig, never an arbitrary address. We're telling you it exists because you should know, not because we expect to need it.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency"
+    },
+    {
+      "id": "referral-all-three",
+      "postedAt": null,
+      "text": "Referral tiers above Base require THREE conditions at once — your own stake, your direct volume, and your active referral count. All three, not any one. A tier priced in wallets alone gets gamed with throwaway accounts; a tier priced in real capital doesn't.\n\n#ArbiSmart #Polygon #USDT #Referral"
+    },
+    {
+      "id": "referral-tiers-table",
+      "postedAt": null,
+      "text": "Referral tiers, three levels deep: Base pays 8/4/0%, Silver 12/6/2% (needs 500 staked, 2,500 direct volume, 3 referrals), Gold 15/8/4% (2,500 staked, 15,000 volume, 10 referrals), Platinum 20/10/5% (10,000 staked, 75,000 volume, 25 referrals). Every rate is paid at the UPLINE's own tier, never the tier below them.\n\n#ArbiSmart #Polygon #USDT #Referral"
+    },
+    {
+      "id": "referral-volume-falls",
+      "postedAt": null,
+      "text": "A referral's volume counts toward your tier only while their position stays open. If they exit, your counted volume falls with them — it doesn't just stop rising, it actually decreases. That's deliberate: a tier earned once and kept forever regardless of whether the team is still there isn't measuring anything real.\n\n#ArbiSmart #Polygon #USDT #Referral"
+    },
+    {
+      "id": "deposit-fee-bands",
+      "postedAt": null,
+      "text": "Entry fee is a sliding scale, not one flat number: 12% under 500 USDT, 10% from 500, 7% from 2,500, 5% from 10,000. It comes off before your stake is even recorded — the deposit screen shows the exact split before you ever sign.\n\n#ArbiSmart #Polygon #USDT #Staking"
+    },
+    {
+      "id": "free-stake-program",
+      "postedAt": null,
+      "text": "The free-stake window offers 100 places, each a 10 USDT position that costs the pool nothing until it's actually funded — a giveaway earns yield from day one but can't be claimed against until real capital backs it. That's what stops a hundred free positions from being a withdrawal on other people's deposits.\n\n#ArbiSmart #Polygon #USDT #Staking"
+    },
+    {
+      "id": "free-stake-upgrade",
+      "postedAt": null,
+      "text": "A free position isn't a dead end — top it up with real capital and it converts to an ordinary funded position on the spot, eligible for a plan upgrade like any other. The giveaway principal itself stays walled off forever, but everything else about the position becomes fully yours.\n\n#ArbiSmart #Polygon #USDT #Staking"
+    },
+    {
+      "id": "no-upgradeable",
+      "postedAt": null,
+      "text": "No proxy. No delegatecall. No upgradeable pattern anywhere in this contract. The code running today is the code that runs for as long as this contract exists — nobody, including us, can swap the logic underneath you later.\n\n#ArbiSmart #Polygon #USDT #Security"
+    },
+    {
+      "id": "rates-immutable",
+      "postedAt": null,
+      "text": "dailyRates is set once, at deployment, and is never assigned anywhere else in roughly 2,400 lines of contract code. We checked. There is no function — not for the owner, not for anyone — that raises or lowers it after the fact.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency"
+    },
+    {
+      "id": "what-split-merge-redeem",
+      "postedAt": null,
+      "text": "Three things this contract can genuinely do on Polymarket, unaided and permissionlessly: split collateral into a complete YES/NO set, merge a set back to collateral before resolution, and redeem winning tokens after a market settles. All three are real calls to Polymarket's own deployed contracts, and every event fires only once the call has actually succeeded.\n\n#ArbiSmart #Polygon #USDT #DeFi"
+    },
+    {
+      "id": "why-onlyoperator-blocks-arb",
+      "postedAt": null,
+      "text": "What this contract cannot do: place an order on Polymarket's book. fillOrder, fillOrders and matchOrders are gated behind an onlyOperator permission that Polymarket's own admins control — not something we can code around, and not something granted to arbitrary third-party contracts. Until that changes, split-and-redeem alone nets to zero before gas; the profit in this kind of arbitrage only ever comes from the order book.\n\n#ArbiSmart #Polygon #USDT #DeFi #Transparency"
+    },
+    {
+      "id": "per-dollar-shortfall",
+      "postedAt": null,
+      "text": "The honest math, per dollar deposited: Starter must pay back $2.59, Growth $3.09, Advanced $3.47, Elite $3.39 — against a strategy that has earned $0 so far. The gap is real and it's the same ratio at any size, because the rates are proportions, not fixed sums. Full table at arbhub.site/strategy.\n\n#ArbiSmart #Polygon #USDT #Transparency"
+    },
+    {
+      "id": "days-to-empty",
+      "postedAt": null,
+      "text": "An idle pool — no new deposits, everyone claiming as it accrues — drains before its own term ends on every single plan: Starter empties day 93 of 180, Growth day 62 of 150, Advanced day 44 of 120, Elite day 35 of 90. That's not a liquidity risk good management avoids; it's what a fixed rate above what the capital earns means, arithmetically.\n\n#ArbiSmart #Polygon #USDT #Transparency"
+    },
+    {
+      "id": "payable-rate",
+      "postedAt": null,
+      "text": "What a real trading return could actually fund, after a 20% performance fee: 15%/year gets you 0.033%/day, 25%/year gets 0.055%/day, even 50%/year — better than almost any fund — only gets 0.11%/day. Starter's advertised 1.2%/day is still 11x that top scenario. The gap closes with a lower, honest rate, not a better guess at the strategy.\n\n#ArbiSmart #Polygon #USDT #Transparency"
+    },
+    {
+      "id": "sourcify-verified",
+      "postedAt": null,
+      "text": "Source is verified on Sourcify with an EXACT match — both creation and runtime bytecode, not just a similar-looking recompile. That means the code you can read on Sourcify is byte-for-byte what's actually running at the deployed address. Nothing to take on trust there.\n\n#ArbiSmart #Polygon #USDT #Security"
+    },
+    {
+      "id": "verify-yourself",
+      "postedAt": null,
+      "text": "Every rate, fee, and threshold we publish was checked this session directly against the deployed contract — 41 separate reads, zero mismatches. You don't need to trust that we did it right: pull up 0x5589105c61154f93D11aa350a25c634d5B324bFB on Polygonscan and read dailyRates, claimFeeBps and planDurations yourself.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency"
+    },
+    {
+      "id": "governance-voting-body",
+      "postedAt": null,
+      "text": "The voting body for anything requiring quorum — emergency mode, a rescue — is the owner plus every registered partner, and it takes 3 votes to move. One person alone, including the owner, can't trigger either path. The partner list is public and readable on-chain any time.\n\n#ArbiSmart #Polygon #USDT #Security"
+    },
+    {
+      "id": "only-channel-no-email",
+      "postedAt": null,
+      "text": "We have exactly one channel: @arbhub_site. No email address exists for this project — anything claiming to be one is forged. No DM, no \"support agent,\" no second channel with our name and logo is us, no matter how convincing it looks.\n\n#ArbiSmart #Polygon #USDT #Scam #Security"
+    },
+    {
+      "id": "min-countable-referral",
+      "postedAt": null,
+      "text": "A referral only counts toward your headcount once their recorded stake crosses a minimum floor. An empty or never-funded position doesn't count as a person on your team — which is what stops a tier from being priced in throwaway wallets that hold nothing.\n\n#ArbiSmart #Polygon #USDT #Referral"
+    },
+    {
+      "id": "protocol-wallets-fixed",
+      "postedAt": null,
+      "text": "The two development-fee wallets are barred from the free-stake window entirely, and everywhere else they're limited to one fixed-size position — no exceptions, enforced by the contract itself, not by policy. A wallet that collects protocol revenue getting a free claim on other depositors' capital would be exactly the kind of thing this project exists to not do.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency"
+    },
+    {
+      "id": "network-and-collateral",
+      "postedAt": null,
+      "text": "Everything runs on Polygon mainnet, chain id 137. Collateral is USDT — check the token contract matches ours before you approve anything; a look-alike token on the wrong contract is a classic way people get separated from their money.\n\n#ArbiSmart #Polygon #USDT #HowTo #Security"
+    },
+    {
+      "id": "how-to-check-split",
+      "postedAt": null,
+      "text": "Before you sign a deposit: the screen shows what leaves your wallet, what the entry fee takes, and what actually gets recorded as your stake — three different numbers, all visible before you commit to anything. If a platform only shows you the amount you send, ask why.\n\n#ArbiSmart #Polygon #USDT #HowTo"
+    }
+  ]
+}
