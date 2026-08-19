@@ -20,7 +20,7 @@
     },
     {
       "id": "min-deposit-real",
-      "postedAt": null,
+      "postedAt": "2026-08-19T08:02:40.295Z",
       "text": "The advertised minimum is 10 USDT. The real one is 11.37. The contract requires 10 USDT to remain AFTER the entry fee, and small deposits pay 12% — so 11.37 sent is the smallest amount that actually clears. Send exactly 10 and it reverts; you lose only gas, but you lose it for nothing.\n\n#ArbiSmart #Polygon #USDT #HowTo",
       "image": "docs/telegram-cards/min-deposit-real.png"
     },
