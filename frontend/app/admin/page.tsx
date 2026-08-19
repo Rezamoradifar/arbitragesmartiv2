@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAccount, useReadContract } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { WalletConnectCTA } from "@/components/WalletConnect";
 import { useContractTx, TxStatus } from "@/components/TxButton";
 import { AddressLink, Alert, Badge, Countdown, Row, Section } from "@/components/ui";
 import { useGovernance, useProtocol } from "@/lib/hooks";
@@ -33,7 +33,7 @@ export default function AdminPage() {
             Connect the owner wallet to manage the protocol.
           </p>
           <div className="mt-7 flex justify-center">
-            <ConnectButton />
+            <WalletConnectCTA />
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAccount, usePublicClient } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { WalletConnectCTA } from "@/components/WalletConnect";
 import { EarningsChart, type Point } from "@/components/EarningsChart";
 import { Alert, Badge, EmptyState, Progress, Section, Skeleton, StatCard } from "@/components/ui";
 import { Icon } from "@/components/Icon";
@@ -53,7 +53,7 @@ export default function PortfolioPage() {
             on-chain events rather than from a database.
           </p>
           <div className="mt-7 flex justify-center">
-            <ConnectButton />
+            <WalletConnectCTA />
           </div>
         </div>
       </div>

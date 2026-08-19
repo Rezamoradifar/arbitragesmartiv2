@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { WalletConnectCTA } from "@/components/WalletConnect";
 import { useContractTx, TxStatus } from "@/components/TxButton";
 import {
   Alert,
@@ -164,7 +164,7 @@ function ConnectGate() {
               a transaction.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <ConnectButton />
+              <WalletConnectCTA />
             </div>
             <ul className="mt-8 space-y-2.5">
               {[

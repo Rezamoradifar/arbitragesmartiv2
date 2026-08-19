@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useGovernance } from "@/lib/hooks";
+import { WalletConnectButton } from "@/components/WalletConnect";
 import { Icon, type IconName } from "@/components/Icon";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
@@ -104,7 +104,7 @@ export function NavBar() {
               <path d="M21.05 3.16 2.42 10.4c-1.27.51-1.26 1.22-.23 1.53l4.77 1.49 1.85 5.65c.22.62.36.86.74.86.34 0 .5-.16.7-.35l1.68-1.63 3.5 2.58c.64.36 1.11.17 1.27-.6l2.3-10.85c.24-.99-.38-1.44-1-.92zM8.6 13.6l8.9-5.6c.42-.26.8-.12.49.17l-7.2 6.5-.28 3.02z" />
             </svg>
           </a>
-          <ConnectButton showBalance={false} chainStatus="icon" accountStatus="address" />
+          <WalletConnectButton />
         </div>
       </div>
     </header>

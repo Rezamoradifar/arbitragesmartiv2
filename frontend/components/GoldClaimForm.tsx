@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useAccount, useSignMessage } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { WalletConnectCTA } from "@/components/WalletConnect";
 import { Alert, Row } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { useUserPosition } from "@/lib/hooks";
@@ -141,7 +141,7 @@ export function GoldClaimForm() {
           own — you will be asked to sign a statement, which costs no gas and moves no funds.
         </p>
         <div className="mt-6 flex justify-center">
-          <ConnectButton />
+          <WalletConnectCTA />
         </div>
       </div>
     );

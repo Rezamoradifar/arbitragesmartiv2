@@ -1,7 +1,7 @@
 "use client";
 
 import { useAccount, useReadContract } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { WalletConnectCTA } from "@/components/WalletConnect";
 import { useContractTx, TxStatus } from "@/components/TxButton";
 import { AddressLink, Alert, Badge, Countdown, Progress, Row, Section, Skeleton } from "@/components/ui";
 import { useGovernance, useProtocol } from "@/lib/hooks";
@@ -38,7 +38,7 @@ export default function PartnersPage() {
           <p className="mb-4 text-sm text-graphite-300">
             Anyone can read this page. Casting a vote requires a wallet in the voting body.
           </p>
-          <ConnectButton />
+          <WalletConnectCTA />
         </Section>
       ) : !gov.isVoter ? (
         <Alert tone="neutral" title="This wallet is not in the voting body">
