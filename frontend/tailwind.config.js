@@ -141,6 +141,9 @@ module.exports = {
         // Data travelling along a path — used by the network visuals.
         "dash-flow": { to: { strokeDashoffset: "-200" } },
         "spin-slow": { to: { transform: "rotate(360deg)" } },
+        // Duplicated content scrolls exactly one copy-width so the loop seams
+        // invisibly — the ticker strip renders its items twice back to back.
+        marquee: { "0%": { transform: "translateX(0)" }, "100%": { transform: "translateX(-50%)" } },
       },
       animation: {
         "fade-up": "fade-up .8s cubic-bezier(.16,1,.3,1) both",
@@ -151,6 +154,7 @@ module.exports = {
         "pulse-ring": "pulse-ring 2.6s cubic-bezier(.24,.8,.4,1) infinite",
         "dash-flow": "dash-flow 3s linear infinite",
         "spin-slow": "spin-slow 40s linear infinite",
+        marquee: "marquee 34s linear infinite",
       },
     },
   },

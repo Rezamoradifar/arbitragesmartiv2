@@ -29,6 +29,16 @@ const MIN_PROFIT = Number(arg("min-profit", 0.5));
 const LIMIT = Number(arg("limit", 400));
 const PROBE_SHARES = Number(arg("size", 500));
 
+/** Fisher-Yates, so the ticker is a fresh draw every run rather than always the same head of the list. */
+function sample(arr, n) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, n);
+}
+
 const startedAt = Date.now();
 const result = await scan({ limit: LIMIT, probeShares: PROBE_SHARES });
 const opportunities = result.opportunities.filter((o) => o.profit >= MIN_PROFIT);
@@ -48,6 +58,13 @@ const payload = {
   topOpportunity: opportunities[0]
     ? { profit: Math.round(opportunities[0].profit * 100) / 100 }
     : null,
+  // Titles only — the same list anyone browsing polymarket.com already sees,
+  // no price or combined-cost data. Purely so the page can show that a real,
+  // varied set of markets is what "400 scanned" actually means, without
+  // repeating the never-publish-a-price rule above.
+  sampleMarkets: sample(result.markets, 16)
+    .map((m) => m.question)
+    .filter(Boolean),
 };
 
 writeFileSync(OUT, JSON.stringify(payload, null, 2));

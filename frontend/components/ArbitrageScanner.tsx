@@ -19,6 +19,13 @@ import { LiveDot } from "@/components/Aurora";
  * not need to be fresher than the cron interval, and a full pass takes real
  * time against 400 live order books — nothing a page load should be doing on
  * a visitor's behalf.
+ *
+ * The layout below (a percentage ring, a big headline number, a scrolling row
+ * of markets) is deliberately closer to a live trading terminal than the flat
+ * stat grid this replaced — but every number in it is still read straight
+ * from the same file. `sampleMarkets` is titles only, never a price or
+ * combined cost: the same list anyone browsing polymarket.com already sees,
+ * not anything that would tell a reader which market to race into.
  */
 type ScanStatus = {
   scannedAt: string;
@@ -27,6 +34,7 @@ type ScanStatus = {
   minProfitThreshold: number;
   opportunitiesFound: number;
   topOpportunity: { profit: number } | null;
+  sampleMarkets?: string[];
 };
 
 function timeAgo(iso: string): string {
@@ -58,7 +66,7 @@ export function ArbitrageScanner() {
   const stale = status !== null && Date.now() - new Date(status.scannedAt).getTime() > 6 * 60 * 60 * 1000;
 
   return (
-    <div className="glass p-6 sm:p-8">
+    <div className="glass overflow-hidden p-6 sm:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <LiveDot />
@@ -80,37 +88,46 @@ export function ArbitrageScanner() {
       </p>
 
       {status === null ? (
-        <div className="mt-6 h-24 animate-pulse rounded-xl bg-white/[.03]" />
+        <div className="mt-6 h-56 animate-pulse rounded-xl bg-white/[.03]" />
       ) : (
         <>
-          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-white/[.07] bg-white/[.02] p-4">
-              <p className="text-xs uppercase tracking-wide text-graphite-400">Markets checked</p>
-              <p className="mt-1 font-display text-2xl font-bold tabular-nums text-white">
-                {status.marketsScanned}
-              </p>
-            </div>
-            <div className="rounded-xl border border-white/[.07] bg-white/[.02] p-4">
-              <p className="text-xs uppercase tracking-wide text-graphite-400">Fee-free among them</p>
-              <p className="mt-1 font-display text-2xl font-bold tabular-nums text-white">
-                {status.marketsFeeFree}
-              </p>
-            </div>
-            <div className="rounded-xl border border-white/[.07] bg-white/[.02] p-4">
+          <div className="mt-7 grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
+            <FeeFreeGauge percent={status.marketsScanned ? (status.marketsFeeFree / status.marketsScanned) * 100 : 0} />
+
+            <div className="min-w-0">
               <p className="text-xs uppercase tracking-wide text-graphite-400">
                 Opportunities above ${status.minProfitThreshold.toFixed(2)}
               </p>
               <p
-                className={`mt-1 font-display text-2xl font-bold tabular-nums ${
-                  status.opportunitiesFound > 0 ? "text-volt-300" : "text-graphite-100"
+                className={`font-display text-5xl font-bold tabular-nums leading-none sm:text-6xl ${
+                  status.opportunitiesFound > 0 ? "text-volt-300" : "text-white"
                 }`}
               >
                 {status.opportunitiesFound}
               </p>
+              {status.topOpportunity ? (
+                <p className="mt-2 font-mono text-sm text-volt-300">
+                  best found: ${status.topOpportunity.profit.toFixed(2)}
+                </p>
+              ) : (
+                <p className="mt-2 text-sm text-graphite-400">nothing cleared the threshold this pass</p>
+              )}
+
+              <div className="mt-4 flex flex-wrap gap-4 text-sm">
+                <span className="text-graphite-300">
+                  <span className="font-display font-semibold text-white">{status.marketsScanned}</span> markets
+                  checked
+                </span>
+                <span className="text-graphite-300">
+                  <span className="font-display font-semibold text-white">{status.marketsFeeFree}</span> fee-free
+                </span>
+              </div>
             </div>
           </div>
 
-          <p className="mt-4 text-xs leading-relaxed text-graphite-500">
+          {!!status.sampleMarkets?.length && <MarketTicker items={status.sampleMarkets} />}
+
+          <p className="mt-5 text-xs leading-relaxed text-graphite-500">
             {status.opportunitiesFound > 0 ? (
               <>
                 Found, not yet taken — the contract cannot place an order on Polymarket&apos;s book
@@ -130,6 +147,67 @@ export function ArbitrageScanner() {
           </p>
         </>
       )}
+    </div>
+  );
+}
+
+/** Percentage ring, same construction as the dashboard's term-progress indicator. */
+function FeeFreeGauge({ percent }: { percent: number }) {
+  const r = 46;
+  const c = 2 * Math.PI * r;
+  const dash = (Math.min(100, Math.max(0, percent)) / 100) * c;
+
+  return (
+    <div className="relative mx-auto h-[116px] w-[116px] shrink-0 sm:mx-0">
+      <svg width="116" height="116" viewBox="0 0 116 116" className="-rotate-90">
+        <defs>
+          <linearGradient id="scannerRing" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#f4df9c" />
+            <stop offset="50%" stopColor="#e0ad3c" />
+            <stop offset="100%" stopColor="#b3741f" />
+          </linearGradient>
+        </defs>
+        <circle cx="58" cy="58" r={r} fill="none" stroke="rgba(255,255,255,.07)" strokeWidth="7" />
+        <circle
+          cx="58"
+          cy="58"
+          r={r}
+          fill="none"
+          stroke="url(#scannerRing)"
+          strokeWidth="7"
+          strokeLinecap="round"
+          strokeDasharray={`${dash} ${c}`}
+          className="transition-all duration-1000 ease-out"
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="font-display text-xl font-bold tabular-nums text-white">{percent.toFixed(1)}%</span>
+        <span className="mt-0.5 text-[10px] text-graphite-400">fee-free</span>
+      </div>
+    </div>
+  );
+}
+
+/** Titles only, looping — see the file-level note on why prices never appear here. */
+function MarketTicker({ items }: { items: string[] }) {
+  // Rendered twice back to back so translateX(-50%) loops with no visible seam.
+  const doubled = [...items, ...items];
+
+  return (
+    <div className="relative mt-6 overflow-hidden rounded-xl border border-white/[.06] bg-black/20 py-3">
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-graphite-950 to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-graphite-950 to-transparent" />
+      <div className="flex w-max animate-marquee gap-3 motion-reduce:animate-none">
+        {doubled.map((q, i) => (
+          <span
+            key={i}
+            className="flex shrink-0 items-center gap-2 rounded-full border border-white/[.07] bg-white/[.03] px-3.5 py-1.5 text-xs text-graphite-300"
+          >
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-graphite-500" />
+            {q}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
