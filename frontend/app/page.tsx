@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LiveStats } from "@/components/LiveStats";
+import { GrowthTarget } from "@/components/GrowthTarget";
 import { DepositCalculator } from "@/components/DepositCalculator";
 import { PolymarketMarkets } from "@/components/PolymarketMarkets";
 import { ArbitrageScanner } from "@/components/ArbitrageScanner";
@@ -209,6 +210,9 @@ export default function Home() {
       {/* ============ 3. PLATFORM STATISTICS ============ */}
       <section className="container-page -mt-6 pb-24">
         <LiveStats />
+        <div className="mt-4">
+          <GrowthTarget />
+        </div>
       </section>
 
       {/* ============ 4. HOW ARBISMART WORKS ============ */}
