@@ -3,6 +3,7 @@ import Link from "next/link";
 import { StrategyTruth } from "@/components/StrategyTruth";
 import { TheArithmetic } from "@/components/TheArithmetic";
 import { ArbitrageScanner } from "@/components/ArbitrageScanner";
+import { TradingBotStatus } from "@/components/TradingBotStatus";
 import { Icon } from "@/components/Icon";
 
 export const metadata: Metadata = {
@@ -44,6 +45,9 @@ export default function StrategyPage() {
 
       {/* ------------------------------------------------- the scanner */}
       <ArbitrageScanner />
+
+      {/* --------------------------------------- the execution bot's status */}
+      <TradingBotStatus />
 
       {/* ------------------------------------------------- the arithmetic */}
       <section>
