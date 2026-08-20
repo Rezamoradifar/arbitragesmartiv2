@@ -3,6 +3,7 @@
 import { useProtocol } from "@/lib/hooks";
 import { formatAmount } from "@/lib/contract";
 import { Progress } from "@/components/ui";
+import { LiveDot } from "@/components/Aurora";
 
 /**
  * A stated goal, not a current balance — kept in its own panel rather than
@@ -19,29 +20,33 @@ export function GrowthTarget() {
 
   return (
     <div className="glass p-6 sm:p-8">
-      <p className="eyebrow">Growth target</p>
-      <h3 className="mt-4 font-display text-2xl font-bold text-white sm:text-3xl">
-        $15,000,000 in Total Value Locked
-      </h3>
-      <p className="mt-2 max-w-xl text-sm leading-relaxed text-graphite-300">
-        Our goal before the next major update — a target we&apos;re working toward, not today&apos;s
-        balance. The figure below it is the real one, read from the same contract call as the stats
-        above.
+      <div className="flex items-center gap-2.5">
+        <LiveDot />
+        <p className="eyebrow !border-0 !bg-transparent !p-0">Growth target</p>
+      </div>
+      <p className="mt-3 max-w-xl text-sm leading-relaxed text-graphite-300">
+        A target we&apos;re working toward before the next major update — not today&apos;s balance.
+        Today&apos;s figure is real, read live from the same contract call as the stats above.
       </p>
 
+      <div className="mt-7 grid gap-6 sm:grid-cols-2">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-graphite-400">Total value locked today</p>
+          <p className="mt-1.5 font-display text-4xl font-bold tabular-nums leading-none text-white sm:text-5xl">
+            {formatAmount(p.totalAssets)}
+            <span className="ml-2 text-lg font-semibold text-graphite-400">USDT</span>
+          </p>
+        </div>
+        <div className="sm:text-right">
+          <p className="text-xs uppercase tracking-wide text-graphite-400">Goal</p>
+          <p className="text-gold-gradient mt-1.5 font-display text-4xl font-bold leading-none sm:text-5xl">
+            $15,000,000
+          </p>
+        </div>
+      </div>
+
       <div className="mt-6">
-        <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-          <span className="text-graphite-300">
-            Today:{" "}
-            <span className="font-display font-semibold text-white">
-              {formatAmount(p.totalAssets)} USDT
-            </span>
-          </span>
-          <span className="text-graphite-400">Goal: $15,000,000</span>
-        </div>
-        <div className="mt-3">
-          <Progress value={currentUsd} max={GROWTH_TARGET_USD} tone="brand" />
-        </div>
+        <Progress value={currentUsd} max={GROWTH_TARGET_USD} tone="brand" />
         <p className="mt-2 text-xs text-graphite-500">
           {pct < 0.1 ? "Under 0.1% of the way there — early days." : `${pct.toFixed(1)}% of the way there.`}
         </p>
