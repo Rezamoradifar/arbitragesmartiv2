@@ -44,7 +44,7 @@
     },
     {
       "id": "exit-penalty-schedule",
-      "postedAt": null,
+      "postedAt": "2026-08-20T14:17:11.718Z",
       "text": "Exit is open at all times, no approval needed. The penalty on principal declines every week: 50% in week 1, 40% in week 2, 30% in week 3, 20% in week 4, 10% from week 5 onward — and it never goes lower than 10%. Unclaimed yield is lost separately when you exit, so claim first if you're leaving.\n\n#ArbiSmart #Polygon #USDT #Staking",
       "image": "docs/telegram-cards/exit-penalty-schedule.png"
     },
