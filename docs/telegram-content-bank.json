@@ -50,7 +50,7 @@
     },
     {
       "id": "no-maturity",
-      "postedAt": null,
+      "postedAt": "2026-08-20T20:09:14.688Z",
       "text": "There is no maturity function in this contract. After the full term, yield simply stops accruing — the only way out is still earlyExit(), still at the week-5+ rate. Hold a position to the very end and you still get 90% of principal back, not 100%. We'd rather you read that here than find out at withdrawal.\n\n#ArbiSmart #Polygon #USDT #Staking #Transparency",
       "image": "docs/telegram-cards/no-maturity.png"
     },
