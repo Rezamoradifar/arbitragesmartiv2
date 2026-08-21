@@ -29,17 +29,24 @@ export function GrowthTarget() {
         Today&apos;s figure is real, read live from the same contract call as the stats above.
       </p>
 
-      <div className="mt-7 grid gap-6 sm:grid-cols-2">
+      <div className="mt-7 grid gap-6 sm:grid-cols-3">
         <div>
           <p className="text-xs uppercase tracking-wide text-graphite-400">Total value locked today</p>
-          <p className="mt-1.5 font-display text-4xl font-bold tabular-nums leading-none text-white sm:text-5xl">
+          <p className="mt-1.5 font-display text-3xl font-bold tabular-nums leading-none text-white sm:text-4xl">
             {formatAmount(p.totalAssets)}
-            <span className="ml-2 text-lg font-semibold text-graphite-400">USDT</span>
+            <span className="ml-2 text-base font-semibold text-graphite-400">USDT</span>
+          </p>
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-wide text-graphite-400">Total ever deposited</p>
+          <p className="mt-1.5 font-display text-3xl font-bold tabular-nums leading-none text-white sm:text-4xl">
+            {formatAmount(p.grossDeposits)}
+            <span className="ml-2 text-base font-semibold text-graphite-400">USDT</span>
           </p>
         </div>
         <div className="sm:text-right">
           <p className="text-xs uppercase tracking-wide text-graphite-400">Goal</p>
-          <p className="text-gold-gradient mt-1.5 font-display text-4xl font-bold leading-none sm:text-5xl">
+          <p className="text-gold-gradient mt-1.5 font-display text-3xl font-bold leading-none sm:text-4xl">
             $15,000,000
           </p>
         </div>
