@@ -68,7 +68,7 @@
     },
     {
       "id": "rescue-function",
-      "postedAt": null,
+      "postedAt": "2026-08-21T20:11:07.187Z",
       "text": "There is a rescue function that can move the contract's full balance — and it needs 3 votes from the voting body plus a 48-hour delay before it's callable, and it can only ever send funds to a pre-set Gnosis Safe multisig, never an arbitrary address. We're telling you it exists because you should know, not because we expect to need it.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
       "image": "docs/telegram-cards/rescue-function.png"
     },
