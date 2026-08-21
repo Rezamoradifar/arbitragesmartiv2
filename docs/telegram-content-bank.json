@@ -56,7 +56,7 @@
     },
     {
       "id": "exit-always-open",
-      "postedAt": null,
+      "postedAt": "2026-08-21T08:13:50.270Z",
       "text": "Exit works even if the contract is paused, and even if your address is blacklisted. Blacklisting blocks new stakes and claims — it does not freeze your principal. There is no state the owner can put the contract into that traps your exit.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/exit-always-open.png"
     },
