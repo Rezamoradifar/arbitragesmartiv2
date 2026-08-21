@@ -62,7 +62,7 @@
     },
     {
       "id": "emergency-withdraw",
-      "postedAt": null,
+      "postedAt": "2026-08-21T14:19:58.576Z",
       "text": "Two independent ways to unlock a zero-penalty full withdrawal, and neither needs the owner's cooperation: the contract has been paused for 30 continuous days, or 3 votes from the partner body flip emergency mode and 12 hours pass. Either path, principal comes back whole.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/emergency-withdraw.png"
     },
