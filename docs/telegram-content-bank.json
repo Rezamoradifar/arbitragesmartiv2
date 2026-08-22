@@ -86,7 +86,7 @@
     },
     {
       "id": "referral-volume-falls",
-      "postedAt": null,
+      "postedAt": "2026-08-22T20:08:27.886Z",
       "text": "A referral's volume counts toward your tier only while their position stays open. If they exit, your counted volume falls with them — it doesn't just stop rising, it actually decreases. That's deliberate: a tier earned once and kept forever regardless of whether the team is still there isn't measuring anything real.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/referral-volume-falls.png"
     },
