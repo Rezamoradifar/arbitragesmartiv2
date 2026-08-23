@@ -4,6 +4,7 @@ import { StrategyTruth } from "@/components/StrategyTruth";
 import { TheArithmetic } from "@/components/TheArithmetic";
 import { ArbitrageScanner } from "@/components/ArbitrageScanner";
 import { TradingBotStatus } from "@/components/TradingBotStatus";
+import { CexPriceTicker } from "@/components/CexPriceTicker";
 import { Icon } from "@/components/Icon";
 
 export const metadata: Metadata = {
@@ -48,6 +49,21 @@ export default function StrategyPage() {
 
       {/* --------------------------------------- the execution bot's status */}
       <TradingBotStatus />
+
+      {/* ------------------------------------ CEX price reference (not the protocol) */}
+      <section>
+        <h2 className="h-section">A different kind of arbitrage — CEX prices, for reference</h2>
+        <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-graphite-300">
+          This is the classic buy-low-sell-high spread between two centralized exchanges, streamed
+          live from their own public order books. It has nothing to do with the Polymarket engine
+          above, and the contract cannot act on it — there is no Binance or KuCoin key anywhere in
+          this system. It is shown because visitors ask about it, and the honest answer is a live
+          number, not a claim.
+        </p>
+        <div className="mt-8">
+          <CexPriceTicker />
+        </div>
+      </section>
 
       {/* ------------------------------------------------- the arithmetic */}
       <section>
