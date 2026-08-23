@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LiveStats } from "@/components/LiveStats";
 import { GrowthTarget } from "@/components/GrowthTarget";
+import { NewsFeed } from "@/components/NewsFeed";
 import { DepositCalculator } from "@/components/DepositCalculator";
 import { PolymarketMarkets } from "@/components/PolymarketMarkets";
 import { ArbitrageScanner } from "@/components/ArbitrageScanner";
@@ -212,6 +213,9 @@ export default function Home() {
         <LiveStats />
         <div className="mt-4">
           <GrowthTarget />
+        </div>
+        <div className="mt-4">
+          <NewsFeed />
         </div>
       </section>
 
