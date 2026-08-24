@@ -116,7 +116,7 @@
     },
     {
       "id": "rates-immutable",
-      "postedAt": null,
+      "postedAt": "2026-08-24T14:18:27.948Z",
       "text": "dailyRates is set once, at deployment, and is never assigned anywhere else in roughly 2,400 lines of contract code. We checked. There is no function — not for the owner, not for anyone — that raises or lowers it after the fact.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
       "image": "docs/telegram-cards/rates-immutable.png"
     },
