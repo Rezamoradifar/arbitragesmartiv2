@@ -122,7 +122,7 @@
     },
     {
       "id": "what-split-merge-redeem",
-      "postedAt": null,
+      "postedAt": "2026-08-24T20:14:27.812Z",
       "text": "Three things this contract can genuinely do on Polymarket, unaided and permissionlessly: split collateral into a complete YES/NO set, merge a set back to collateral before resolution, and redeem winning tokens after a market settles. All three are real calls to Polymarket's own deployed contracts, and every event fires only once the call has actually succeeded.\n\n#ArbiSmart #Polygon #USDT #DeFi",
       "image": "docs/telegram-cards/what-split-merge-redeem.png"
     },
