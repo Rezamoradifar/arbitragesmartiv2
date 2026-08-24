@@ -1,6 +1,7 @@
-import { createPublicClient, http, type Abi } from "viem";
+import { createPublicClient, type Abi } from "viem";
 import { polygon } from "viem/chains";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "@/lib/contract";
+import { polygonTransport } from "@/lib/rpc";
 
 /**
  * Something a monitor can poll.
@@ -17,7 +18,7 @@ export const dynamic = "force-dynamic";
 
 const client = createPublicClient({
   chain: polygon,
-  transport: http(process.env.NEXT_PUBLIC_POLYGON_RPC_URL || "https://polygon.gateway.tenderly.co"),
+  transport: polygonTransport,
 });
 
 export async function GET() {

@@ -1,5 +1,6 @@
-import { createPublicClient, http, formatUnits, type Abi } from "viem";
+import { createPublicClient, formatUnits, type Abi } from "viem";
 import { polygon } from "viem/chains";
+import { polygonTransport } from "@/lib/rpc";
 import {
   CONTRACT_ADDRESS,
   CONTRACT_ABI,
@@ -28,7 +29,7 @@ import {
 
 const client = createPublicClient({
   chain: polygon,
-  transport: http(process.env.NEXT_PUBLIC_POLYGON_RPC_URL || "https://polygon.gateway.tenderly.co"),
+  transport: polygonTransport,
 });
 
 type Live = {
