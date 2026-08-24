@@ -62,7 +62,7 @@ export function NavBar() {
           : "border-b border-transparent bg-transparent"
       }`}
     >
-      <div className="container-page flex items-center justify-between gap-4 py-4">
+      <div className="container-page flex items-center justify-between gap-4 py-4 max-[359px]:!px-3">
         <Link href="/" className="flex shrink-0 items-center gap-2.5">
           <BrandMark />
           <span className="font-display text-[17px] font-bold tracking-[-.01em] text-white">
@@ -90,7 +90,7 @@ export function NavBar() {
           })}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 max-[359px]:gap-1">
           <LocaleSwitcher />
           <ThemeToggle />
           <a

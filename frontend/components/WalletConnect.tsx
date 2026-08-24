@@ -32,14 +32,22 @@ export function WalletConnectButton() {
         return (
           <div {...(!ready && { "aria-hidden": true, style: { opacity: 0, pointerEvents: "none" } })}>
             {!connected ? (
-              <button type="button" onClick={openConnectModal} className="btn-primary !px-4 !py-2 !text-[13px]">
+              <button
+                type="button"
+                onClick={openConnectModal}
+                className="btn-primary !px-3 !py-2 !text-[13px] sm:!px-4"
+              >
                 <Icon name="wallet" className="h-4 w-4" />
-                Connect Wallet
+                <span className="hidden sm:inline">Connect Wallet</span>
               </button>
             ) : chain.unsupported ? (
-              <button type="button" onClick={openChainModal} className="btn-danger !px-4 !py-2 !text-[13px]">
+              <button
+                type="button"
+                onClick={openChainModal}
+                className="btn-danger !px-3 !py-2 !text-[13px] sm:!px-4"
+              >
                 <span className="h-2 w-2 shrink-0 rounded-full bg-danger-400" />
-                Wrong network
+                <span className="hidden sm:inline">Wrong network</span>
               </button>
             ) : (
               <button
@@ -48,7 +56,7 @@ export function WalletConnectButton() {
                 className="btn-secondary !px-3 !py-2 !text-[13px]"
               >
                 <LiveDot />
-                {account.displayName}
+                <span className="max-w-[92px] truncate sm:max-w-none">{account.displayName}</span>
               </button>
             )}
           </div>
