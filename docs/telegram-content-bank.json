@@ -110,7 +110,7 @@
     },
     {
       "id": "no-upgradeable",
-      "postedAt": null,
+      "postedAt": "2026-08-24T08:12:59.914Z",
       "text": "No proxy. No delegatecall. No upgradeable pattern anywhere in this contract. The code running today is the code that runs for as long as this contract exists — nobody, including us, can swap the logic underneath you later.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/no-upgradeable.png"
     },
