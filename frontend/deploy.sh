@@ -256,6 +256,65 @@ curl -s -o /dev/null -w "  http://127.0.0.1:$PORT  ->  %{http_code}\n" http://12
 curl -s -o /dev/null -w "  http://127.0.0.1:$PORT/arbitrage-status.json  ->  %{http_code}\n" http://127.0.0.1:$PORT/arbitrage-status.json || true
 pm2 status arbismart-frontend || true
 
+# --- 10. Verify the site actually renders, through the real public path ----
+#
+# The local check above hits Next.js directly on $PORT — it cannot see a
+# problem that only exists in front of that, at nginx or DNS. A previous
+# incident had exactly that shape: the homepage loaded and returned 200, but
+# one of its own <link>/<script> tags 404'd behind nginx, serving a
+# completely unrelated app's error page instead — because something else on
+# this machine was still bound to a path nginx was routing to. The site
+# looked "broken" to a visitor while every check that stayed inside this
+# app kept reporting healthy. Fetching the public URL and then fetching
+# every asset THAT PAGE ITSELF references, through the same public path a
+# visitor uses, is the only way this script can catch that class of bug
+# before a person does.
+PUBLIC_BASE="https://$DOMAIN"
+if ! curl -fsS -o /dev/null --max-time 10 "$PUBLIC_BASE/" 2>/dev/null; then
+  PUBLIC_BASE="http://$DOMAIN"
+fi
+
+say "Verifying the homepage's own assets through $PUBLIC_BASE"
+HOMEPAGE_HTML="$(curl -s --max-time 15 "$PUBLIC_BASE/" || true)"
+ASSET_FAILS=0
+if [ -z "$HOMEPAGE_HTML" ]; then
+  echo "  could not fetch $PUBLIC_BASE/ at all — skipping asset check"
+  ASSET_FAILS=1
+else
+  ASSETS="$(printf '%s' "$HOMEPAGE_HTML" | grep -oE '(href|src)="/_next/static/[^"]+"' | sed -E 's/^(href|src)="//; s/"$//' | sort -u || true)"
+  if [ -z "$ASSETS" ]; then
+    echo "  no /_next/static assets found in the homepage — unexpected, skipping"
+  fi
+  while IFS= read -r asset; do
+    [ -z "$asset" ] && continue
+    code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$PUBLIC_BASE$asset" || echo "000")"
+    if [ "$code" = "200" ]; then
+      echo "  OK    $asset"
+    else
+      echo "  FAIL  $asset  ->  $code"
+      ASSET_FAILS=$((ASSET_FAILS + 1))
+    fi
+  done <<< "$ASSETS"
+fi
+
+if [ "$ASSET_FAILS" -gt 0 ]; then
+  cat <<EOF
+
+  WARNING: the public homepage references a static asset that did not
+  load through $PUBLIC_BASE. This is exactly what makes the site look
+  broken or unstyled to a visitor even though the server itself answers
+  200. It means something other than this deploy is intercepting that
+  path — check for a second process or a stray nginx config still bound
+  to this domain:
+
+      pm2 list
+      sudo nginx -T | grep -A 15 "server_name $DOMAIN"
+
+  Resolve whatever that turns up, then re-run this script.
+
+EOF
+fi
+
 if ! grep -q '^ASSISTANT_API_KEY=' .env.local 2>/dev/null && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
   cat <<'EOF'
 
