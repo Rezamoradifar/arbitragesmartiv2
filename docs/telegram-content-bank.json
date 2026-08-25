@@ -128,7 +128,7 @@
     },
     {
       "id": "why-onlyoperator-blocks-arb",
-      "postedAt": null,
+      "postedAt": "2026-08-25T08:13:15.688Z",
       "text": "What this contract cannot do: place an order on Polymarket's book. fillOrder, fillOrders and matchOrders are gated behind an onlyOperator permission that Polymarket's own admins control — not something we can code around, and not something granted to arbitrary third-party contracts. Until that changes, split-and-redeem alone nets to zero before gas; the profit in this kind of arbitrage only ever comes from the order book.\n\n#ArbiSmart #Polygon #USDT #DeFi #Transparency",
       "image": "docs/telegram-cards/why-onlyoperator-blocks-arb.png"
     },
