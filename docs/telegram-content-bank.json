@@ -134,7 +134,7 @@
     },
     {
       "id": "per-dollar-shortfall",
-      "postedAt": null,
+      "postedAt": "2026-08-25T14:20:13.245Z",
       "text": "The honest math, per dollar deposited: Starter must pay back $2.59, Growth $3.09, Advanced $3.47, Elite $3.39 — against a strategy that has earned $0 so far. The gap is real and it's the same ratio at any size, because the rates are proportions, not fixed sums. Full table at arbhub.site/strategy.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/per-dollar-shortfall.png"
     },
