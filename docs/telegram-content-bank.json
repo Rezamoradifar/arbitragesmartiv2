@@ -140,7 +140,7 @@
     },
     {
       "id": "days-to-empty",
-      "postedAt": null,
+      "postedAt": "2026-08-25T20:14:06.903Z",
       "text": "An idle pool — no new deposits, everyone claiming as it accrues — drains before its own term ends on every single plan: Starter empties day 93 of 180, Growth day 62 of 150, Advanced day 44 of 120, Elite day 35 of 90. That's not a liquidity risk good management avoids; it's what a fixed rate above what the capital earns means, arithmetically.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/days-to-empty.png"
     },
