@@ -3,6 +3,7 @@ import { LiveStats } from "@/components/LiveStats";
 import { GrowthTarget } from "@/components/GrowthTarget";
 import { NewsFeed } from "@/components/NewsFeed";
 import { MarketNews } from "@/components/MarketNews";
+import { GoldRewardsBanner } from "@/components/GoldRewardsBanner";
 import { DepositCalculator } from "@/components/DepositCalculator";
 import { PolymarketMarkets } from "@/components/PolymarketMarkets";
 import { ArbitrageScanner } from "@/components/ArbitrageScanner";
@@ -247,6 +248,13 @@ export default function Home() {
             </Reveal>
           ))}
         </div>
+      </section>
+
+      {/* ============ GOLD REWARDS ============ */}
+      <section className="container-page pb-20">
+        <Reveal>
+          <GoldRewardsBanner />
+        </Reveal>
       </section>
 
       {/* ============ 5-9. CORE TECHNOLOGY / STRATEGIES / SECURITY / ANALYTICS / ECOSYSTEM ============ */}
