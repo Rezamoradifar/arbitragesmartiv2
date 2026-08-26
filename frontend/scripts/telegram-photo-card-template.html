@@ -1,0 +1,61 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .card {
+    width: 1200px; height: 675px; position: relative; overflow: hidden;
+    background: #0b0d11 url('BG_IMAGE_PATH') center / cover no-repeat;
+    font-family: 'Sora', system-ui, -apple-system, sans-serif;
+    color: #f4f5f7;
+  }
+  /* Legibility scrim: the AI photo is atmosphere, the text still has to read
+     at a glance in a Telegram feed. Darker toward the bottom where the
+     text/logo sit, lighter at the very top so the image still shows through. */
+  .scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(5,6,11,.35) 0%, rgba(5,6,11,.55) 40%, rgba(5,6,11,.92) 100%);
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 14px; border-radius: 999px;
+    border: 1px solid var(--chip-border);
+    background: var(--chip-bg);
+    color: var(--chip-fg); font-size: 13px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    backdrop-filter: blur(6px);
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--chip-fg); flex: none; }
+</style>
+</head><body>
+<div class="card">
+  <div class="scrim"></div>
+  <div style="position:relative; z-index:1; display:flex; flex-direction:column; justify-content:flex-end; height:100%; padding:60px;">
+
+    <div style="display:flex; flex-direction:column; gap:22px; max-width:990px;">
+      <span class="chip" style="--chip-fg:CHIP_COLOR; --chip-border:CHIP_BORDER; --chip-bg:CHIP_BG; width:fit-content;">
+        <span class="dot"></span>CHIP_LABEL
+      </span>
+      <p style="margin:0; font-size:BODY_SIZEpx; line-height:1.5; font-weight:600; color:#ffffff; text-wrap:balance; text-shadow: 0 2px 24px rgba(0,0,0,.7);">
+        BODY_TEXT
+      </p>
+    </div>
+
+    <div style="margin-top:36px; display:flex; align-items:center; justify-content:space-between;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <svg width="24" height="24" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="24" height="24" rx="6" transform="rotate(45 13 13)" stroke="#e0ad3c" stroke-width="1.6"/>
+          <circle cx="13" cy="13" r="3" fill="#e0ad3c"/>
+        </svg>
+        <span style="font-size:17px; font-weight:700; letter-spacing:0.01em; color:#fff;">
+          ARBI<span style="color:#e0ad3c; font-weight:700;">SMART</span>
+        </span>
+      </div>
+      <span style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:rgba(255,255,255,.55); letter-spacing:0.02em;">
+        @arbhub_site
+      </span>
+    </div>
+  </div>
+</div>
+</body></html>
