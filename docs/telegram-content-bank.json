@@ -152,7 +152,7 @@
     },
     {
       "id": "sourcify-verified",
-      "postedAt": null,
+      "postedAt": "2026-08-26T14:17:13.946Z",
       "text": "Source is verified on Sourcify with an EXACT match — both creation and runtime bytecode, not just a similar-looking recompile. That means the code you can read on Sourcify is byte-for-byte what's actually running at the deployed address. Nothing to take on trust there.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/sourcify-verified.png"
     },
