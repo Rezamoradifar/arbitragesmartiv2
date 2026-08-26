@@ -188,7 +188,7 @@
     },
     {
       "id": "yield-every-second",
-      "postedAt": null,
+      "postedAt": "2026-08-26T17:15:49.419Z",
       "text": "Yield doesn't wait for you to check the app. It builds every second, against the stake the contract already recorded, whether you're watching or not. Check in once a week or once an hour — the number keeps moving either way.\n\n#ArbiSmart #Polygon #USDT #Staking",
       "image": "docs/telegram-cards/yield-every-second.png"
     },
