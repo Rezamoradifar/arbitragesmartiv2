@@ -224,7 +224,7 @@
     },
     {
       "id": "site-keeps-shipping",
-      "postedAt": null,
+      "postedAt": "2026-08-26T23:18:07.600Z",
       "text": "This week alone: multi-provider RPC failover so no single outage can take a page down, a mobile display fix, a live market-news feed, and a homepage banner for the gold rewards. All of it shipped in the open, on the same branch anyone can read. A platform that's still building beats one that's finished pretending.\n\n#ArbiSmart #Polygon #USDT #Update",
       "image": "docs/telegram-cards/site-keeps-shipping.png"
     },
