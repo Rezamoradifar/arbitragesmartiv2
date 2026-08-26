@@ -175,6 +175,54 @@
       "image": "docs/telegram-cards/exit-freedom-motivation.png"
     },
     {
+      "id": "team-building-motivation",
+      "postedAt": null,
+      "text": "The referral programme pays real USDT the moment your team claims, and the gold tiers stack on top of that — same volume, two rewards. You don't need permission to start building; the contract doesn't ask who referred you first before it counts.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/team-building-motivation.png"
+    },
+    {
+      "id": "security-confidence",
+      "postedAt": null,
+      "text": "Read the code, not our word for it. Exact-match verified on Sourcify, no proxy, no upgradeable pattern, and the owner cannot touch a single dollar of staked principal. Confidence here isn't a marketing line — it's something you can check yourself in five minutes.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/security-confidence.png"
+    },
+    {
+      "id": "yield-every-second",
+      "postedAt": null,
+      "text": "Yield doesn't wait for you to check the app. It builds every second, against the stake the contract already recorded, whether you're watching or not. Check in once a week or once an hour — the number keeps moving either way.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/yield-every-second.png"
+    },
+    {
+      "id": "why-onchain-matters",
+      "postedAt": null,
+      "text": "Every stake, every claim, every fee — it's all sitting on Polygon where anyone can look. Not a dashboard we control, not a number we could quietly change. The chain doesn't take our word for it either.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/why-onchain-matters.png"
+    },
+    {
+      "id": "small-start-motivation",
+      "postedAt": null,
+      "text": "You don't need to arrive with a fortune. A modest, honest stake today is still a real position building real yield — the same contract, the same rates, the same rules as anyone depositing ten times more.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/small-start-motivation.png"
+    },
+    {
+      "id": "claim-whenever-motivation",
+      "postedAt": null,
+      "text": "Claim today, claim next month, or let it build — the choice is entirely yours, and the contract has no opinion about it. There's no bonus for waiting and no penalty for claiming often. Take it on your own schedule.\n\n#ArbiSmart #Polygon #USDT #Flexibility",
+      "image": "docs/telegram-cards/claim-whenever-motivation.png"
+    },
+    {
+      "id": "verify-dont-trust-motivation",
+      "postedAt": null,
+      "text": "Don't take a screenshot's word for a live number. Every figure on this channel and on the site traces back to the same contract call anyone can run themselves — read-only, no login, no permission needed. Check it, then decide.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/verify-dont-trust-motivation.png"
+    },
+    {
+      "id": "building-in-the-open",
+      "postedAt": null,
+      "text": "Questions get real answers here, not a support ticket that disappears into a queue. If something about the contract, the rates, or the security model doesn't add up to you, ask — that's exactly what this channel is for.\n\n#ArbiSmart #Polygon #USDT #Community",
+      "image": "docs/telegram-cards/building-in-the-open.png"
+    },
+    {
       "id": "site-keeps-shipping",
       "postedAt": null,
       "text": "This week alone: multi-provider RPC failover so no single outage can take a page down, a mobile display fix, a live market-news feed, and a homepage banner for the gold rewards. All of it shipped in the open, on the same branch anyone can read. A platform that's still building beats one that's finished pretending.\n\n#ArbiSmart #Polygon #USDT #Update",
