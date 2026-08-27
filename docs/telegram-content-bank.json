@@ -254,7 +254,7 @@
     },
     {
       "id": "protocol-wallets-fixed",
-      "postedAt": null,
+      "postedAt": "2026-08-27T22:09:29.340Z",
       "text": "The two development-fee wallets are barred from the free-stake window entirely, and everywhere else they're limited to one fixed-size position — no exceptions, enforced by the contract itself, not by policy. A wallet that collects protocol revenue getting a free claim on other depositors' capital would be exactly the kind of thing this project exists to not do.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
       "image": "docs/telegram-cards/protocol-wallets-fixed.png"
     },
