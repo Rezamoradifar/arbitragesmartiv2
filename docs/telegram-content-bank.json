@@ -230,7 +230,7 @@
     },
     {
       "id": "verify-yourself",
-      "postedAt": null,
+      "postedAt": "2026-08-27T06:24:42.987Z",
       "text": "Every rate, fee, and threshold we publish was checked this session directly against the deployed contract — 41 separate reads, zero mismatches. You don't need to trust that we did it right: pull up 0x5589105c61154f93D11aa350a25c634d5B324bFB on Polygonscan and read dailyRates, claimFeeBps and planDurations yourself.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
       "image": "docs/telegram-cards/verify-yourself.png"
     },
