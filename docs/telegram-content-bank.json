@@ -269,6 +269,30 @@
       "postedAt": null,
       "text": "Before you sign a deposit: the screen shows what leaves your wallet, what the entry fee takes, and what actually gets recorded as your stake — three different numbers, all visible before you commit to anything. If a platform only shows you the amount you send, ask why.\n\n#ArbiSmart #Polygon #USDT #HowTo",
       "image": "docs/telegram-cards/how-to-check-split.png"
+    },
+    {
+      "id": "onlyeoa-no-bots",
+      "postedAt": null,
+      "text": "Staking calls require tx.origin to equal msg.sender — a plain wallet, not a smart-contract intermediary. It's a participation rule, not a permission check: nothing here is authorized based on tx.origin, it can only narrow who's allowed to call in, so none of the classic tx.origin-phishing risk applies.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/onlyeoa-no-bots.png"
+    },
+    {
+      "id": "fee-withdrawal-capped",
+      "postedAt": null,
+      "text": "Owner fee withdrawals aren't limited by policy, they're limited by arithmetic — three checks, every time: can't exceed that budget's own uncollected balance, can't exceed the contract's actual liquid balance, and can't dip into what non-fee liabilities need. There's no path from here to a single dollar of staked principal.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
+      "image": "docs/telegram-cards/fee-withdrawal-capped.png"
+    },
+    {
+      "id": "dashboard-one-call",
+      "postedAt": null,
+      "text": "Two read-only functions, dashboard() and userDepositBreakdown(), return the whole picture in one call each — gross deposits, fees collected, net stakes, pool balance, what's deployed to arbitrage; per-user gross, fee paid, net stake, active stake. No login, no dashboard we control, callable by anyone directly against the contract.\n\n#ArbiSmart #Polygon #USDT #Transparency #HowTo",
+      "image": "docs/telegram-cards/dashboard-one-call.png"
+    },
+    {
+      "id": "grantstake-real-funds",
+      "postedAt": null,
+      "text": "grantStake exists for the owner to seed a promotional or migrated position — but it isn't free money out of thin air: the same amount has to actually leave the owner's wallet and land in the contract, transferred and balance-checked exactly like a real user deposit. No mechanism here mints stake without matching collateral arriving.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
+      "image": "docs/telegram-cards/grantstake-real-funds.png"
     }
   ]
 }
