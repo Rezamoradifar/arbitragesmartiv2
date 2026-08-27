@@ -248,7 +248,7 @@
     },
     {
       "id": "min-countable-referral",
-      "postedAt": null,
+      "postedAt": "2026-08-27T18:11:16.018Z",
       "text": "A referral only counts toward your headcount once their recorded stake crosses a minimum floor. An empty or never-funded position doesn't count as a person on your team — which is what stops a tier from being priced in throwaway wallets that hold nothing.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/min-countable-referral.png"
     },
