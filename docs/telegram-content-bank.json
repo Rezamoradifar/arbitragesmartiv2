@@ -236,7 +236,7 @@
     },
     {
       "id": "governance-voting-body",
-      "postedAt": null,
+      "postedAt": "2026-08-27T10:13:01.923Z",
       "text": "The voting body for anything requiring quorum — emergency mode, a rescue — is the owner plus every registered partner, and it takes 3 votes to move. One person alone, including the owner, can't trigger either path. The partner list is public and readable on-chain any time.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/governance-voting-body.png"
     },
