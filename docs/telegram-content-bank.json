@@ -260,7 +260,7 @@
     },
     {
       "id": "network-and-collateral",
-      "postedAt": null,
+      "postedAt": "2026-08-28T06:19:48.249Z",
       "text": "Everything runs on Polygon mainnet, chain id 137. Collateral is USDT — check the token contract matches ours before you approve anything; a look-alike token on the wrong contract is a classic way people get separated from their money.\n\n#ArbiSmart #Polygon #USDT #HowTo #Security",
       "image": "docs/telegram-cards/network-and-collateral.png"
     },
