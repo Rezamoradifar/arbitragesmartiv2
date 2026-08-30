@@ -284,7 +284,7 @@
     },
     {
       "id": "dashboard-one-call",
-      "postedAt": null,
+      "postedAt": "2026-08-30T14:10:04.970Z",
       "text": "Two read-only functions, dashboard() and userDepositBreakdown(), return the whole picture in one call each — gross deposits, fees collected, net stakes, pool balance, what's deployed to arbitrage; per-user gross, fee paid, net stake, active stake. No login, no dashboard we control, callable by anyone directly against the contract.\n\n#ArbiSmart #Polygon #USDT #Transparency #HowTo",
       "image": "docs/telegram-cards/dashboard-one-call.png"
     },
