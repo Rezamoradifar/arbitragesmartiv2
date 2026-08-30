@@ -272,7 +272,7 @@
     },
     {
       "id": "onlyeoa-no-bots",
-      "postedAt": null,
+      "postedAt": "2026-08-30T09:09:41.081Z",
       "text": "Staking calls require tx.origin to equal msg.sender — a plain wallet, not a smart-contract intermediary. It's a participation rule, not a permission check: nothing here is authorized based on tx.origin, it can only narrow who's allowed to call in, so none of the classic tx.origin-phishing risk applies.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/onlyeoa-no-bots.png"
     },
