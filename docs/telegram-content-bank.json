@@ -290,7 +290,7 @@
     },
     {
       "id": "grantstake-real-funds",
-      "postedAt": null,
+      "postedAt": "2026-08-30T18:07:57.541Z",
       "text": "grantStake exists for the owner to seed a promotional or migrated position — but it isn't free money out of thin air: the same amount has to actually leave the owner's wallet and land in the contract, transferred and balance-checked exactly like a real user deposit. No mechanism here mints stake without matching collateral arriving.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
       "image": "docs/telegram-cards/grantstake-real-funds.png"
     },
