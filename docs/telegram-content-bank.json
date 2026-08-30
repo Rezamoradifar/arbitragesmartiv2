@@ -278,7 +278,7 @@
     },
     {
       "id": "fee-withdrawal-capped",
-      "postedAt": null,
+      "postedAt": "2026-08-30T10:08:35.984Z",
       "text": "Owner fee withdrawals aren't limited by policy, they're limited by arithmetic — three checks, every time: can't exceed that budget's own uncollected balance, can't exceed the contract's actual liquid balance, and can't dip into what non-fee liabilities need. There's no path from here to a single dollar of staked principal.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
       "image": "docs/telegram-cards/fee-withdrawal-capped.png"
     },
