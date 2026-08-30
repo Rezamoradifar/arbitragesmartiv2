@@ -311,6 +311,24 @@
       "postedAt": null,
       "text": "Adding or removing a partner is blocked the moment emergency mode is active. The owner can't shrink the voting body mid-vote to cancel a rescue or an emergency exit already in flight — the people who can vote are locked in before the vote even starts moving.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/partner-list-frozen-during-emergency.png"
+    },
+    {
+      "id": "slippage-floor-enforced",
+      "postedAt": null,
+      "text": "Every swap into the arbitrage leg has a hard floor on acceptable slippage, and the contract checks it in code — a bound looser than that floor reverts, even when the owner is the one calling. It isn't a policy the owner promises to follow; it's a number the transaction can't get past.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/slippage-floor-enforced.png"
+    },
+    {
+      "id": "loss-not-hidden",
+      "postedAt": null,
+      "text": "When a strategy position unwinds, cost basis is retired first — so a loss simply retires less basis, it isn't absorbed elsewhere or written off the books. The performance fee only ever applies to a realized gain above that basis, never to returned principal, and never on a leg that lost money.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/loss-not-hidden.png"
+    },
+    {
+      "id": "recovery-wallet-locked-during-vote",
+      "postedAt": null,
+      "text": "The recovery wallet — the only address a rescue can ever send funds to — can't be changed once a rescue vote is already pending. The owner can't quietly redirect the sweep target mid-vote; that address has to be set before anyone starts voting.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/recovery-wallet-locked-during-vote.png"
     }
   ]
 }
