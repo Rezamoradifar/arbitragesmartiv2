@@ -296,7 +296,7 @@
     },
     {
       "id": "blacklist-cant-freeze-principal",
-      "postedAt": null,
+      "postedAt": "2026-08-30T22:11:25.135Z",
       "text": "A blacklist flag exists, but it can only block new stakes, top-ups, plan upgrades, and claiming — never earlyExit or emergencyWithdraw. Whatever a wallet is flagged for, its principal can never be permanently frozen by this switch. The owner can't even blacklist themselves; that path is closed off in the code.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/blacklist-cant-freeze-principal.png"
     },
