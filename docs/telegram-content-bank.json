@@ -341,6 +341,18 @@
       "postedAt": null,
       "text": "The moment emergency mode activates, the owner loses the ability to open new arbitrage positions or move any more pool collateral into the strategy — both paths are blocked in code. From that point on, the only things that happen are unwinding and stakers withdrawing their principal.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/arbitrage-frozen-during-emergency.png"
+    },
+    {
+      "id": "free-stake-capped-100",
+      "postedAt": null,
+      "text": "The free-stake programme has a hard cap in code — 100 slots, first-come, first-served. Once they're claimed, that specific door closes; it isn't a marketing number, it's a limit the contract itself enforces.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/free-stake-capped-100.png"
+    },
+    {
+      "id": "self-serve-plan-upgrade",
+      "postedAt": null,
+      "text": "When a top-up pushes your stake into a higher plan, the rate doesn't wait on us to notice — you call upgradePlan yourself, permissionless, and it only ever moves your rate up to match what you actually have staked. No ticket, no approval, no owner in the loop.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/self-serve-plan-upgrade.png"
     }
   ]
 }
