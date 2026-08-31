@@ -314,7 +314,7 @@
     },
     {
       "id": "slippage-floor-enforced",
-      "postedAt": null,
+      "postedAt": "2026-08-31T14:18:16.812Z",
       "text": "Every swap into the arbitrage leg has a hard floor on acceptable slippage, and the contract checks it in code — a bound looser than that floor reverts, even when the owner is the one calling. It isn't a policy the owner promises to follow; it's a number the transaction can't get past.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/slippage-floor-enforced.png"
     },
