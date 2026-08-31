@@ -326,7 +326,7 @@
     },
     {
       "id": "recovery-wallet-locked-during-vote",
-      "postedAt": null,
+      "postedAt": "2026-08-31T22:12:45.078Z",
       "text": "The recovery wallet — the only address a rescue can ever send funds to — can't be changed once a rescue vote is already pending. The owner can't quietly redirect the sweep target mid-vote; that address has to be set before anyone starts voting.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/recovery-wallet-locked-during-vote.png"
     },
