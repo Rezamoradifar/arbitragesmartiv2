@@ -302,7 +302,7 @@
     },
     {
       "id": "unpause-blocked-during-emergency",
-      "postedAt": null,
+      "postedAt": "2026-08-31T06:25:44.388Z",
       "text": "Once the partner body votes emergency mode active, the owner cannot unpause the contract to undo it — that path is blocked while emergency mode is set. A vote that passes is a one-way wind-down decision; stakers exit through emergencyWithdraw, not a switch the owner can flip back.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/unpause-blocked-during-emergency.png"
     },
