@@ -320,7 +320,7 @@
     },
     {
       "id": "loss-not-hidden",
-      "postedAt": null,
+      "postedAt": "2026-08-31T18:09:36.092Z",
       "text": "When a strategy position unwinds, cost basis is retired first — so a loss simply retires less basis, it isn't absorbed elsewhere or written off the books. The performance fee only ever applies to a realized gain above that basis, never to returned principal, and never on a leg that lost money.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/loss-not-hidden.png"
     },
