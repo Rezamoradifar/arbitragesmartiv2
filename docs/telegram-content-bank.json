@@ -329,6 +329,18 @@
       "postedAt": null,
       "text": "The recovery wallet — the only address a rescue can ever send funds to — can't be changed once a rescue vote is already pending. The owner can't quietly redirect the sweep target mid-vote; that address has to be set before anyone starts voting.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/recovery-wallet-locked-during-vote.png"
+    },
+    {
+      "id": "profit-fee-capped-20pct",
+      "postedAt": null,
+      "text": "The performance fee on realized arbitrage profit starts at 10% and is owner-adjustable — but hard-capped in code at 20%. There's no path to raise it past that ceiling, whatever the reason. It only ever applies to realized gains, never to staked principal.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/profit-fee-capped-20pct.png"
+    },
+    {
+      "id": "arbitrage-frozen-during-emergency",
+      "postedAt": null,
+      "text": "The moment emergency mode activates, the owner loses the ability to open new arbitrage positions or move any more pool collateral into the strategy — both paths are blocked in code. From that point on, the only things that happen are unwinding and stakers withdrawing their principal.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/arbitrage-frozen-during-emergency.png"
     }
   ]
 }
