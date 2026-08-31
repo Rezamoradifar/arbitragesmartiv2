@@ -308,7 +308,7 @@
     },
     {
       "id": "partner-list-frozen-during-emergency",
-      "postedAt": null,
+      "postedAt": "2026-08-31T10:12:57.714Z",
       "text": "Adding or removing a partner is blocked the moment emergency mode is active. The owner can't shrink the voting body mid-vote to cancel a rescue or an emergency exit already in flight — the people who can vote are locked in before the vote even starts moving.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/partner-list-frozen-during-emergency.png"
     },
