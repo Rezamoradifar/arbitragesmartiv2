@@ -332,7 +332,7 @@
     },
     {
       "id": "profit-fee-capped-20pct",
-      "postedAt": null,
+      "postedAt": "2026-09-01T06:22:35.643Z",
       "text": "The performance fee on realized arbitrage profit starts at 10% and is owner-adjustable — but hard-capped in code at 20%. There's no path to raise it past that ceiling, whatever the reason. It only ever applies to realized gains, never to staked principal.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/profit-fee-capped-20pct.png"
     },
