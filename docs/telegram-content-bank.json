@@ -350,7 +350,7 @@
     },
     {
       "id": "self-serve-plan-upgrade",
-      "postedAt": null,
+      "postedAt": "2026-09-01T18:10:08.355Z",
       "text": "When a top-up pushes your stake into a higher plan, the rate doesn't wait on us to notice — you call upgradePlan yourself, permissionless, and it only ever moves your rate up to match what you actually have staked. No ticket, no approval, no owner in the loop.\n\n#ArbiSmart #Polygon #USDT #Staking",
       "image": "docs/telegram-cards/self-serve-plan-upgrade.png"
     },
