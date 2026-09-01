@@ -353,6 +353,18 @@
       "postedAt": null,
       "text": "When a top-up pushes your stake into a higher plan, the rate doesn't wait on us to notice — you call upgradePlan yourself, permissionless, and it only ever moves your rate up to match what you actually have staked. No ticket, no approval, no owner in the loop.\n\n#ArbiSmart #Polygon #USDT #Staking",
       "image": "docs/telegram-cards/self-serve-plan-upgrade.png"
+    },
+    {
+      "id": "daily-claim-cap",
+      "postedAt": null,
+      "text": "Every claim is checked against a per-day ceiling — 200% of your staked amount, tracked per UTC day. Ordinary yield never comes close to that number; it exists purely as a backstop, so a miscalculation or an edge case can't drain a position in one call.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/daily-claim-cap.png"
+    },
+    {
+      "id": "scanner-findings-documented",
+      "postedAt": null,
+      "text": "Automated security scanners flag things worth a second look — five spots in this contract got flagged. Every single one has a written note right next to it explaining why it isn't actually exploitable, not just a blanket suppression. Reviewed and documented, not silently muted.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/scanner-findings-documented.png"
     }
   ]
 }
