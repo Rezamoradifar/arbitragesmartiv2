@@ -338,7 +338,7 @@
     },
     {
       "id": "arbitrage-frozen-during-emergency",
-      "postedAt": null,
+      "postedAt": "2026-09-01T10:13:07.856Z",
       "text": "The moment emergency mode activates, the owner loses the ability to open new arbitrage positions or move any more pool collateral into the strategy — both paths are blocked in code. From that point on, the only things that happen are unwinding and stakers withdrawing their principal.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/arbitrage-frozen-during-emergency.png"
     },
