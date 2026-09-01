@@ -344,7 +344,7 @@
     },
     {
       "id": "free-stake-capped-100",
-      "postedAt": null,
+      "postedAt": "2026-09-01T14:17:15.690Z",
       "text": "The free-stake programme has a hard cap in code — 100 slots, first-come, first-served. Once they're claimed, that specific door closes; it isn't a marketing number, it's a limit the contract itself enforces.\n\n#ArbiSmart #Polygon #USDT #Staking",
       "image": "docs/telegram-cards/free-stake-capped-100.png"
     },
