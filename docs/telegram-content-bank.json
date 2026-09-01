@@ -365,6 +365,18 @@
       "postedAt": null,
       "text": "Automated security scanners flag things worth a second look — five spots in this contract got flagged. Every single one has a written note right next to it explaining why it isn't actually exploitable, not just a blanket suppression. Reviewed and documented, not silently muted.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/scanner-findings-documented.png"
+    },
+    {
+      "id": "totalassets-excludes-pending-fees",
+      "postedAt": null,
+      "text": "The contract's own solvency figure explicitly subtracts platform fees that have been charged but not yet withdrawn. Fees sit in the same balance as pool capital until swept out — without that subtraction, revenue earmarked for us would quietly inflate what the pool looks backed by. This is the line that keeps the two from mixing.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/totalassets-excludes-pending-fees.png"
+    },
+    {
+      "id": "development-fee-fixed-at-deploy",
+      "postedAt": null,
+      "text": "The platform's own revenue cut is set once, at deployment, capped at 20% combined across both fee wallets — and there is no function anywhere in the contract to change it afterward. Not owner-adjustable like the performance fee; it's simply fixed for the life of the contract.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/development-fee-fixed-at-deploy.png"
     }
   ]
 }
