@@ -356,7 +356,7 @@
     },
     {
       "id": "daily-claim-cap",
-      "postedAt": null,
+      "postedAt": "2026-09-01T22:10:11.676Z",
       "text": "Every claim is checked against a per-day ceiling — 200% of your staked amount, tracked per UTC day. Ordinary yield never comes close to that number; it exists purely as a backstop, so a miscalculation or an edge case can't drain a position in one call.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/daily-claim-cap.png"
     },
