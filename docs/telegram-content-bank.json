@@ -377,6 +377,18 @@
       "postedAt": null,
       "text": "The platform's own revenue cut is set once, at deployment, capped at 20% combined across both fee wallets — and there is no function anywhere in the contract to change it afterward. Not owner-adjustable like the performance fee; it's simply fixed for the life of the contract.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/development-fee-fixed-at-deploy.png"
+    },
+    {
+      "id": "free-stake-window-closed",
+      "postedAt": null,
+      "text": "For the record: the free-stake giveaway was a 24-hour window from deployment, not a standing offer — and it closed weeks ago, checked in code against the block timestamp, not a policy anyone can extend. If you missed it, there's no owner switch to reopen it. The 100-slot cap we mentioned before was the second, independent limit on top of that clock.\n\n#ArbiSmart #Polygon #USDT #Staking #Transparency",
+      "image": "docs/telegram-cards/free-stake-window-closed.png"
+    },
+    {
+      "id": "referral-needs-active-position",
+      "postedAt": null,
+      "text": "A referrer only earns while their own position stays active — the moment they exit, their upline share stops too. Skin in the game is the whole basis for getting paid a cut of someone else's yield; it isn't a one-time signup bonus that keeps paying after they've left.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-needs-active-position.png"
     }
   ]
 }
