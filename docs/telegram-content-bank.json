@@ -368,7 +368,7 @@
     },
     {
       "id": "totalassets-excludes-pending-fees",
-      "postedAt": null,
+      "postedAt": "2026-09-02T10:10:45.978Z",
       "text": "The contract's own solvency figure explicitly subtracts platform fees that have been charged but not yet withdrawn. Fees sit in the same balance as pool capital until swept out — without that subtraction, revenue earmarked for us would quietly inflate what the pool looks backed by. This is the line that keeps the two from mixing.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/totalassets-excludes-pending-fees.png"
     },
