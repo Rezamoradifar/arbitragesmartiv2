@@ -374,7 +374,7 @@
     },
     {
       "id": "development-fee-fixed-at-deploy",
-      "postedAt": null,
+      "postedAt": "2026-09-02T14:16:11.144Z",
       "text": "The platform's own revenue cut is set once, at deployment, capped at 20% combined across both fee wallets — and there is no function anywhere in the contract to change it afterward. Not owner-adjustable like the performance fee; it's simply fixed for the life of the contract.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/development-fee-fixed-at-deploy.png"
     },
