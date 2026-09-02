@@ -362,7 +362,7 @@
     },
     {
       "id": "scanner-findings-documented",
-      "postedAt": null,
+      "postedAt": "2026-09-02T06:18:14.344Z",
       "text": "Automated security scanners flag things worth a second look — five spots in this contract got flagged. Every single one has a written note right next to it explaining why it isn't actually exploitable, not just a blanket suppression. Reviewed and documented, not silently muted.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/scanner-findings-documented.png"
     },
