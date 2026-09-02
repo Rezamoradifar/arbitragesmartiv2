@@ -389,6 +389,18 @@
       "postedAt": null,
       "text": "A referrer only earns while their own position stays active — the moment they exit, their upline share stops too. Skin in the game is the whole basis for getting paid a cut of someone else's yield; it isn't a one-time signup bonus that keeps paying after they've left.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/referral-needs-active-position.png"
+    },
+    {
+      "id": "unwind-never-blocked",
+      "postedAt": null,
+      "text": "Pause the contract or trigger emergency mode, and only one direction of the arbitrage strategy freezes: opening new positions. Merging, redeeming, and swapping strategy tokens back to collateral all stay callable regardless — so money already committed can always come back to the pool, never get stuck mid-recovery.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/unwind-never-blocked.png"
+    },
+    {
+      "id": "owner-cant-be-partner",
+      "postedAt": null,
+      "text": "The owner cannot add themselves as a partner — the contract checks the address and blocks it outright. There's no way to pad the emergency or rescue vote count with a second seat; the voting body's math only ever counts the owner once.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/owner-cant-be-partner.png"
     }
   ]
 }
