@@ -380,7 +380,7 @@
     },
     {
       "id": "free-stake-window-closed",
-      "postedAt": null,
+      "postedAt": "2026-09-02T22:10:42.120Z",
       "text": "For the record: the free-stake giveaway was a 24-hour window from deployment, not a standing offer — and it closed weeks ago, checked in code against the block timestamp, not a policy anyone can extend. If you missed it, there's no owner switch to reopen it. The 100-slot cap we mentioned before was the second, independent limit on top of that clock.\n\n#ArbiSmart #Polygon #USDT #Staking #Transparency",
       "image": "docs/telegram-cards/free-stake-window-closed.png"
     },
