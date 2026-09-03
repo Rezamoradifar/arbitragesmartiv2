@@ -413,6 +413,18 @@
       "postedAt": null,
       "text": "The moment a position exits, its amount and rate are zeroed before anything else happens — deliberately, so no later claim call could ever compute a reward against a position that's already gone. It's the direct fix for a claim-after-exit drain bug that existed in an earlier version of this contract.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/exit-zeros-state-first.png"
+    },
+    {
+      "id": "emergency-vote-irrevocable-after-delay",
+      "postedAt": null,
+      "text": "An emergency vote can be withdrawn right up until the 12-hour delay after activation elapses — after that, it's locked in and can no longer be revoked. Once the withdrawal escape hatch is live, no later change of heart among the voting body can pull it back out from under stakers.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/emergency-vote-irrevocable-after-delay.png"
+    },
+    {
+      "id": "rescue-delay-longer-than-emergency",
+      "postedAt": null,
+      "text": "The same 3-of-5 voting body (owner + up to 4 partners) that can trigger emergency withdrawals also gates a separate fund-rescue sweep — but rescue carries a deliberately longer 48-hour delay before it executes, versus 12 hours for emergency mode. More consequence, more time to react.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/rescue-delay-longer-than-emergency.png"
     }
   ]
 }
