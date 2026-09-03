@@ -404,7 +404,7 @@
     },
     {
       "id": "emergency-withdraw-excludes-free",
-      "postedAt": null,
+      "postedAt": "2026-09-03T18:08:20.673Z",
       "text": "emergencyWithdraw only ever pays out the funded part of a position — a free-stake giveaway's principal is excluded by the same math every time. It never cost the pool anything going in, so it isn't something the pool pays back on the way out either.\n\n#ArbiSmart #Polygon #USDT #Staking #Transparency",
       "image": "docs/telegram-cards/emergency-withdraw-excludes-free.png"
     },
