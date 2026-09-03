@@ -410,7 +410,7 @@
     },
     {
       "id": "exit-zeros-state-first",
-      "postedAt": null,
+      "postedAt": "2026-09-03T22:09:50.442Z",
       "text": "The moment a position exits, its amount and rate are zeroed before anything else happens — deliberately, so no later claim call could ever compute a reward against a position that's already gone. It's the direct fix for a claim-after-exit drain bug that existed in an earlier version of this contract.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/exit-zeros-state-first.png"
     },
