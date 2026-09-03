@@ -401,6 +401,18 @@
       "postedAt": null,
       "text": "The owner cannot add themselves as a partner — the contract checks the address and blocks it outright. There's no way to pad the emergency or rescue vote count with a second seat; the voting body's math only ever counts the owner once.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/owner-cant-be-partner.png"
+    },
+    {
+      "id": "emergency-withdraw-excludes-free",
+      "postedAt": null,
+      "text": "emergencyWithdraw only ever pays out the funded part of a position — a free-stake giveaway's principal is excluded by the same math every time. It never cost the pool anything going in, so it isn't something the pool pays back on the way out either.\n\n#ArbiSmart #Polygon #USDT #Staking #Transparency",
+      "image": "docs/telegram-cards/emergency-withdraw-excludes-free.png"
+    },
+    {
+      "id": "exit-zeros-state-first",
+      "postedAt": null,
+      "text": "The moment a position exits, its amount and rate are zeroed before anything else happens — deliberately, so no later claim call could ever compute a reward against a position that's already gone. It's the direct fix for a claim-after-exit drain bug that existed in an earlier version of this contract.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/exit-zeros-state-first.png"
     }
   ]
 }
