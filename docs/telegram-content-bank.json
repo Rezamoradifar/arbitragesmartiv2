@@ -425,6 +425,18 @@
       "postedAt": null,
       "text": "The same 3-of-5 voting body (owner + up to 4 partners) that can trigger emergency withdrawals also gates a separate fund-rescue sweep — but rescue carries a deliberately longer 48-hour delay before it executes, versus 12 hours for emergency mode. More consequence, more time to react.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/rescue-delay-longer-than-emergency.png"
+    },
+    {
+      "id": "rescue-vote-independent-of-emergency",
+      "postedAt": null,
+      "text": "Voting to sweep funds to the recovery wallet is a separate act from voting for emergency mode — a partner who agrees to one hasn't thereby agreed to the other. And arming a rescue automatically opens stakers' own emergency withdrawal too, so a pending sweep never leaves anyone locked in with no way out.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/rescue-vote-independent-of-emergency.png"
+    },
+    {
+      "id": "stolen-key-cant-rescue-alone",
+      "postedAt": null,
+      "text": "A stolen owner key alone cannot drain this contract. Sweeping funds to the recovery wallet needs partner quorum first, then a 48-hour public countdown before it's callable — and any partner can revoke their vote at any time right up until execution, no lock-in window, unlike the separate emergency vote.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/stolen-key-cant-rescue-alone.png"
     }
   ]
 }
