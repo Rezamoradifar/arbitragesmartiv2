@@ -392,7 +392,7 @@
     },
     {
       "id": "unwind-never-blocked",
-      "postedAt": null,
+      "postedAt": "2026-09-03T10:12:49.578Z",
       "text": "Pause the contract or trigger emergency mode, and only one direction of the arbitrage strategy freezes: opening new positions. Merging, redeeming, and swapping strategy tokens back to collateral all stay callable regardless — so money already committed can always come back to the pool, never get stuck mid-recovery.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/unwind-never-blocked.png"
     },
