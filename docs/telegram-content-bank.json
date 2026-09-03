@@ -398,7 +398,7 @@
     },
     {
       "id": "owner-cant-be-partner",
-      "postedAt": null,
+      "postedAt": "2026-09-03T14:15:53.950Z",
       "text": "The owner cannot add themselves as a partner — the contract checks the address and blocks it outright. There's no way to pad the emergency or rescue vote count with a second seat; the voting body's math only ever counts the owner once.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/owner-cant-be-partner.png"
     },
