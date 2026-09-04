@@ -422,7 +422,7 @@
     },
     {
       "id": "rescue-delay-longer-than-emergency",
-      "postedAt": null,
+      "postedAt": "2026-09-04T10:09:54.683Z",
       "text": "The same 3-of-5 voting body (owner + up to 4 partners) that can trigger emergency withdrawals also gates a separate fund-rescue sweep — but rescue carries a deliberately longer 48-hour delay before it executes, versus 12 hours for emergency mode. More consequence, more time to react.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/rescue-delay-longer-than-emergency.png"
     },
