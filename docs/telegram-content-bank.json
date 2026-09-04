@@ -416,7 +416,7 @@
     },
     {
       "id": "emergency-vote-irrevocable-after-delay",
-      "postedAt": null,
+      "postedAt": "2026-09-04T06:16:08.204Z",
       "text": "An emergency vote can be withdrawn right up until the 12-hour delay after activation elapses — after that, it's locked in and can no longer be revoked. Once the withdrawal escape hatch is live, no later change of heart among the voting body can pull it back out from under stakers.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/emergency-vote-irrevocable-after-delay.png"
     },
