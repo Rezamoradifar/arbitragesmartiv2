@@ -428,7 +428,7 @@
     },
     {
       "id": "rescue-vote-independent-of-emergency",
-      "postedAt": null,
+      "postedAt": "2026-09-04T14:12:03.709Z",
       "text": "Voting to sweep funds to the recovery wallet is a separate act from voting for emergency mode — a partner who agrees to one hasn't thereby agreed to the other. And arming a rescue automatically opens stakers' own emergency withdrawal too, so a pending sweep never leaves anyone locked in with no way out.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/rescue-vote-independent-of-emergency.png"
     },
