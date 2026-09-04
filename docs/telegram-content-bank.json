@@ -434,7 +434,7 @@
     },
     {
       "id": "stolen-key-cant-rescue-alone",
-      "postedAt": null,
+      "postedAt": "2026-09-04T18:08:00.284Z",
       "text": "A stolen owner key alone cannot drain this contract. Sweeping funds to the recovery wallet needs partner quorum first, then a 48-hour public countdown before it's callable — and any partner can revoke their vote at any time right up until execution, no lock-in window, unlike the separate emergency vote.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/stolen-key-cant-rescue-alone.png"
     },
