@@ -440,7 +440,7 @@
     },
     {
       "id": "owner-cant-blacklist-self",
-      "postedAt": null,
+      "postedAt": "2026-09-04T22:09:25.135Z",
       "text": "The blacklist function has one hardcoded exception: the owner's own address. There's no path — accidental or deliberate — to the owner blacklisting themselves and no path to blacklisting anyone else being some kind of loophole for self-privilege either. It's a plain address check, not a policy.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/owner-cant-blacklist-self.png"
     },
