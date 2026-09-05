@@ -461,6 +461,18 @@
       "postedAt": null,
       "text": "Every position, whatever route it comes in through — a first stake, a top-up, or an owner-granted stake — is capped at 25,000 USDT of funded principal. The same ceiling applies everywhere, so no single position can be built up past it by picking a different entry point.\n\n#ArbiSmart #Polygon #USDT #Staking",
       "image": "docs/telegram-cards/max-stake-cap.png"
+    },
+    {
+      "id": "referral-deducted-not-added",
+      "postedAt": null,
+      "text": "A real fix carried over from an earlier version: referral rewards are subtracted from the referred user's own accrued yield, not credited on top of it from pooled capital. Fee, upline share, and user payout always sum back to exactly what accrued — a full referral chain can no longer quietly cost the pool more than the yield it actually earned.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-deducted-not-added.png"
+    },
+    {
+      "id": "free-stake-accrues-but-locked",
+      "postedAt": null,
+      "text": "A free giveaway position starts accruing yield the moment it's issued — but that yield stays locked until the holder deposits real collateral into it. A giveaway that's never funded pays nothing out, ever; the accrual clock running in the background costs the pool nothing on its own.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/free-stake-accrues-but-locked.png"
     }
   ]
 }
