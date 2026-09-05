@@ -452,7 +452,7 @@
     },
     {
       "id": "emergency-withdraw-ignores-blacklist",
-      "postedAt": null,
+      "postedAt": "2026-09-05T10:08:01.361Z",
       "text": "emergencyWithdraw is open to any staker, blacklisted or not. Blacklisting can stop someone from opening new stakes or claiming yield, but it was never built as a way to trap a position during an emergency — the escape hatch doesn't check that flag at all.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/emergency-withdraw-ignores-blacklist.png"
     },
