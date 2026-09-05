@@ -1,0 +1,291 @@
+import abi from "./abi.json";
+
+export const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ||
+  "0x0000000000000000000000000000000000000000") as `0x${string}`;
+
+export const CONTRACT_ABI = abi;
+
+export const ERC20_ABI = [
+  {
+    inputs: [
+      { name: "owner", type: "address" },
+      { name: "spender", type: "address" },
+    ],
+    name: "allowance",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { name: "spender", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    name: "approve",
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ name: "account", type: "address" }],
+    name: "balanceOf",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "decimals",
+    outputs: [{ name: "", type: "uint8" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "symbol",
+    outputs: [{ name: "", type: "string" }],
+    stateMutability: "view",
+    type: "function",
+  },
+] as const;
+
+export const COLLATERAL_ADDRESS = (process.env.NEXT_PUBLIC_COLLATERAL_ADDRESS ||
+  "0x0000000000000000000000000000000000000000") as `0x${string}`;
+
+export const EXPLORER = "https://polygonscan.com";
+
+/**
+ * Plan table, mirroring dailyRates / planDurations / minStakes in
+ * ArbiSmartV2. The dashboard also reads these arrays on-chain, so a drift
+ * between this table and the deployed contract shows up rather than hiding.
+ */
+export const PLANS = [
+  { name: "Starter", minStake: 10, dailyBps: 120, durationDays: 180 },
+  { name: "Growth", minStake: 500, dailyBps: 180, durationDays: 150 },
+  { name: "Advanced", minStake: 2_500, dailyBps: 240, durationDays: 120 },
+  { name: "Elite", minStake: 10_000, dailyBps: 300, durationDays: 90 },
+] as const;
+
+export const PLAN_NAMES = PLANS.map((p) => p.name);
+
+/**
+ * Referral payouts and tier requirements, mirroring `referralRate` and
+ * `levelRequirement`.
+ *
+ * V4 gates a tier on direct VOLUME as well as headcount. V3 counted wallets
+ * only, which priced Platinum in throwaway accounts rather than in capital.
+ * `needVolume` is the condition that actually binds.
+ */
+export const REFERRAL_LEVELS = [
+  { level: 0, name: "Base", f1Bps: 800, f2Bps: 400, f3Bps: 0, needRefs: 0, needStake: 0, needVolume: 0 },
+  { level: 1, name: "Silver", f1Bps: 1200, f2Bps: 600, f3Bps: 200, needRefs: 3, needStake: 500, needVolume: 2_500 },
+  { level: 2, name: "Gold", f1Bps: 1500, f2Bps: 800, f3Bps: 400, needRefs: 10, needStake: 2_500, needVolume: 15_000 },
+  {
+    level: 3,
+    name: "Platinum",
+    f1Bps: 2000,
+    f2Bps: 1000,
+    f3Bps: 500,
+    needRefs: 25,
+    needStake: 10_000,
+    needVolume: 75_000,
+  },
+] as const;
+
+/**
+ * Early-exit penalty schedule, mirroring PENALTY_W1..PENALTY_AF.
+ *
+ * THESE ARE PERCENTAGES OF PRINCIPAL, NOT OF YIELD.
+ *
+ * earlyExit computes `penalty = backed * bps / 10_000` where `backed` is the
+ * recorded stake, and returns `backed - penalty`. Accrued but unclaimed yield
+ * is separately lost — the function pays none of it out. So exiting a 900 USDT
+ * position in week 1 returns 450 USDT and forfeits the yield on top.
+ *
+ * Measured, not inferred: test/EarlyExitAmount.t.sol stakes 1,000, exits at
+ * three days, and asserts the wallet receives exactly 450.
+ */
+export const PENALTY_SCHEDULE = [
+  { label: "Week 1", bps: 5000 },
+  { label: "Week 2", bps: 4000 },
+  { label: "Week 3", bps: 3000 },
+  { label: "Week 4", bps: 2000 },
+  { label: "Week 5+", bps: 1000 },
+] as const;
+
+export const MIN_STAKE_UNITS = 10_000000n;
+export const MAX_STAKE_UNITS = 25_000_000000n;
+
+/**
+ * The one deposit size the two development-fee wallets are allowed, mirroring
+ * PROTOCOL_WALLET_STAKE. They are also barred from the free-stake window
+ * outright — a free position for a wallet that collects protocol revenue would
+ * be a claim on other depositors' capital with nothing behind it.
+ */
+export const PROTOCOL_WALLET_STAKE_UNITS = 1000_000000n;
+
+/**
+ * The deposit fee bands, mirroring `depositFeeBps` in the contract.
+ *
+ * A sliding scale rather than one rate, so nothing in the UI may assume a
+ * single number. Used only for static marketing copy; every figure a user
+ * transacts against comes from `quoteDeposit` on the contract.
+ */
+export const DEPOSIT_FEE_BANDS = [
+  { from: 10_000, bps: 500 },
+  { from: 2_500, bps: 700 },
+  { from: 500, bps: 1000 },
+  { from: 0, bps: 1200 },
+] as const;
+
+export function depositFeeBpsFor(gross: number): number {
+  return DEPOSIT_FEE_BANDS.find((b) => gross >= b.from)!.bps;
+}
+
+/** The claim fee for a plan. Advanced and Elite pay half. */
+export function claimFeeBpsFor(planIndex: number): number {
+  return planIndex >= 2 ? 500 : 1000;
+}
+
+/**
+ * Mirrors `referralRate(level, depth)`.
+ *
+ * `level` is the UPLINE's own tier, not the claimer's, and `depth` is how far
+ * up the chain they sit: 0 is the direct referrer.
+ */
+export function referralRateBps(level: number, depth: number): number {
+  const row = REFERRAL_LEVELS[level] ?? REFERRAL_LEVELS[0];
+  return depth === 0 ? row.f1Bps : depth === 1 ? row.f2Bps : row.f3Bps;
+}
+
+/**
+ * The share of a claim that leaves for the upline, in basis points of the
+ * gross accrual.
+ *
+ * THIS COMES OUT OF THE CLAIMER'S OWN YIELD. `claim()` computes
+ *
+ *     userAmount = reward - totalFee - referralPaid
+ *
+ * so the claim fee is not the only deduction, and a page that shows only the
+ * claim fee overstates what a referred user actually receives by 8 to 35
+ * percent of their yield. Almost everybody arrives through a referral link,
+ * which makes the understated figure the common case rather than the edge one.
+ *
+ * `levels` is the tier of each active, non-blacklisted upline in order, direct
+ * referrer first. An inactive or blacklisted upline is skipped by the contract
+ * but does not break the chain, so pass `null` for it rather than dropping it.
+ */
+export function referralDeductionBps(levels: readonly (number | null)[]): number {
+  return levels
+    .slice(0, 3)
+    .reduce<number>((sum, level, depth) => sum + (level === null ? 0 : referralRateBps(level, depth)), 0);
+}
+
+/**
+ * The band a visitor should be quoted before their upline is known: nothing if
+ * they were not referred, a Base direct referrer alone at the bottom, three
+ * Platinum uplines at the top.
+ */
+export const REFERRAL_DEDUCTION_MIN_BPS = REFERRAL_LEVELS[0].f1Bps;
+export const REFERRAL_DEDUCTION_MAX_BPS = referralDeductionBps([3, 3, 3]);
+
+/**
+ * What actually reaches the wallet on a claim, mirroring `claim()` exactly,
+ * including the cap that stops the upline share exceeding the post-fee
+ * remainder.
+ */
+export function netClaimAmount(reward: bigint, claimBps: number, deductionBps: number): bigint {
+  const fee = (reward * BigInt(claimBps)) / 10_000n;
+  const budget = reward - fee;
+  let referral = (reward * BigInt(deductionBps)) / 10_000n;
+  if (referral > budget) referral = budget;
+  return budget - referral;
+}
+
+/**
+ * The deposit needed for a given amount to survive the fee and be recorded.
+ *
+ * Plan tiers are decided by the *recorded* stake, so someone sending exactly a
+ * tier's minimum lands one tier below it. The band is chosen by the gross, and
+ * the gross is what we are solving for, so this iterates: assume a band, solve,
+ * then check the answer still falls inside it.
+ */
+export function grossForNet(net: number): number {
+  for (const band of [...DEPOSIT_FEE_BANDS].reverse()) {
+    const gross = Math.ceil((net * 10000) / (10000 - band.bps) * 100) / 100;
+    if (depositFeeBpsFor(gross) === band.bps) return gross;
+  }
+  return net;
+}
+
+export function formatUnits6(value: bigint): string {
+  const negative = value < 0n;
+  const v = negative ? -value : value;
+  const whole = v / 1_000000n;
+  const frac = (v % 1_000000n).toString().padStart(6, "0").replace(/0+$/, "") || "0";
+  return `${negative ? "-" : ""}${whole.toString()}.${frac}`;
+}
+
+/** Compact display form: thousands separators, at most `decimals` decimals. */
+export function formatAmount(value: bigint | undefined, decimals = 2): string {
+  if (value === undefined || value === null) return "—";
+  const negative = value < 0n;
+  const v = negative ? -value : value;
+  const num = Number(v / 1_000000n) + Number(v % 1_000000n) / 1_000_000;
+  return `${negative ? "-" : ""}${num.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals,
+  })}`;
+}
+
+export function parseUnits6(value: string): bigint {
+  const [whole, frac = ""] = value.trim().split(".");
+  const fracPadded = (frac + "000000").slice(0, 6);
+  const wholeBig = BigInt(whole === "" ? "0" : whole);
+  return wholeBig * 1_000000n + BigInt(fracPadded === "" ? "0" : fracPadded);
+}
+
+export function formatBps(bps: number | bigint): string {
+  const n = Number(bps);
+  return `${(n / 100).toFixed(n % 100 === 0 ? 0 : 2)}%`;
+}
+
+export function shortAddress(address?: string): string {
+  if (!address) return "—";
+  return `${address.slice(0, 6)}…${address.slice(-4)}`;
+}
+
+/** Seconds remaining until `target`, a unix timestamp in seconds. */
+export function secondsUntil(target: bigint | number | undefined): number {
+  if (target === undefined) return 0;
+  const t = Number(target);
+  if (t === 0) return 0;
+  return Math.max(0, t - Math.floor(Date.now() / 1000));
+}
+
+export function formatDuration(totalSeconds: number): string {
+  if (totalSeconds <= 0) return "0s";
+  const d = Math.floor(totalSeconds / 86400);
+  const h = Math.floor((totalSeconds % 86400) / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  if (d > 0) return `${d}d ${h}h ${m}m`;
+  if (h > 0) return `${h}h ${m}m ${s}s`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+/** Projected gross yield over a plan's full term, before the 10% claim fee. */
+export function projectedYield(principal: number, planIndex: number): number {
+  const plan = PLANS[planIndex];
+  if (!plan) return 0;
+  return (principal * plan.dailyBps * plan.durationDays) / 10000;
+}
+
+/** Mirrors _getPlanByAmount. */
+export function planForAmount(amountUnits: bigint): number {
+  if (amountUnits >= 10_000_000000n) return 3;
+  if (amountUnits >= 2_500_000000n) return 2;
+  if (amountUnits >= 500_000000n) return 1;
+  return 0;
+}

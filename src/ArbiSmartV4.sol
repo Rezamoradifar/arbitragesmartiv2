@@ -19,6 +19,35 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
+ * @title ISwapRouter02
+ * @notice Minimal interface to Uniswap's SwapRouter02, deployed on Polygon at
+ *         0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45.
+ *
+ * @dev Needed because the pool's accounting currency and Polymarket's
+ *      collateral are different tokens. Polymarket's markets on Polygon are
+ *      denominated in bridged USDC (USDC.e); outcome tokens minted against
+ *      any other collateral carry a different position id and do not exist on
+ *      Polymarket's order book. So collateral has to be converted before it
+ *      can enter a market, and converted back on the way out.
+ *
+ *      `ExactInputSingleParams` matches SwapRouter02's layout, which drops
+ *      the `deadline` field present in the original SwapRouter.
+ */
+interface ISwapRouter02 {
+    struct ExactInputSingleParams {
+        address tokenIn;
+        address tokenOut;
+        uint24 fee;
+        address recipient;
+        uint256 amountIn;
+        uint256 amountOutMinimum;
+        uint160 sqrtPriceLimitX96;
+    }
+
+    function exactInputSingle(ExactInputSingleParams calldata params) external payable returns (uint256 amountOut);
+}
+
+/**
  * @title IConditionalTokens
  * @notice Minimal interface to Polymarket's OFFICIAL, permissionless Gnosis
  *         Conditional Tokens Framework contract deployed on Polygon mainnet
@@ -67,8 +96,43 @@ interface IConditionalTokens {
 }
 
 /**
- * @title ArbiSmartV2
+ * @title ArbiSmartV4
  * @author (refactor of the original ArbiSmart contract, security review requested by the contract owner)
+ *
+ * @dev ============================================================
+ *      WHAT CHANGED VS. V2 — READ THIS FIRST
+ *      ============================================================
+ *
+ *      V3 adds ONE thing to V2: a disclosed, up-front DEVELOPMENT FEE charged
+ *      on deposits, funding development, advertising and running costs.
+ *
+ *      The name is deliberately literal. This fee buys the depositor no
+ *      coverage, no equity and no claim on anything — it pays to build and
+ *      promote the platform. Labelling it as insurance or a share would
+ *      describe a protection that does not exist, so it is named for what
+ *      it actually is.
+ *
+ *      The distinction that makes this safe rather than a hidden skim is
+ *      the accounting, and it is the whole point of this version:
+ *
+ *        - A 100 USDT deposit at a 10% development fee records a stake of
+ *          **90**, not 100. The contract's liability to that user is 90 from
+ *          the first block. It never books a 100 stake it cannot honour.
+ *        - The 10 is booked to `developmentFeesCollected*` the moment it
+ *          arrives and is excluded from {totalAssets}, so it can never be
+ *          counted as pool capital, lent against, or deployed into
+ *          arbitrage.
+ *        - {withdrawDevelopmentFees} is hard-capped at
+ *          `collected - withdrawn`, per wallet. There is no code path by
+ *          which the owner can reach staker principal, and the cap is
+ *          arithmetic, not a policy the owner can raise.
+ *
+ *      In short: the fee is disclosed, taken once, at a fixed rate the
+ *      owner cannot raise, and the contract remains fully backed against
+ *      the stakes it actually records. Everything else — plans, referral
+ *      tables, penalties, partner governance, the Polymarket path — is
+ *      unchanged from V2.
+ *
  * @notice A USDC/USDT-collateralized staking + referral pool that, in addition
  *         to fixed-rate staking, allows the contract owner to route a bounded
  *         portion of pooled collateral into REAL, on-chain interactions with
@@ -263,7 +327,7 @@ interface IConditionalTokens {
  *          that profit on top of the flat {ARBITRAGE_MAX_BPS} balance cap.
  *          Every path still ends in contract-held positions, never a wallet.
  */
-contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
+contract ArbiSmartV4 is Ownable2Step, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
 
     // ============================================================
@@ -330,10 +394,94 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     // State
     // ============================================================
 
+    /// @notice Sum of every recorded stake — i.e. NET of the platform fee.
+    ///         This is the contract's principal liability to stakers, and it
+    ///         is deliberately the post-fee figure: a gross deposit is never
+    ///         booked as a stake the pool would then be short against.
     uint256 public totalStaked;
     uint256 public totalPaidOut;
     uint256 public immutable deployTime;
     uint256 public constant FREE_PERIOD = 24 hours;
+
+    // ============================================================
+    // Site growth fee — disclosed, up-front, taken once per deposit
+    // ============================================================
+
+    /// @notice Development fee on deposits, in basis points, split across two
+    ///         independent development/advertising budgets. Both are fixed at
+    ///         deployment and **immutable**: unlike an owner-settable rate, no
+    ///         governance action, key compromise or later decision can raise
+    ///         what a depositor is charged after they have read it.
+    uint256 public immutable DEVELOPMENT_FEE_BPS_1;
+    uint256 public immutable DEVELOPMENT_FEE_BPS_2;
+
+    /// @notice Upper bound on the COMBINED fee, enforced at construction. A
+    ///         fee above this could not honestly be described as a platform
+    ///         fee, so the contract refuses to deploy with one.
+    uint256 public constant DEVELOPMENT_FEE_MAX_BPS = 2000;
+
+    /// @notice Destinations for withdrawn platform fees. Distinct from
+    ///         {feeWallet1}/{feeWallet2} (yield-claim fees) and
+    ///         {profitRecipient} (arbitrage performance fee), so every revenue
+    ///         stream is separately attributable on-chain.
+    address public developmentFeeWallet1;
+    address public developmentFeeWallet2;
+
+    /// @notice Cumulative platform fees ever charged, per budget. Monotonic.
+    uint256 public developmentFeesCollected1;
+    uint256 public developmentFeesCollected2;
+
+    /// @notice Cumulative platform fees ever paid out, per budget. Monotonic,
+    ///         and can never exceed the matching `collected` figure. The two
+    ///         budgets are tracked separately so one wallet can never spend
+    ///         the other's allocation.
+    uint256 public developmentFeesWithdrawn1;
+    uint256 public developmentFeesWithdrawn2;
+
+    /// @notice Cumulative gross (pre-fee) deposits. Reporting only — no
+    ///         accounting decision is ever taken against this figure.
+    uint256 public totalGrossDeposits;
+
+    /// @notice Per-user gross deposited, fee charged, and net staked. Kept so
+    ///         a user can verify their own split without replaying events.
+    mapping(address => uint256) public grossDeposited;
+    mapping(address => uint256) public platformFeePaid;
+    mapping(address => uint256) public netStaked;
+
+    // ============================================================
+    // ============================================================
+
+    /// @notice Total principal brought over from V2. Reporting only.
+
+    /// @notice Total principal handed out as funded promotional grants.
+    ///         Every unit of this was paid for on the way in, so it is a
+    ///         marketing cost already borne — never a claim on other
+    ///         depositors.
+    uint256 public totalGranted;
+
+    /// @notice The single deposit size the two development-fee wallets are
+    ///         allowed to stake — no more, no less. They pay the development
+    ///         fee on it exactly as any other depositor does.
+    uint256 public constant PROTOCOL_WALLET_STAKE = 1000_000000;
+
+    /// @notice How many free stakes the launch window will ever issue.
+    /// @dev A free stake is the one position here with no collateral behind
+    ///      it. V4 makes that liability conditional rather than automatic:
+    ///      {claim} stays locked until the holder has deposited real
+    ///      collateral (see {MIN_ACTIVATION_DEPOSIT}), and neither exit path
+    ///      ever returns the free principal. A free position that never
+    ///      converts therefore costs the pool nothing, which is what makes a
+    ///      cap of a hundred safe where three was the limit in V3.
+    uint256 public constant MAX_FREE_STAKES = 100;
+
+    /// @notice Real collateral a free-stake holder must deposit before they
+    ///         can claim. Set to the ordinary stake minimum: the point is to
+    ///         require skin in the game, not to price anyone out.
+    uint256 public constant MIN_ACTIVATION_DEPOSIT = MIN_STAKE;
+
+    /// @notice Free stakes issued so far. Never decreases, so closing and
+    ///         reopening a position cannot reclaim a slot.
+    uint256 public freeStakeCount;
 
     /// @notice Timestamp at which the contract was last paused; 0 while unpaused.
     uint256 public pausedAt;
@@ -415,10 +563,45 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     ///         plus any profit returned via {depositArbitrageProfit}.
     uint256 public totalArbitrageProfit;
 
-    /// @notice Collateral currently committed to open Polymarket positions,
-    ///         i.e. the running sum of {committedByCondition}. Increases on
-    ///         split, decreases on merge/redeem.
+    /// @notice Pool capital currently out on the strategy leg, measured in
+    ///         COLLATERAL (the accounting currency), at the amount actually
+    ///         spent. Increases when collateral is converted for a strategy,
+    ///         decreases as it is converted back.
+    /// @dev Deliberately a cost basis rather than a mark to market. Holding
+    ///      it at cost means {totalAssets} needs no price feed and never
+    ///      reports an unrealised gain as though it were spendable — the only
+    ///      profit that ever reaches the books is profit that has already
+    ///      come back as collateral.
     uint256 public totalArbitrageDeployed;
+
+    // ============================================================
+    // Strategy leg — held in Polymarket's collateral, not the pool's
+    // ============================================================
+
+    /// @notice The token Polymarket markets are denominated in (USDC.e on
+    ///         Polygon). Fixed at deployment.
+    IERC20 public immutable arbitrageToken;
+
+    /// @notice Uniswap SwapRouter02, the only venue this contract will trade
+    ///         through. Immutable, so a compromised owner cannot point swaps
+    ///         at a contract of their own.
+    ISwapRouter02 public immutable swapRouter;
+
+    /// @notice Pool fee tier used for the stablecoin swap, in hundredths of a
+    ///         bip. 100 = 0.01%, the tier the USDT/USDC.e pair is quoted on.
+    uint24 public immutable swapFeeTier;
+
+    /// @notice Strategy-currency balance currently held and not yet committed
+    ///         to a market. Tracked explicitly rather than read from
+    ///         `balanceOf`, so a donation cannot be mistaken for returns.
+    uint256 public arbitrageTokenBalance;
+
+    /// @notice Floor on what a swap must return, in basis points of the input.
+    /// @dev Both legs are dollar stablecoins, so anything worse than 1% is a
+    ///      sandwich or a depeg rather than ordinary slippage. Bounding it in
+    ///      the contract means a mistyped `minOut` — or an owner who passes
+    ///      zero — still cannot hand the pool to a searcher.
+    uint256 public constant MIN_SWAP_OUTPUT_BPS = 9900;
 
     struct Stake {
         uint256 amount;
@@ -430,6 +613,10 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
         bool active;
         bool earlyExited;
         bool freeStake;
+        /// Portion of {amount} that no one ever paid for — the launch giveaway.
+        /// Earns yield like the rest, but is subtracted before principal is
+        /// returned, so it can never leave as cash.
+        uint256 freeAmount;
     }
 
     struct Referral {
@@ -448,6 +635,15 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     mapping(address => address[]) private _f1List;
     mapping(address => uint256) private _f1Volume;
     mapping(address => uint256) private _f2Volume;
+    // V4: the second and third levels are stored too, so a front end can name
+    // the people in a downline instead of only counting them. A member who
+    // exits stays listed with a zero position — the difference between "left"
+    // and "never existed" is worth keeping.
+    mapping(address => address[]) private _f2List;
+    mapping(address => address[]) private _f3List;
+    mapping(address => uint256) private _f3Volume;
+    /// Direct referrals currently holding at least {MIN_COUNTABLE_REFERRAL}.
+    mapping(address => uint256) private _countableReferrals;
     mapping(address => uint256) private _claimCounts;
 
     // ============================================================
@@ -458,11 +654,83 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     uint256[4] public planDurations = [180, 150, 120, 90];
     uint256[4] public minStakes = [10_000000, 500_000000, 2_500_000000, 10_000_000000];
 
-    uint256[8] public referralRates = [800, 400, 1200, 600, 1500, 800, 2000, 1000];
-    uint256[3] public f3Rates = [200, 400, 500];
+    /**
+     * Referral payouts as a share of a claim, indexed `[level * 3 + depth]`.
+     *
+     * The rates are V3's. What changed is where the money comes from. V3 added
+     * them ON TOP of a claim out of pooled capital, so a top-tier claim cost
+     * the pool 135% of the yield that had accrued and the programme drained it
+     * faster the better it worked. Here they are taken OUT of the claim, so
+     * what leaves the contract is exactly the yield earned — never more,
+     * whatever the upline looks like.
+     *
+     * Each member is paid at their own tier's rate. V3 read the third-level
+     * rate off the direct referrer's tier, so a Platinum great-grandparent
+     * could be paid at the Silver rate.
+     */
+    /**
+     * Referral payout for a tier at a depth, in basis points.
+     *
+     * A pure lookup rather than a storage array: the table never changes, and
+     * a `public` array would cost twelve slots at deployment plus a generated
+     * getter, for bytecode this contract does not have to spare.
+     *
+     *          F1    F2    F3
+     *  Base     8     4     —
+     *  Silver  12     6     2
+     *  Gold    15     8     4
+     *  Plat    20    10     5
+     */
+    function referralRate(uint256 level, uint256 depth) public pure returns (uint256) {
+        if (depth == 0) {
+            if (level == 3) return 2000;
+            if (level == 2) return 1500;
+            if (level == 1) return 1200;
+            return 800;
+        }
+        if (depth == 1) {
+            if (level == 3) return 1000;
+            if (level == 2) return 800;
+            if (level == 1) return 600;
+            return 400;
+        }
+        if (level == 3) return 500;
+        if (level == 2) return 400;
+        if (level == 1) return 200;
+        return 0;
+    }
 
-    uint256 private constant FEE1_BPS = 750;
-    uint256 private constant FEE2_BPS = 250;
+    /**
+     * A referral has to hold at least this much for the tier COUNT to include
+     * it. The volume requirement is what actually stops dust farming — a
+     * hundred throwaway wallets satisfy any count but cannot manufacture
+     * 75,000 of volume. This floor exists so that an empty position, closed or
+     * never funded, does not count as a person.
+     */
+    uint256 public constant MIN_COUNTABLE_REFERRAL = MIN_STAKE;
+
+    /// @notice Thresholds for Silver (1), Gold (2) and Platinum (3). All three
+    ///         values must be met at once; there is no partial credit.
+    function levelRequirement(uint256 level)
+        public
+        pure
+        returns (uint256 stakeReq, uint256 volumeReq, uint256 countReq)
+    {
+        if (level == 1) {
+            return (500_000000, 2_500_000000, 3);
+        }
+        if (level == 2) return (2_500_000000, 15_000_000000, 10);
+        if (level == 3) return (10_000_000000, 75_000_000000, 25);
+        return (0, 0, 0);
+    }
+
+    /// @dev Yield-claim fee, split evenly between {feeWallet1} and
+    ///      {feeWallet2}. The COMBINED rate is 10% and is what a user
+    ///      actually pays; V2's uneven 7.5/2.5 split totalled the same. Both
+    ///      are `constant`, so this is the one fee on the contract that not
+    ///      even the owner can raise.
+    uint256 private constant FEE1_BPS = 500;
+    uint256 private constant FEE2_BPS = 500;
     uint256 private constant MAX_DAILY_BPS = 20000;
     uint256 private constant MAX_STAKE = 25_000_000000;
     uint256 private constant MIN_STAKE = 10_000000;
@@ -532,6 +800,34 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     /// @notice Emitted when realized arbitrage profit is credited to the pool.
     event ArbitrageProfitAccrued(uint256 amount, uint256 totalProfit);
 
+    /// @notice Emitted on every deposit, carrying the full split so the gross
+    ///         amount, the fee and the recorded stake are all independently
+    ///         auditable from logs alone.
+    event DevelopmentFeeCharged(
+        address indexed user, uint256 grossAmount, uint256 fee1, uint256 fee2, uint256 netStake
+    );
+
+    /// @notice Emitted when platform fees are paid out. `budget` is 1 or 2.
+    event DevelopmentFeeWithdrawn(
+        uint256 indexed budget, address indexed to, uint256 amount, uint256 remainingUnwithdrawn
+    );
+
+    event DevelopmentFeeWalletUpdated(uint256 indexed budget, address indexed newWallet);
+
+    /// @notice Emitted when a V2 position is recreated here. `originalStartTime`
+    ///         checked against the V2 record.
+
+    /// @notice Emitted when a funded promotional position is opened.
+    event StakeGranted(address indexed user, uint256 amount, uint256 plan);
+
+    /// @notice Emitted when pool collateral is converted onto the strategy leg.
+    event SwappedToArbitrageToken(uint256 collateralIn, uint256 strategyOut);
+
+    /// @notice Emitted when the strategy leg is converted back. `profit` is
+    ///         measured in collateral against the outstanding cost basis, so
+    ///         it is the figure the pool actually gained.
+    event SwappedFromArbitrageToken(uint256 strategyIn, uint256 collateralOut, uint256 profit);
+
     // ============================================================
     // Custom errors
     // ============================================================
@@ -543,6 +839,8 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     error AlreadyActive();
     error AlreadyExited();
     error NoActiveStake();
+    /// A giveaway position cannot claim until it has been funded.
+    error FreeStakeNotActivated();
     error BelowMinStake();
     error AboveMaxStake();
     error InvalidFreeStakeAmount();
@@ -573,6 +871,15 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     error RescueVotePending();
     error NoRecoveryWallet();
     error NothingToRescue();
+
+    error DevelopmentFeeTooHigh();
+    error ExceedsCollectedFees();
+    error InsufficientLiquidityForFees();
+
+    error ProtocolWalletStakeInvalid();
+    error FreeStakeLimitReached();
+    error IdenticalSwapTokens();
+    error SlippageBoundTooLoose();
 
     // ============================================================
     // Modifiers
@@ -609,8 +916,16 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     // Constructor
     // ============================================================
 
-    /// @param _collateralToken Collateral ERC-20 (must match the token the
-    ///        target Polymarket condition(s) were prepared with).
+    /// @param _collateralToken The pool's accounting currency — what users
+    ///        deposit, are credited in, and withdraw. Need NOT match
+    ///        Polymarket's collateral: `_arbitrageToken` covers that leg, and
+    ///        the contract converts between the two.
+    /// @param _arbitrageToken The token Polymarket markets are denominated in
+    ///        (USDC.e on Polygon). Outcome tokens minted against anything else
+    ///        carry a different position id and are not tradeable there, so
+    ///        this must match what the target conditions were prepared with.
+    /// @param _swapRouter Uniswap SwapRouter02. Immutable once set.
+    /// @param _swapFeeTier Pool fee tier for the pair, e.g. 100 for 0.01%.
     /// @param initialOwner Recommended: a Gnosis Safe multisig or an
     ///        OpenZeppelin `TimelockController` address, not a bare EOA.
     /// @param _feeWallet1 Initial primary fee recipient (funded from staking-yield claims).
@@ -618,30 +933,59 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     /// @param _profitRecipient Initial recipient of the performance fee on
     ///        realized Polymarket arbitrage profit (see {profitFeeBPS}).
     ///        Distinct wallet from the two above — never hardcoded.
+    /// @param _developmentFeeWallet1 First marketing/operations fee destination.
+    /// @param _developmentFeeWallet2 Second marketing/operations fee destination.
+    /// @param _developmentFeeBps1 First budget's share of each deposit, in bps.
+    /// @param _developmentFeeBps2 Second budget's share of each deposit, in bps.
+    ///        The two are fixed permanently at deployment and their sum is
+    ///        capped at {DEVELOPMENT_FEE_MAX_BPS}. Publish the combined figure
+    ///        wherever users deposit; the contract cannot change it
+    ///        afterwards, which is the point.
     constructor(
         address _collateralToken,
+        address _arbitrageToken,
+        address _swapRouter,
+        uint24 _swapFeeTier,
         address initialOwner,
         address _feeWallet1,
         address _feeWallet2,
-        address _profitRecipient
+        address _profitRecipient,
+        address _developmentFeeWallet1,
+        address _developmentFeeWallet2,
+        uint256 _developmentFeeBps1,
+        uint256 _developmentFeeBps2
     ) Ownable(initialOwner) {
         if (
-            _collateralToken == address(0) || _feeWallet1 == address(0) || _feeWallet2 == address(0)
-                || _profitRecipient == address(0)
+            _collateralToken == address(0) || _arbitrageToken == address(0) || _swapRouter == address(0)
+                || _feeWallet1 == address(0) || _feeWallet2 == address(0) || _profitRecipient == address(0)
+                || _developmentFeeWallet1 == address(0) || _developmentFeeWallet2 == address(0)
         ) {
             revert ZeroAddress();
         }
+        if (_developmentFeeBps1 + _developmentFeeBps2 > DEVELOPMENT_FEE_MAX_BPS) revert DevelopmentFeeTooHigh();
+        // Identical tokens would make every swap a no-op while still moving
+        // the cost-basis counters, so the two legs must genuinely differ.
+        if (_collateralToken == _arbitrageToken) revert IdenticalSwapTokens();
+
         collateralToken = IERC20(_collateralToken);
+        arbitrageToken = IERC20(_arbitrageToken);
+        swapRouter = ISwapRouter02(_swapRouter);
+        swapFeeTier = _swapFeeTier;
         feeWallet1 = _feeWallet1;
         feeWallet2 = _feeWallet2;
         profitRecipient = _profitRecipient;
+        developmentFeeWallet1 = _developmentFeeWallet1;
+        developmentFeeWallet2 = _developmentFeeWallet2;
+        DEVELOPMENT_FEE_BPS_1 = _developmentFeeBps1;
+        DEVELOPMENT_FEE_BPS_2 = _developmentFeeBps2;
         profitFeeBPS = 1000; // 10% default, owner-adjustable up to PROFIT_FEE_MAX_BPS
         deployTime = block.timestamp;
 
         // One-time max approval to Polymarket's real Conditional Tokens
         // contract, mirroring the pattern used by Polymarket's own
-        // CTFExchange (`Assets.sol`) constructor.
-        collateralToken.forceApprove(POLYMARKET_CONDITIONAL_TOKENS, type(uint256).max);
+        // CTFExchange (`Assets.sol`) constructor. It is the STRATEGY token
+        // that enters markets, so that is what the CTF is approved to spend.
+        arbitrageToken.forceApprove(POLYMARKET_CONDITIONAL_TOKENS, type(uint256).max);
     }
 
     // ============================================================
@@ -664,6 +1008,21 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
         return (deployTime + FREE_PERIOD) - block.timestamp;
     }
 
+    /// @notice Whether `account` is one of the two development-fee wallets.
+    /// @dev Read live rather than snapshotted, so repointing a development
+    ///      wallet moves the staking restriction along with the revenue.
+    ///      The yield-claim fee wallets are deliberately NOT covered — they
+    ///      stake on the same terms as anyone else.
+    function _isProtocolWallet(address account) private view returns (bool) {
+        return account == developmentFeeWallet1 || account == developmentFeeWallet2;
+    }
+
+    /// @notice Public form of {_isProtocolWallet}, so a front-end can show the
+    ///         fixed deposit size before a wallet tries and reverts.
+    function isProtocolWallet(address account) external view returns (bool) {
+        return _isProtocolWallet(account);
+    }
+
     /// @dev Bounded loop: `partnerCount` can never exceed {MAX_PARTNERS} (4).
     function _isPartner(address account) private view returns (bool) {
         for (uint256 i = 0; i < partnerCount; i++) {
@@ -680,12 +1039,26 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
         return totalArbitrageProfit > totalArbitrageDeployed ? totalArbitrageProfit - totalArbitrageDeployed : 0;
     }
 
-    /// @notice Total assets under management: liquid collateral plus whatever
-    ///         is currently committed to open Polymarket positions. A split
-    ///         moves value between the two, so this figure is invariant across
-    ///         it — which is exactly what makes it a stable base for the cap.
+    /// @notice Platform fees collected but not yet paid out. This collateral
+    ///         sits in the contract but is NOT pool capital.
+    function pendingDevelopmentFees() public view returns (uint256) {
+        return (developmentFeesCollected1 - developmentFeesWithdrawn1)
+            + (developmentFeesCollected2 - developmentFeesWithdrawn2);
+    }
+
+    /// @notice Total POOL assets under management: liquid collateral plus
+    ///         whatever is currently committed to open Polymarket positions,
+    ///         minus platform fees that have been charged but not yet swept.
+    /// @dev Subtracting {pendingDevelopmentFees} is not cosmetic. Fees sit in
+    ///      the same ERC-20 balance as pool capital until withdrawn, so
+    ///      without this they would inflate the arbitrage deployment ceiling
+    ///      and every solvency figure the front-end reports — the pool would
+    ///      appear to be backed by money earmarked for someone else. This is
+    ///      the line that keeps user funds and platform revenue from mixing.
     function totalAssets() public view returns (uint256) {
-        return collateralToken.balanceOf(address(this)) + totalArbitrageDeployed;
+        uint256 gross = collateralToken.balanceOf(address(this)) + totalArbitrageDeployed;
+        uint256 fees = pendingDevelopmentFees();
+        return gross > fees ? gross - fees : 0;
     }
 
     /// @notice Cumulative ceiling on {totalArbitrageDeployed}: an
@@ -718,20 +1091,137 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     }
 
     // ============================================================
+    // Owner functions — converting between the two legs
+    // ============================================================
+
+    /// @notice Converts pool collateral into the strategy currency, so it can
+    ///         enter a Polymarket market.
+    /// @param amountIn Collateral to convert. Bounded by
+    ///        {polymarketArbitrageAvailable}, so this cannot reach past the
+    ///        20% ceiling or into the withdrawal buffer.
+    /// @param amountOutMinimum Floor on what the swap must return. Must be at
+    ///        least {MIN_SWAP_OUTPUT_BPS} of `amountIn` — the contract will
+    ///        not accept a looser bound even from the owner.
+    /// @dev The cost basis moves before the swap, not after: `amountIn` is
+    ///      what left the pool, and that is the figure the pool is owed back
+    ///      regardless of what the swap returns. Booking the *output* instead
+    ///      would let a bad fill quietly write down what the strategy owes.
+    function swapToArbitrageToken(uint256 amountIn, uint256 amountOutMinimum)
+        external
+        onlyOwner
+        whenNotPaused
+        notEmergency
+        nonReentrant
+    {
+        if (amountIn == 0) revert ZeroAmount();
+        if (amountIn > polymarketArbitrageAvailable()) revert AmountExceedsAvailable();
+        if (amountOutMinimum < (amountIn * MIN_SWAP_OUTPUT_BPS) / BPS_DENOMINATOR) {
+            revert SlippageBoundTooLoose();
+        }
+
+        totalArbitrageDeployed += amountIn;
+
+        collateralToken.forceApprove(address(swapRouter), amountIn);
+        uint256 received = swapRouter.exactInputSingle(
+            ISwapRouter02.ExactInputSingleParams({
+                tokenIn: address(collateralToken),
+                tokenOut: address(arbitrageToken),
+                fee: swapFeeTier,
+                recipient: address(this),
+                amountIn: amountIn,
+                amountOutMinimum: amountOutMinimum,
+                sqrtPriceLimitX96: 0
+            })
+        );
+        // Clear any residual allowance so the router holds no standing claim
+        // on pool collateral between calls.
+        collateralToken.forceApprove(address(swapRouter), 0);
+
+        arbitrageTokenBalance += received;
+        emit SwappedToArbitrageToken(amountIn, received);
+    }
+
+    /// @notice Converts strategy currency back into pool collateral, and
+    ///         realises the round trip's profit or loss.
+    /// @dev This is the single point where strategy P&L reaches the books,
+    ///      and it is denominated in collateral because that is what the pool
+    ///      owes its stakers. Anything above the outstanding cost basis is
+    ///      profit and is taxed at {profitFeeBPS}; anything below simply
+    ///      retires less basis, so a loss is absorbed rather than hidden.
+    ///
+    ///      Like {executePolymarketRedeem}, unwinding a position in pieces
+    ///      makes the fee a conservative estimate rather than an exact one:
+    ///      basis is retired first, so the fee can only ever be charged late,
+    ///      never on returned principal.
+    function swapFromArbitrageToken(uint256 amountIn, uint256 amountOutMinimum) external onlyOwner nonReentrant {
+        if (amountIn == 0) revert ZeroAmount();
+        if (amountIn > arbitrageTokenBalance) revert AmountExceedsAvailable();
+        if (amountOutMinimum < (amountIn * MIN_SWAP_OUTPUT_BPS) / BPS_DENOMINATOR) {
+            revert SlippageBoundTooLoose();
+        }
+
+        arbitrageTokenBalance -= amountIn;
+
+        arbitrageToken.forceApprove(address(swapRouter), amountIn);
+        uint256 received = swapRouter.exactInputSingle(
+            ISwapRouter02.ExactInputSingleParams({
+                tokenIn: address(arbitrageToken),
+                tokenOut: address(collateralToken),
+                fee: swapFeeTier,
+                recipient: address(this),
+                amountIn: amountIn,
+                amountOutMinimum: amountOutMinimum,
+                sqrtPriceLimitX96: 0
+            })
+        );
+        arbitrageToken.forceApprove(address(swapRouter), 0);
+
+        // Retire cost basis first, so returned principal is never taxed.
+        //
+        // The writes below land after the external call, departing from the
+        // strict CEI used elsewhere. That is unavoidable — `received` is the
+        // swap's return value and cannot be known beforehand — and safe here
+        // for the same reasons as {executePolymarketRedeem}: the function is
+        // `onlyOwner` and `nonReentrant`, and `swapRouter` is immutable, so
+        // the callee is a fixed, known contract rather than anything an
+        // attacker can substitute.
+        uint256 basis = totalArbitrageDeployed;
+        uint256 principalReturned = received > basis ? basis : received;
+        totalArbitrageDeployed = basis - principalReturned;
+
+        uint256 profit = received - principalReturned;
+        uint256 fee = (profit * profitFeeBPS) / BPS_DENOMINATOR;
+        if (fee > 0) {
+            collateralToken.safeTransfer(profitRecipient, fee);
+            emit ProfitFeeCharged(bytes32(0), profit, fee, profitRecipient);
+        }
+
+        uint256 netProfit = profit - fee;
+        if (netProfit > 0) {
+            totalArbitrageProfit += netProfit;
+            emit ArbitrageProfitAccrued(netProfit, totalArbitrageProfit);
+        }
+
+        emit SwappedFromArbitrageToken(amountIn, received, profit);
+    }
+
+    // ============================================================
     // Owner functions — Polymarket integration (REAL on-chain calls only)
     // ============================================================
 
-    /// @notice Converts `amount` of pooled `collateralToken` into a complete
-    ///         set of Polymarket outcome-token positions for `conditionId`,
-    ///         via a real call to Polymarket's official, permissionless
-    ///         Conditional Tokens contract. See the contract-level NatSpec
-    ///         for the honest limitation on realizing profit from this via
-    ///         the order book.
+    /// @notice Converts held strategy currency into a complete set of
+    ///         Polymarket outcome-token positions for `conditionId`, via a
+    ///         real call to Polymarket's official, permissionless Conditional
+    ///         Tokens contract. See the contract-level NatSpec for the honest
+    ///         limitation on realizing profit from this via the order book.
     /// @param conditionId Polymarket condition ID for the target market
     ///        (obtained off-chain from Polymarket's API/subgraph).
     /// @param partition Index-set partition, e.g. `[1, 2]` for a standard
     ///        binary YES/NO market's complete set.
-    /// @param amount Amount of `collateralToken` to convert.
+    /// @param amount Amount of {arbitrageToken} to convert. Must already have
+    ///        been obtained via {swapToArbitrageToken} — this function draws
+    ///        on {arbitrageTokenBalance}, never on pool collateral, so the
+    ///        20% ceiling is enforced at the swap rather than here.
     function executePolymarketSplit(bytes32 conditionId, uint256[] calldata partition, uint256 amount)
         external
         onlyOwner
@@ -740,16 +1230,18 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
         nonReentrant
     {
         if (amount == 0) revert ZeroAmount();
-        if (amount > polymarketArbitrageAvailable()) revert AmountExceedsAvailable();
+        if (amount > arbitrageTokenBalance) revert AmountExceedsAvailable();
 
         // Effects before the external call (strict CEI): `amount` is already
         // known at this point, so there is no need to wait for the call to
-        // return before updating accounting.
+        // return before updating accounting. `totalArbitrageDeployed` is NOT
+        // touched — the capital left the pool at the swap, and counting it
+        // again here would double-book the same exposure.
         committedByCondition[conditionId] += amount;
-        totalArbitrageDeployed += amount;
+        arbitrageTokenBalance -= amount;
 
         IConditionalTokens(POLYMARKET_CONDITIONAL_TOKENS)
-            .splitPosition(collateralToken, bytes32(0), conditionId, partition, amount);
+            .splitPosition(arbitrageToken, bytes32(0), conditionId, partition, amount);
 
         emit ArbitrageSplitExecuted(conditionId, amount, partition);
     }
@@ -782,72 +1274,140 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
         uint256 committed = committedByCondition[conditionId];
         uint256 released = amount >= committed ? committed : amount;
         committedByCondition[conditionId] = committed - released;
-        totalArbitrageDeployed -= released;
+        // Returns to the strategy leg, not to the pool. The cost basis stays
+        // outstanding until {swapFromArbitrageToken} actually brings
+        // collateral back — that is the only point capital has genuinely
+        // returned to the stakers.
+        arbitrageTokenBalance += amount;
 
         IConditionalTokens(POLYMARKET_CONDITIONAL_TOKENS)
-            .mergePositions(collateralToken, bytes32(0), conditionId, partition, amount);
+            .mergePositions(arbitrageToken, bytes32(0), conditionId, partition, amount);
 
         emit ArbitrageMergeExecuted(conditionId, amount, partition);
     }
 
-    /// @notice Redeems already-held Polymarket outcome-token positions for
-    ///         collateral after `conditionId` has been resolved by its
-    ///         oracle. Fully autonomous, on-chain, no order-book dependency.
-    /// @dev A performance fee ({profitFeeBPS}) is charged ONLY on the amount
-    ///      by which `received` exceeds this contract's own tracked
-    ///      {committedByCondition} for `conditionId` — i.e. only on genuine
-    ///      profit, never on principal the contract itself split into this
-    ///      position. Assumes the full committed position for `conditionId`
-    ///      is redeemed in one call; partial redemptions make this a
-    ///      conservative (not exact) profit estimate — documented, not
-    ///      silently wrong.
+    /// @notice Redeems already-held Polymarket outcome-token positions after
+    ///         `conditionId` has been resolved by its oracle. Fully
+    ///         autonomous, on-chain, no order-book dependency.
+    /// @dev No performance fee is charged here, and none can be: proceeds
+    ///      arrive in {arbitrageToken}, whereas the pool's obligations — and
+    ///      therefore any meaningful notion of profit — are denominated in
+    ///      collateral. A position can be up in USDC.e terms and still return
+    ///      less collateral than it cost. So this function only moves value
+    ///      back onto the strategy leg; P&L is realised once, in the
+    ///      accounting currency, at {swapFromArbitrageToken}.
+    ///
+    ///      `committedByCondition` is retired by the amount ACTUALLY
+    ///      recovered rather than zeroed outright. Zeroing it up front made
+    ///      partial redemptions exploitable: the first call retired the whole
+    ///      commitment while returning only part of it, so a second call on
+    ///      the same condition saw `committed == 0` and treated pure
+    ///      principal as gain.
     function executePolymarketRedeem(bytes32 conditionId, uint256[] calldata indexSets)
         external
         onlyOwner
         nonReentrant
     {
-        uint256 balanceBefore = collateralToken.balanceOf(address(this));
+        uint256 balanceBefore = arbitrageToken.balanceOf(address(this));
 
         uint256 committed = committedByCondition[conditionId];
 
         IConditionalTokens(POLYMARKET_CONDITIONAL_TOKENS)
-            .redeemPositions(collateralToken, bytes32(0), conditionId, indexSets);
+            .redeemPositions(arbitrageToken, bytes32(0), conditionId, indexSets);
 
-        uint256 received = collateralToken.balanceOf(address(this)) - balanceBefore;
+        uint256 received = arbitrageToken.balanceOf(address(this)) - balanceBefore;
 
-        // The principal tracker is retired by the amount ACTUALLY recovered,
-        // never zeroed outright. Zeroing it up front made partial redemptions
-        // exploitable: the first call retired the whole commitment while
-        // returning only part of it, so a second call on the same condition
-        // saw `committed == 0` and billed 100% of the proceeds — pure staker
-        // principal — as profit. Retiring only `principalReturned` leaves the
-        // unrecovered remainder on the books for the next call.
-        //
-        // This writes state after the external call, departing from the strict
-        // CEI used elsewhere. That is unavoidable: `received` is a balance
-        // delta and cannot be known beforehand. It is safe here because the
-        // function is `onlyOwner` + `nonReentrant` and the only external call
-        // is to the fixed, trusted Conditional Tokens address.
+        // Writes state after the external call, departing from the strict CEI
+        // used elsewhere. Unavoidable: `received` is a balance delta and
+        // cannot be known beforehand. Safe here because the function is
+        // `onlyOwner` + `nonReentrant` and the only external call is to the
+        // fixed, trusted Conditional Tokens address.
         uint256 principalReturned = received > committed ? committed : received;
         committedByCondition[conditionId] = committed - principalReturned;
-        totalArbitrageDeployed -= principalReturned;
-
-        uint256 profit = received - principalReturned;
-        uint256 fee = (profit * profitFeeBPS) / BPS_DENOMINATOR;
-        if (fee > 0) {
-            collateralToken.safeTransfer(profitRecipient, fee);
-            emit ProfitFeeCharged(conditionId, profit, fee, profitRecipient);
-        }
-
-        // Credit only what the pool actually keeps, so the deployment budget
-        // never grows on profit that was paid out as a fee.
-        uint256 netProfit = profit - fee;
-        if (netProfit > 0) {
-            totalArbitrageProfit += netProfit;
-            emit ArbitrageProfitAccrued(netProfit, totalArbitrageProfit);
-        }
+        arbitrageTokenBalance += received;
 
         emit ArbitrageRedeemed(conditionId, indexSets, received);
+    }
+
+    /// @notice Everything a dashboard needs to show where the money is, in one
+    ///         call, so the three figures can never be assembled from
+    ///         inconsistent block heights.
+    /// @return grossDeposits Cumulative pre-fee deposits ever received.
+    /// @return developmentFees Cumulative platform fees ever charged.
+    /// @return userNetStakes Principal currently owed to stakers.
+    /// @return mainPoolBalance Pool capital held now, excluding unswept fees.
+    /// @return developmentFeeBalance Fees charged but not yet swept.
+    /// @return deployedToArbitrage Pool capital in open Polymarket positions.
+    function dashboard()
+        external
+        view
+        returns (
+            uint256 grossDeposits,
+            uint256 developmentFees,
+            uint256 userNetStakes,
+            uint256 mainPoolBalance,
+            uint256 developmentFeeBalance,
+            uint256 deployedToArbitrage
+        )
+    {
+        grossDeposits = totalGrossDeposits;
+        developmentFees = developmentFeesCollected1 + developmentFeesCollected2;
+        userNetStakes = totalStaked;
+        mainPoolBalance = totalAssets();
+        developmentFeeBalance = pendingDevelopmentFees();
+        deployedToArbitrage = totalArbitrageDeployed;
+    }
+
+    /// @notice A single user's deposit split, for the same reason as
+    ///         {dashboard}: one call, one consistent view.
+    function userDepositBreakdown(address user)
+        external
+        view
+        returns (uint256 gross, uint256 platformFee, uint256 netStake, uint256 activeStake)
+    {
+        gross = grossDeposited[user];
+        platformFee = platformFeePaid[user];
+        netStake = netStaked[user];
+        activeStake = stakes[user].amount;
+    }
+
+    // ============================================================
+    // ERC-1155 receiver — required to hold Polymarket outcome tokens
+    // ============================================================
+
+    /// @notice Accepts the ERC-1155 outcome tokens the CTF mints on a split.
+    /// @dev Not optional plumbing. `splitPosition` mints to this contract and
+    ///      then, because the recipient is a contract, calls back to confirm
+    ///      it can hold ERC-1155. Without these hooks the callback hits the
+    ///      fallback and the whole split reverts — so every Polymarket call
+    ///      would fail, in every market, permanently. A mock CTF does not
+    ///      perform the acceptance check, which is why this only surfaces
+    ///      against the real contract.
+    ///
+    ///      Deliberately unrestricted: rejecting unsolicited tokens buys
+    ///      nothing here (anyone can send us an NFT regardless) while a
+    ///      stricter check risks refusing a legitimate mint.
+    function onERC1155Received(address, address, uint256, uint256, bytes calldata) external pure returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    /// @notice Batch form of {onERC1155Received}. This is the one the CTF
+    ///         actually uses: a split mints the whole complete set at once.
+    function onERC1155BatchReceived(address, address, uint256[] calldata, uint256[] calldata, bytes calldata)
+        external
+        pure
+        returns (bytes4)
+    {
+        return this.onERC1155BatchReceived.selector;
+    }
+
+    /// @notice ERC-165 support for {IERC1155Receiver} and ERC-165 itself.
+    /// @dev The CTF's acceptance check relies on the return selectors above
+    ///      rather than on this, but wallets and explorers use it to decide
+    ///      whether the contract can safely custody ERC-1155.
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return interfaceId == 0x4e2312e0 // IERC1155Receiver
+            || interfaceId == 0x01ffc9a7; // IERC165
     }
 
     /// @notice Read-only passthrough to Polymarket's real Conditional Tokens
@@ -982,6 +1542,120 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
 
     // ============================================================
     // Emergency fund rescue — partner-gated, time-delayed
+    // ============================================================
+
+    // ============================================================
+    // Promotional grants
+    // ============================================================
+
+    /// @notice Opens a promotional position for `user`, paid for by the caller.
+    /// @dev The honest form of a "free package". A free stake in the V2 sense
+    ///      creates a position with no collateral behind it, so the yield it
+    ///      draws comes out of other depositors' principal — and the better
+    ///      the promotion works, the larger that hole gets. Here the owner
+    ///      funds the grant up front from marketing budget: the user still
+    ///      pays nothing, the position is still real, but the cost sits with
+    ///      whoever ran the promotion instead of with the other stakers.
+    ///
+    ///      The collateral is pulled from the caller and verified by balance
+    ///      delta, accrual starts now, and
+    ///      the total is bounded by what has actually been funded — so the
+    ///      protocol's exposure to a promotion can never exceed its budget.
+    ///
+    ///      No development fee is taken; the grant is already a cost to the
+    ///      project rather than a deposit by the user.
+    function grantStake(address user, uint256 amount) external onlyOwner nonReentrant {
+        if (user == address(0)) revert ZeroAddress();
+        if (amount < MIN_STAKE) revert BelowMinStake();
+        if (amount > MAX_STAKE) revert AboveMaxStake();
+
+        Stake storage s = stakes[user];
+        if (s.active) revert AlreadyActive();
+        if (s.earlyExited) revert AlreadyExited();
+
+        uint256 balanceBefore = collateralToken.balanceOf(address(this));
+        collateralToken.safeTransferFrom(msg.sender, address(this), amount);
+        if (collateralToken.balanceOf(address(this)) != balanceBefore + amount) {
+            revert TransferAmountMismatch();
+        }
+
+        uint256 plan = _getPlanByAmount(amount);
+        if (s.amount == 0) _userCount++;
+        stakes[user] = Stake({
+            amount: amount,
+            plan: plan,
+            rate: dailyRates[plan],
+            startTime: block.timestamp,
+            lastClaimTime: block.timestamp,
+            totalClaimed: 0,
+            active: true,
+            earlyExited: false,
+            freeStake: false,
+            freeAmount: 0
+        });
+        totalStaked += amount;
+        _activeStakeCount++;
+        totalGranted += amount;
+
+        emit StakeGranted(user, amount, plan);
+    }
+
+    // ============================================================
+    // Owner functions — site growth fee
+    // ============================================================
+
+    /// @notice Pays out accrued platform fees for `budget` (1 or 2) to that
+    ///         budget's wallet.
+    /// @dev Three independent limits apply, and all three are arithmetic
+    ///      rather than policy:
+    ///        1. `amount` cannot exceed that budget's own
+    ///           `collected - withdrawn`, so one budget can never spend the
+    ///           other's allocation;
+    ///        2. it cannot exceed the contract's liquid balance;
+    ///        3. it cannot reduce the liquid balance below what non-fee
+    ///           liabilities need — checked via {totalAssets}, which already
+    ///           nets out pending fees.
+    ///      There is no path here to staker principal: the ceiling is set by
+    ///      fees actually charged on deposits, and the owner cannot raise the
+    ///      rate that produced them ({DEVELOPMENT_FEE_BPS_1}/{DEVELOPMENT_FEE_BPS_2}
+    ///      are immutable).
+    function withdrawDevelopmentFees(uint256 budget, uint256 amount) external onlyOwner nonReentrant {
+        if (amount == 0) revert ZeroAmount();
+
+        uint256 available;
+        address destination;
+        if (budget == 1) {
+            available = developmentFeesCollected1 - developmentFeesWithdrawn1;
+            destination = developmentFeeWallet1;
+        } else if (budget == 2) {
+            available = developmentFeesCollected2 - developmentFeesWithdrawn2;
+            destination = developmentFeeWallet2;
+        } else {
+            revert ExceedsCollectedFees();
+        }
+
+        if (amount > available) revert ExceedsCollectedFees();
+        if (amount > collateralToken.balanceOf(address(this))) revert InsufficientLiquidityForFees();
+
+        // Effects before the interaction (strict CEI).
+        if (budget == 1) developmentFeesWithdrawn1 += amount;
+        else developmentFeesWithdrawn2 += amount;
+
+        collateralToken.safeTransfer(destination, amount);
+        emit DevelopmentFeeWithdrawn(budget, destination, amount, available - amount);
+    }
+
+    /// @notice Repoints a fee budget's destination wallet.
+    /// @dev Changes where future fees are paid; it cannot change how much is
+    ///      owed, and cannot reach pool capital.
+    function setDevelopmentFeeWallet(uint256 budget, address newWallet) external onlyOwner {
+        if (newWallet == address(0)) revert ZeroAddress();
+        if (budget == 1) developmentFeeWallet1 = newWallet;
+        else if (budget == 2) developmentFeeWallet2 = newWallet;
+        else revert ExceedsCollectedFees();
+        emit DevelopmentFeeWalletUpdated(budget, newWallet);
+    }
+
     // ============================================================
 
     /// @notice Sets the destination for {executeRescue}.
@@ -1149,24 +1823,57 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     // User functions
     // ============================================================
 
-    function stake(uint256 amount, address referrer) external whenNotPaused notBlacklisted onlyEOA nonReentrant {
+    /// @notice Opens a stake. `grossAmount` is what leaves the caller's wallet;
+    ///         the recorded stake is `grossAmount` minus the platform fee.
+    /// @dev Every downstream figure — plan tier, minimum/maximum bounds,
+    ///      referral volume, the stake itself — is derived from the NET
+    ///      amount, never the gross. That is what keeps the contract's
+    ///      liability equal to what it actually holds: it never books a
+    ///      stake larger than the capital backing it. Use {quoteDeposit} to
+    ///      show a user their split before they sign.
+    function stake(uint256 grossAmount, address referrer) external whenNotPaused notBlacklisted onlyEOA nonReentrant {
         Stake storage s = stakes[msg.sender];
         if (s.active) revert AlreadyActive();
         if (s.earlyExited) revert AlreadyExited();
+
+        bool free = isFreePeriod();
+
+        // The two development-fee wallets are held to one exact deposit size,
+        // and are barred from the free-stake window. A free position for a
+        // wallet that collects protocol revenue would be a claim on other
+        // depositors' capital with nothing behind it; requiring the same
+        // 1,000 as everyone else means their position is funded like any
+        // other. The set is read live, so repointing a wallet moves the
+        // restriction with it.
+        if (_isProtocolWallet(msg.sender)) {
+            if (free) revert ProtocolWalletStakeInvalid();
+            if (grossAmount != PROTOCOL_WALLET_STAKE) revert ProtocolWalletStakeInvalid();
+        }
+
+        // A free stake moves no collateral, so there is nothing to take a fee
+        // from; it is booked at face value exactly as in V2.
+        (uint256 fee1, uint256 fee2, uint256 amount) =
+            free ? (uint256(0), uint256(0), grossAmount) : _splitDeposit(grossAmount);
+
+        if (free) {
+            if (grossAmount != MIN_STAKE) revert InvalidFreeStakeAmount();
+            // Counted before the stake is written, and never decremented, so
+            // the cap holds across exits and re-entries.
+            if (freeStakeCount >= MAX_FREE_STAKES) revert FreeStakeLimitReached();
+            freeStakeCount++;
+        }
         if (amount < MIN_STAKE) revert BelowMinStake();
         if (amount > MAX_STAKE) revert AboveMaxStake();
 
-        bool free = false;
-        if (isFreePeriod()) {
-            if (amount != MIN_STAKE) revert InvalidFreeStakeAmount();
-            free = true;
-        }
         uint256 plan = _getPlanByAmount(amount);
 
         if (!free) {
             uint256 balanceBefore = collateralToken.balanceOf(address(this));
-            collateralToken.safeTransferFrom(msg.sender, address(this), amount);
-            if (collateralToken.balanceOf(address(this)) != balanceBefore + amount) revert TransferAmountMismatch();
+            collateralToken.safeTransferFrom(msg.sender, address(this), grossAmount);
+            if (collateralToken.balanceOf(address(this)) != balanceBefore + grossAmount) {
+                revert TransferAmountMismatch();
+            }
+            _recordDeposit(msg.sender, grossAmount, fee1, fee2, amount);
         }
 
         if (referrer != address(0) && referrer != msg.sender && stakes[referrer].active && !blacklisted[referrer]) {
@@ -1174,48 +1881,165 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
             referrals[referrer].activeReferrals++;
             _f1List[referrer].push(msg.sender);
             _f1Volume[referrer] += amount;
-            _updateLevel(referrer);
+            if (amount >= MIN_COUNTABLE_REFERRAL) _countableReferrals[referrer]++;
+
             address grandparent = referrals[referrer].referrer;
-            if (grandparent != address(0)) _f2Volume[grandparent] += amount;
+            if (grandparent != address(0)) {
+                _f2Volume[grandparent] += amount;
+                _f2List[grandparent].push(msg.sender);
+
+                address greatGrandparent = referrals[grandparent].referrer;
+                if (greatGrandparent != address(0)) {
+                    _f3Volume[greatGrandparent] += amount;
+                    _f3List[greatGrandparent].push(msg.sender);
+                }
+            }
+            // After the volume and count have been written, never before.
+            _updateLevel(referrer);
         }
 
         if (s.amount == 0) _userCount++;
-        stakes[msg.sender] =
-            Stake(amount, plan, dailyRates[plan], block.timestamp, block.timestamp, 0, true, false, free);
+        stakes[msg.sender] = Stake({
+            amount: amount,
+            plan: plan,
+            rate: dailyRates[plan],
+            startTime: block.timestamp,
+            lastClaimTime: block.timestamp,
+            totalClaimed: 0,
+            active: true,
+            earlyExited: false,
+            freeStake: free,
+            freeAmount: free ? amount : 0
+        });
         if (!free) totalStaked += amount;
         _activeStakeCount++;
         emit Staked(msg.sender, amount, plan, referrer, free);
     }
 
-    function topUp(uint256 amount) external whenNotPaused notBlacklisted onlyEOA nonReentrant {
+    /// @notice Splits a gross deposit into the two fee budgets and the net
+    ///         stake. Pure arithmetic on immutable rates — there is no branch
+    ///         here the owner can influence.
+    /// @dev The net is computed by subtraction rather than as its own
+    ///      percentage, so integer truncation can never make the three parts
+    ///      sum to more than `grossAmount`.
+    /**
+     * The deposit fee, in basis points, for a given deposit size.
+     *
+     * A volume discount rather than a flat rate: the work of taking a deposit
+     * does not scale with its size, and the flat 10% made small positions the
+     * cheapest thing to create, which is the opposite of what a sybil-resistant
+     * system wants.
+     *
+     * The bands are checked for monotonicity in the test suite — 2,499 at 10%
+     * must never leave a larger stake than 2,500 at 7%, or a depositor would be
+     * paid to send less.
+     */
+    function depositFeeBps(uint256 grossAmount) public pure returns (uint256) {
+        if (grossAmount >= 10_000_000000) return 500; //  5%
+        if (grossAmount >= 2_500_000000) return 700; //   7%
+        if (grossAmount >= 500_000000) return 1000; //   10%
+        return 1200; //                                  12%
+    }
+
+    /// @dev The two development budgets always split the fee evenly, so the
+    ///      band decides the total and each side takes half of it. `net` is
+    ///      computed by subtraction so integer truncation can never make the
+    ///      three parts sum to more than `grossAmount`.
+    function _splitDeposit(uint256 grossAmount) private pure returns (uint256 fee1, uint256 fee2, uint256 net) {
+        uint256 totalFee = (grossAmount * depositFeeBps(grossAmount)) / BPS_DENOMINATOR;
+        fee1 = totalFee / 2;
+        fee2 = totalFee - fee1;
+        net = grossAmount - totalFee;
+    }
+
+    /// @dev Books a deposit's fee split. Called after the transfer has been
+    ///      verified, so `developmentFeesCollected*` only ever grows against
+    ///      collateral the contract demonstrably received.
+    function _recordDeposit(address user, uint256 grossAmount, uint256 fee1, uint256 fee2, uint256 net) private {
+        developmentFeesCollected1 += fee1;
+        developmentFeesCollected2 += fee2;
+        totalGrossDeposits += grossAmount;
+        grossDeposited[user] += grossAmount;
+        platformFeePaid[user] += fee1 + fee2;
+        netStaked[user] += net;
+        emit DevelopmentFeeCharged(user, grossAmount, fee1, fee2, net);
+    }
+
+    /// @notice What a `grossAmount` deposit would actually buy: the fee taken
+    ///         and the stake recorded. Front-ends must show this before the
+    ///         user signs — the fee is only honest if it is disclosed.
+    function quoteDeposit(uint256 grossAmount)
+        external
+        view
+        returns (uint256 fee1, uint256 fee2, uint256 totalFee, uint256 netStake)
+    {
+        (fee1, fee2, netStake) = _splitDeposit(grossAmount);
+        totalFee = fee1 + fee2;
+    }
+
+    /// @notice Adds to an existing stake. The same fee split as {stake}
+    ///         applies, so a top-up cannot be used to route capital in at a
+    ///         different rate than a first deposit.
+    function topUp(uint256 grossAmount) external whenNotPaused notBlacklisted onlyEOA nonReentrant {
         Stake storage s = stakes[msg.sender];
         if (!s.active) revert NoActiveStake();
-        if (s.freeStake) revert InvalidFreeStakeAmount();
+        // V4 opens top-up to free positions: it is the only way a giveaway can
+        // become a funded position, and locking it shut was what left V3's
+        // free users with no route other than claiming yield the pool paid for
+        // nothing. The free portion keeps its own accounting through
+        // {Stake.freeAmount}, so topping up funds the position without ever
+        // making the giveaway itself withdrawable.
+        if (_isProtocolWallet(msg.sender)) revert ProtocolWalletStakeInvalid();
+
+        (uint256 fee1, uint256 fee2, uint256 amount) = _splitDeposit(grossAmount);
         if (amount < MIN_STAKE) revert BelowMinStake();
         uint256 newTotal = s.amount + amount;
         if (newTotal > MAX_STAKE) revert AboveMaxStake();
 
         uint256 balanceBefore = collateralToken.balanceOf(address(this));
-        collateralToken.safeTransferFrom(msg.sender, address(this), amount);
-        if (collateralToken.balanceOf(address(this)) != balanceBefore + amount) revert TransferAmountMismatch();
+        collateralToken.safeTransferFrom(msg.sender, address(this), grossAmount);
+        if (collateralToken.balanceOf(address(this)) != balanceBefore + grossAmount) revert TransferAmountMismatch();
+        _recordDeposit(msg.sender, grossAmount, fee1, fee2, amount);
 
+        // A free position that has now been funded stops counting as free for
+        // everything except the giveaway principal, which {freeAmount} keeps
+        // walled off permanently.
+        bool wasBelowCountable = s.amount < MIN_COUNTABLE_REFERRAL;
         s.amount = newTotal;
         totalStaked += amount;
 
         address referrer = referrals[msg.sender].referrer;
         if (referrer != address(0)) {
             _f1Volume[referrer] += amount;
+            // A position that crosses the floor on a top-up starts counting.
+            if (wasBelowCountable && newTotal >= MIN_COUNTABLE_REFERRAL) {
+                _countableReferrals[referrer]++;
+            }
             address grandparent = referrals[referrer].referrer;
-            if (grandparent != address(0)) _f2Volume[grandparent] += amount;
+            if (grandparent != address(0)) {
+                _f2Volume[grandparent] += amount;
+                address greatGrandparent = referrals[grandparent].referrer;
+                if (greatGrandparent != address(0)) _f3Volume[greatGrandparent] += amount;
+            }
             _updateLevel(referrer);
         }
+        // The staker's own tier can move too — their stake is one of the three
+        // conditions.
+        _updateLevel(msg.sender);
         emit ToppedUp(msg.sender, amount, newTotal);
     }
 
     function upgradePlan() external whenNotPaused notBlacklisted onlyEOA nonReentrant {
         Stake storage s = stakes[msg.sender];
         if (!s.active) revert NoActiveStake();
-        if (s.freeStake) revert InvalidFreeStakeAmount();
+        // A giveaway that has been funded is an ordinary position for every
+        // purpose except its principal. V3 could block the whole function
+        // because free positions could not be topped up at all; V4 opens that
+        // door, so blocking the upgrade here would strand a converted user on
+        // Starter's rate no matter how large their real deposit grew.
+        if (s.freeStake && grossDeposited[msg.sender] < MIN_ACTIVATION_DEPOSIT) {
+            revert FreeStakeNotActivated();
+        }
         uint256 newPlan = _getPlanByAmount(s.amount);
         if (newPlan == s.plan) revert PlanUnchanged();
         uint256 oldPlan = s.plan;
@@ -1235,16 +2059,37 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
         // zero-check here is correct, not a "dangerous" strict equality.
         if (reward == 0) revert NothingToClaim();
 
+        // A free position accrues from the moment it is issued, but it is a
+        // giveaway, not a withdrawal facility: nothing comes out of the pool
+        // for it until the holder has put real collateral in. A giveaway that
+        // never converts costs the pool nothing at all, which is what makes a
+        // hundred of them safe.
+        if (s.freeStake && grossDeposited[msg.sender] < MIN_ACTIVATION_DEPOSIT) {
+            revert FreeStakeNotActivated();
+        }
+
         _checkDailyCap(msg.sender, reward);
         s.lastClaimTime = block.timestamp;
         s.totalClaimed += reward;
         totalPaidOut += reward;
 
-        uint256 fee1 = (reward * FEE1_BPS) / BPS_DENOMINATOR;
-        uint256 fee2 = (reward * FEE2_BPS) / BPS_DENOMINATOR;
-        uint256 userAmount = reward - fee1 - fee2;
+        // The claim fee is a volume discount like the deposit fee: the larger
+        // tiers pay half the rate.
+        uint256 feeBps = claimFeeBps(s.plan);
+        uint256 totalFee = (reward * feeBps) / BPS_DENOMINATOR;
+        uint256 fee1 = totalFee / 2;
+        uint256 fee2 = totalFee - fee1;
 
-        _processReferralRewards(msg.sender, reward);
+        // The decisive change from V3. Referral rewards are subtracted from
+        // this claim rather than credited on top of it, so `reward` is the
+        // whole of what leaves the contract: fee + upline + user, always
+        // summing back to the yield that actually accrued. V3 credited the
+        // upline separately out of pooled capital, which meant a Platinum
+        // chain cost the pool 135% of the accrual and the shortfall grew with
+        // the programme's success.
+        uint256 referralPaid = _processReferralRewards(msg.sender, reward, reward - totalFee);
+        uint256 userAmount = reward - totalFee - referralPaid;
+
         _updateDailyWithdrawn(msg.sender, userAmount);
         _claimCounts[msg.sender]++;
 
@@ -1252,7 +2097,13 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
         if (fee2 > 0) collateralToken.safeTransfer(feeWallet2, fee2);
         collateralToken.safeTransfer(msg.sender, userAmount);
 
-        emit Claimed(msg.sender, userAmount, fee1 + fee2);
+        emit Claimed(msg.sender, userAmount, totalFee);
+    }
+
+    /// @notice Claim fee for a plan, in basis points. Advanced and Elite pay
+    ///         half of what the entry tiers pay.
+    function claimFeeBps(uint256 plan) public pure returns (uint256) {
+        return plan >= 2 ? 500 : 1000;
     }
 
     function claimRef() external whenNotPaused notBlacklisted onlyEOA nonReentrant {
@@ -1274,10 +2125,14 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
         Stake storage s = stakes[msg.sender];
         if (!s.active) revert NoActiveStake();
 
-        bool free = s.freeStake;
+        // Only the funded part of a position is ever returned. A giveaway
+        // position that was later topped up returns the top-up and keeps the
+        // giveaway inside the pool, which is what stops a free stake from
+        // becoming a withdrawal of somebody else's deposit.
         uint256 amount = s.amount;
-        uint256 penalty = free ? 0 : _earlyExitPenalty(msg.sender);
-        uint256 returned = free ? 0 : amount - penalty;
+        uint256 backed = amount > s.freeAmount ? amount - s.freeAmount : 0;
+        uint256 penalty = (backed * _earlyExitPenaltyBps(msg.sender)) / BPS_DENOMINATOR;
+        uint256 returned = backed - penalty;
 
         s.earlyExited = true;
         _deactivateStake(msg.sender);
@@ -1308,14 +2163,14 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
         Stake storage s = stakes[msg.sender];
         if (!s.active) revert NoActiveStake();
 
-        bool free = s.freeStake;
         uint256 amount = s.amount;
+        uint256 backed = amount > s.freeAmount ? amount - s.freeAmount : 0;
 
         s.earlyExited = true;
         _deactivateStake(msg.sender);
 
-        if (!free && amount > 0) collateralToken.safeTransfer(msg.sender, amount);
-        emit EmergencyWithdrawn(msg.sender, amount);
+        if (backed > 0) collateralToken.safeTransfer(msg.sender, backed);
+        emit EmergencyWithdrawn(msg.sender, backed);
     }
 
     // ============================================================
@@ -1329,17 +2184,47 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
     ///      in the original contract.
     function _deactivateStake(address user) private {
         Stake storage s = stakes[user];
-        if (!s.freeStake) totalStaked -= s.amount;
+        uint256 amount = s.amount;
+        // Only the funded part was ever added to totalStaked.
+        uint256 backed = amount > s.freeAmount ? amount - s.freeAmount : 0;
+        if (backed > 0) totalStaked -= backed;
         s.active = false;
         s.amount = 0;
         s.rate = 0;
+        s.freeAmount = 0;
         if (_activeStakeCount > 0) _activeStakeCount--;
 
         address referrer = referrals[user].referrer;
-        if (referrer != address(0) && referrals[referrer].activeReferrals > 0) {
-            referrals[referrer].activeReferrals--;
+        if (referrer != address(0)) {
+            Referral storage r = referrals[referrer];
+            if (r.activeReferrals > 0) r.activeReferrals--;
+            if (amount >= MIN_COUNTABLE_REFERRAL && _countableReferrals[referrer] > 0) {
+                _countableReferrals[referrer]--;
+            }
+
+            // Volume has to fall with the position that created it. V3 only
+            // ever added, which is harmless while tiers are gated on headcount
+            // and fatal once they are gated on volume: raise it once, let the
+            // downline leave, keep the tier for good.
+            _f1Volume[referrer] = _sub(_f1Volume[referrer], amount);
+            address grandparent = referrals[referrer].referrer;
+            if (grandparent != address(0)) {
+                _f2Volume[grandparent] = _sub(_f2Volume[grandparent], amount);
+                address greatGrandparent = referrals[grandparent].referrer;
+                if (greatGrandparent != address(0)) {
+                    _f3Volume[greatGrandparent] = _sub(_f3Volume[greatGrandparent], amount);
+                }
+                _updateLevel(grandparent);
+            }
             _updateLevel(referrer);
         }
+    }
+
+    /// @dev Saturating subtraction. Volume counters are maintained across
+    ///      several paths; a rounding mismatch should cost a member a little
+    ///      credited volume, never brick every exit beneath them.
+    function _sub(uint256 a, uint256 b) private pure returns (uint256) {
+        return a > b ? a - b : 0;
     }
 
     function _pendingReward(address user) private view returns (uint256) {
@@ -1351,51 +2236,94 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
         return (s.amount * s.rate * elapsed) / (BPS_DENOMINATOR * DAY);
     }
 
-    function _earlyExitPenalty(address user) private view returns (uint256) {
-        Stake storage s = stakes[user];
-        uint256 weeksElapsed = (block.timestamp - s.startTime) / WEEK;
-        uint256 penaltyBps;
-        if (weeksElapsed < 1) penaltyBps = PENALTY_W1;
-        else if (weeksElapsed < 2) penaltyBps = PENALTY_W2;
-        else if (weeksElapsed < 3) penaltyBps = PENALTY_W3;
-        else if (weeksElapsed < 4) penaltyBps = PENALTY_W4;
-        else penaltyBps = PENALTY_AF;
-        return (s.amount * penaltyBps) / BPS_DENOMINATOR;
+    /// @dev Returns the penalty RATE rather than an amount, because it is
+    ///      applied to the funded part of a position, not to its face value.
+    function _earlyExitPenaltyBps(address user) private view returns (uint256) {
+        uint256 weeksElapsed = (block.timestamp - stakes[user].startTime) / WEEK;
+        if (weeksElapsed < 1) return PENALTY_W1;
+        if (weeksElapsed < 2) return PENALTY_W2;
+        if (weeksElapsed < 3) return PENALTY_W3;
+        if (weeksElapsed < 4) return PENALTY_W4;
+        return PENALTY_AF;
     }
 
-    function _processReferralRewards(address user, uint256 reward) private {
-        address referrer = referrals[user].referrer;
-        if (referrer == address(0) || blacklisted[referrer]) return;
+    /**
+     * Credits the upline out of `reward` and returns what was actually spent.
+     *
+     * @dev Three rules, each of which V3 got wrong in a way that cost the pool:
+     *
+     *      1. The total is capped at `reward`. Rates are read per member from
+     *         their own tier, so three mismatched tiers could otherwise sum
+     *         past the claim; paying in order out of a running remainder makes
+     *         that impossible by construction rather than by arithmetic luck.
+     *
+     *      2. A referrer only earns while their own position is active. Skin
+     *         in the game is the whole basis on which they are being paid a
+     *         share of someone else's yield.
+     *
+     *      3. Each level is paid at ITS OWN tier's rate. V3 read the third
+     *         level's rate off the direct referrer's tier, so a Platinum
+     *         great-grandparent could be paid at the Silver rate.
+     *
+     *      A blacklisted member is skipped and the money stays in the pool
+     *      rather than passing further up the chain.
+     */
+    function _processReferralRewards(address user, uint256 reward, uint256 budget) private returns (uint256 spent) {
+        address current = referrals[user].referrer;
 
-        uint256 level = referrals[referrer].level;
-        uint256 f1 = (reward * referralRates[level * 2]) / BPS_DENOMINATOR;
-        if (f1 > 0) referrals[referrer].pendingReward += f1;
+        for (uint256 depth = 0; depth < 3; depth++) {
+            if (current == address(0)) break;
 
-        address grandparent = referrals[referrer].referrer;
-        if (grandparent != address(0) && !blacklisted[grandparent]) {
-            uint256 grandparentLevel = referrals[grandparent].level;
-            uint256 f2 = (reward * referralRates[grandparentLevel * 2 + 1]) / BPS_DENOMINATOR;
-            if (f2 > 0) referrals[grandparent].pendingReward += f2;
-
-            if (level >= 1) {
-                address greatGrandparent = referrals[grandparent].referrer;
-                if (greatGrandparent != address(0) && !blacklisted[greatGrandparent]) {
-                    uint256 f3 = (reward * f3Rates[level - 1]) / BPS_DENOMINATOR;
-                    if (f3 > 0) referrals[greatGrandparent].pendingReward += f3;
+            if (!blacklisted[current] && stakes[current].active) {
+                // Shares are a percentage of the whole claim, because that is
+                // what the rate table advertises. What they are capped against
+                // is `budget` — the claim minus the fee already committed —
+                // so the caller's subtraction can never underflow whatever the
+                // rate table is later set to.
+                uint256 rate = referralRate(referrals[current].level, depth);
+                if (rate > 0) {
+                    uint256 share = (reward * rate) / BPS_DENOMINATOR;
+                    uint256 remaining = budget - spent;
+                    if (share > remaining) share = remaining;
+                    if (share > 0) {
+                        referrals[current].pendingReward += share;
+                        spent += share;
+                    }
                 }
             }
+
+            current = referrals[current].referrer;
         }
     }
 
+    /**
+     * Recomputes a member's referral tier.
+     *
+     * @dev V3 gated tiers on a headcount, which prices a tier in wallets
+     *      rather than in capital: a hundred throwaway accounts cost less to
+     *      create than Platinum was worth. V4 requires direct VOLUME as well,
+     *      and volume cannot be faked cheaply. The headcount survives only to
+     *      stop one large referral from carrying a tier on its own.
+     *
+     *      This is also why {_f1Volume} must fall when a referral exits. In V3
+     *      it only ever rose, so with a volume gate a member could raise the
+     *      volume once, take the tier, watch the whole downline leave, and keep
+     *      it for good.
+     */
     function _updateLevel(address user) private {
         Referral storage r = referrals[user];
-        uint256 activeReferrals = r.activeReferrals;
         uint256 stakedAmount = stakes[user].amount;
-        uint256 newLevel;
-        if (stakedAmount >= 10_000_000000 && activeReferrals >= 100) newLevel = 3;
-        else if (stakedAmount >= 2_500_000000 && activeReferrals >= 25) newLevel = 2;
-        else if (stakedAmount >= 500_000000 && activeReferrals >= 5) newLevel = 1;
-        else newLevel = 0;
+        uint256 volume = _f1Volume[user];
+        uint256 countable = _countableReferrals[user];
+
+        uint256 newLevel = 0; // Base until a full row of conditions is met
+        for (uint256 i = 3; i > 0; i--) {
+            (uint256 stakeReq, uint256 volumeReq, uint256 countReq) = levelRequirement(i);
+            if (stakedAmount >= stakeReq && volume >= volumeReq && countable >= countReq) {
+                newLevel = i;
+                break;
+            }
+        }
         if (newLevel != r.level) r.level = newLevel;
     }
 
@@ -1451,25 +2379,6 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
         return (_userCount, totalStaked, totalPaidOut, collateralToken.balanceOf(address(this)));
     }
 
-    function getUserStats(address user)
-        external
-        view
-        returns (uint256, uint256, uint256, uint256, uint256, uint256, uint256, uint256)
-    {
-        Stake storage s = stakes[user];
-        Referral storage r = referrals[user];
-        return (
-            s.amount,
-            s.plan,
-            s.rate,
-            _pendingReward(user),
-            s.totalClaimed,
-            r.totalEarned,
-            r.pendingReward,
-            r.activeReferrals
-        );
-    }
-
     function getUserStatsExtended(address user)
         external
         view
@@ -1521,6 +2430,26 @@ contract ArbiSmartV2 is Ownable2Step, ReentrancyGuard, Pausable {
 
     function getF1Count(address user) external view returns (uint256) {
         return _f1List[user].length;
+    }
+
+    /**
+     * The second and third levels of a downline, by name.
+     *
+     * V3 exposed only the direct level, so the two levels a user was being
+     * paid on were a number with nobody behind it. These read from lists
+     * written at stake time rather than walking the tree, which keeps the call
+     * O(n) in the level's size instead of O(n) in the whole graph.
+     *
+     * Unbounded in length by construction — a front end should page through
+     * {getF2Count} / {getF3Count} rather than fetch a large downline in one
+     * call. They are `view`, so the cost falls on the node, not on a caller.
+     */
+    function getF2List(address user) external view returns (address[] memory) {
+        return _f2List[user];
+    }
+
+    function getF3List(address user) external view returns (address[] memory) {
+        return _f3List[user];
     }
 
     function getClaimCount(address user) external view returns (uint256) {
