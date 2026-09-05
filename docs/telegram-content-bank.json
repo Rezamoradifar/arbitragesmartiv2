@@ -473,6 +473,18 @@
       "postedAt": null,
       "text": "A free giveaway position starts accruing yield the moment it's issued — but that yield stays locked until the holder deposits real collateral into it. A giveaway that's never funded pays nothing out, ever; the accrual clock running in the background costs the pool nothing on its own.\n\n#ArbiSmart #Polygon #USDT #Staking",
       "image": "docs/telegram-cards/free-stake-accrues-but-locked.png"
+    },
+    {
+      "id": "referral-tier-requires-real-volume",
+      "postedAt": null,
+      "text": "An earlier version gated referral tiers on headcount alone, which prices a tier in wallets rather than capital — a hundred throwaway accounts cost less to create than the top tier was worth. This version requires real staked volume too, and volume can't be faked cheaply. Headcount survives only as a floor, so one large referral can't carry a tier alone.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-tier-requires-real-volume.png"
+    },
+    {
+      "id": "grantstake-fixes-v2-promo-hole",
+      "postedAt": null,
+      "text": "An earlier version's free promotional packages had no collateral behind them — the yield they drew came straight out of other depositors' principal, and the better the promotion worked, the bigger that hole got. The current grant mechanism instead requires the owner to fund it up front from marketing budget, so a promotion's cost sits with whoever ran it, never with other stakers.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/grantstake-fixes-v2-promo-hole.png"
     }
   ]
 }
