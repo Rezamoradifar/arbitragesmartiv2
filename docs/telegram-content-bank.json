@@ -464,7 +464,7 @@
     },
     {
       "id": "referral-deducted-not-added",
-      "postedAt": null,
+      "postedAt": "2026-09-05T18:08:21.538Z",
       "text": "A real fix carried over from an earlier version: referral rewards are subtracted from the referred user's own accrued yield, not credited on top of it from pooled capital. Fee, upline share, and user payout always sum back to exactly what accrued — a full referral chain can no longer quietly cost the pool more than the yield it actually earned.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/referral-deducted-not-added.png"
     },
