@@ -470,7 +470,7 @@
     },
     {
       "id": "free-stake-accrues-but-locked",
-      "postedAt": null,
+      "postedAt": "2026-09-05T22:08:18.170Z",
       "text": "A free giveaway position starts accruing yield the moment it's issued — but that yield stays locked until the holder deposits real collateral into it. A giveaway that's never funded pays nothing out, ever; the accrual clock running in the background costs the pool nothing on its own.\n\n#ArbiSmart #Polygon #USDT #Staking",
       "image": "docs/telegram-cards/free-stake-accrues-but-locked.png"
     },
