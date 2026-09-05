@@ -485,6 +485,18 @@
       "postedAt": null,
       "text": "An earlier version's free promotional packages had no collateral behind them — the yield they drew came straight out of other depositors' principal, and the better the promotion worked, the bigger that hole got. The current grant mechanism instead requires the owner to fund it up front from marketing budget, so a promotion's cost sits with whoever ran it, never with other stakers.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/grantstake-fixes-v2-promo-hole.png"
+    },
+    {
+      "id": "profit-fee-only-on-real-gains",
+      "postedAt": null,
+      "text": "When arbitrage capital swaps back to collateral, the contract retires its own tracked cost basis first — only what's left above that gets counted as profit. The performance fee is calculated on that leftover alone, so returned principal is mathematically never taxed, not just described that way.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/profit-fee-only-on-real-gains.png"
+    },
+    {
+      "id": "per-condition-commitment-tracked",
+      "postedAt": null,
+      "text": "Capital committed to each Polymarket market is tracked separately, keyed to that specific market's condition. When a position redeems, the contract knows exactly how much of that particular market's principal it's getting back — commitments across different open positions are never lumped together or guessed at.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/per-condition-commitment-tracked.png"
     }
   ]
 }
