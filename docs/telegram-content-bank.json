@@ -446,7 +446,7 @@
     },
     {
       "id": "quote-deposit-preview",
-      "postedAt": null,
+      "postedAt": "2026-09-05T06:08:51.714Z",
       "text": "Before you ever sign a deposit transaction, a free read-only call tells you the exact fee split and net amount that will be staked — same math the contract itself uses. The fee is only honest if it's disclosed before you commit to it, not discovered after.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/quote-deposit-preview.png"
     },
