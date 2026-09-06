@@ -521,6 +521,18 @@
       "postedAt": null,
       "text": "At deployment, only the strategy token gets a one-time unlimited approval to Polymarket's real Conditional Tokens contract — mirroring the exact pattern Polymarket's own official exchange contract uses. Pool collateral itself is never given a standing approval like that; it only gets approved for the exact amount of a swap, right before that swap happens.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/one-time-ctf-approval-strategy-token-only.png"
+    },
+    {
+      "id": "protocol-wallet-restriction-follows-live-address",
+      "postedAt": null,
+      "text": "The fixed-size staking restriction on the two development-fee wallets is checked live against whichever address currently holds that role — repointing the wallet moves the restriction with it, it can't be left behind on an old address. The two ordinary fee wallets that collect deposit and claim fees are deliberately NOT restricted this way; they stake on the same terms as anyone else.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/protocol-wallet-restriction-follows-live-address.png"
+    },
+    {
+      "id": "arbitrage-headroom-grows-with-real-profit",
+      "postedAt": null,
+      "text": "Realized arbitrage profit that hasn't been redeployed yet adds directly onto the deployment ceiling, on top of the flat percentage-of-pool cap. A strategy that's actually making money earns room to run bigger; one that hasn't stays capped at the base percentage. Size follows results, not the other way around.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/arbitrage-headroom-grows-with-real-profit.png"
     }
   ]
 }
