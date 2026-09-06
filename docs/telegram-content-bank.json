@@ -497,6 +497,18 @@
       "postedAt": null,
       "text": "Capital committed to each Polymarket market is tracked separately, keyed to that specific market's condition. When a position redeems, the contract knows exactly how much of that particular market's principal it's getting back — commitments across different open positions are never lumped together or guessed at.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/per-condition-commitment-tracked.png"
+    },
+    {
+      "id": "arbitrage-cap-fixes-converging-exploit",
+      "postedAt": null,
+      "text": "A flat per-call percentage cap on arbitrage deployment isn't a cap at all — each call shrinks the balance the next one is measured against, so repeated calls converge on the entire pool. An earlier design was moved past 99% of collateral this way in 40 calls, leaving emergencyWithdraw unable to pay out. The cap here is cumulative against a fixed ceiling that doesn't shrink as it's consumed.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/arbitrage-cap-fixes-converging-exploit.png"
+    },
+    {
+      "id": "swap-router-allowance-cleared-after-use",
+      "postedAt": null,
+      "text": "Every time pool collateral is approved for a swap, that approval is reset to zero again immediately after the call completes. The router never holds a standing claim on pool funds between transactions — only ever the exact amount of the swap in front of it, for as long as that swap takes.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/swap-router-allowance-cleared-after-use.png"
     }
   ]
 }
