@@ -476,7 +476,7 @@
     },
     {
       "id": "referral-tier-requires-real-volume",
-      "postedAt": null,
+      "postedAt": "2026-09-06T02:51:51.460Z",
       "text": "An earlier version gated referral tiers on headcount alone, which prices a tier in wallets rather than capital — a hundred throwaway accounts cost less to create than the top tier was worth. This version requires real staked volume too, and volume can't be faked cheaply. Headcount survives only as a floor, so one large referral can't carry a tier alone.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/referral-tier-requires-real-volume.png"
     },
