@@ -509,6 +509,18 @@
       "postedAt": null,
       "text": "Every time pool collateral is approved for a swap, that approval is reset to zero again immediately after the call completes. The router never holds a standing claim on pool funds between transactions — only ever the exact amount of the swap in front of it, for as long as that swap takes.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/swap-router-allowance-cleared-after-use.png"
+    },
+    {
+      "id": "identical-tokens-rejected-at-deploy",
+      "postedAt": null,
+      "text": "The constructor refuses to deploy at all if the collateral token and the arbitrage strategy token are set to the same address. Letting that through would make every swap between them a silent no-op while the cost-basis counters kept moving anyway — a whole class of accounting bug closed off before the contract can even go live.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/identical-tokens-rejected-at-deploy.png"
+    },
+    {
+      "id": "one-time-ctf-approval-strategy-token-only",
+      "postedAt": null,
+      "text": "At deployment, only the strategy token gets a one-time unlimited approval to Polymarket's real Conditional Tokens contract — mirroring the exact pattern Polymarket's own official exchange contract uses. Pool collateral itself is never given a standing approval like that; it only gets approved for the exact amount of a swap, right before that swap happens.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/one-time-ctf-approval-strategy-token-only.png"
     }
   ]
 }
