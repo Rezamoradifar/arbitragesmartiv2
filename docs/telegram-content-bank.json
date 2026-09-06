@@ -482,7 +482,7 @@
     },
     {
       "id": "grantstake-fixes-v2-promo-hole",
-      "postedAt": null,
+      "postedAt": "2026-09-06T06:10:11.489Z",
       "text": "An earlier version's free promotional packages had no collateral behind them — the yield they drew came straight out of other depositors' principal, and the better the promotion worked, the bigger that hole got. The current grant mechanism instead requires the owner to fund it up front from marketing budget, so a promotion's cost sits with whoever ran it, never with other stakers.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/grantstake-fixes-v2-promo-hole.png"
     },
