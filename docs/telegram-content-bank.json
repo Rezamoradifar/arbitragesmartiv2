@@ -494,7 +494,7 @@
     },
     {
       "id": "per-condition-commitment-tracked",
-      "postedAt": null,
+      "postedAt": "2026-09-06T14:08:23.771Z",
       "text": "Capital committed to each Polymarket market is tracked separately, keyed to that specific market's condition. When a position redeems, the contract knows exactly how much of that particular market's principal it's getting back — commitments across different open positions are never lumped together or guessed at.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/per-condition-commitment-tracked.png"
     },
