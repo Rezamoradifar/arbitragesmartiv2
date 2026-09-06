@@ -506,7 +506,7 @@
     },
     {
       "id": "swap-router-allowance-cleared-after-use",
-      "postedAt": null,
+      "postedAt": "2026-09-06T22:09:34.949Z",
       "text": "Every time pool collateral is approved for a swap, that approval is reset to zero again immediately after the call completes. The router never holds a standing claim on pool funds between transactions — only ever the exact amount of the swap in front of it, for as long as that swap takes.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/swap-router-allowance-cleared-after-use.png"
     },
