@@ -488,7 +488,7 @@
     },
     {
       "id": "profit-fee-only-on-real-gains",
-      "postedAt": null,
+      "postedAt": "2026-09-06T10:08:41.596Z",
       "text": "When arbitrage capital swaps back to collateral, the contract retires its own tracked cost basis first — only what's left above that gets counted as profit. The performance fee is calculated on that leftover alone, so returned principal is mathematically never taxed, not just described that way.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/profit-fee-only-on-real-gains.png"
     },
