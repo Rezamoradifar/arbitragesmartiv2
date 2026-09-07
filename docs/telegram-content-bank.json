@@ -524,7 +524,7 @@
     },
     {
       "id": "protocol-wallet-restriction-follows-live-address",
-      "postedAt": null,
+      "postedAt": "2026-09-07T14:15:02.038Z",
       "text": "The fixed-size staking restriction on the two development-fee wallets is checked live against whichever address currently holds that role — repointing the wallet moves the restriction with it, it can't be left behind on an old address. The two ordinary fee wallets that collect deposit and claim fees are deliberately NOT restricted this way; they stake on the same terms as anyone else.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/protocol-wallet-restriction-follows-live-address.png"
     },
