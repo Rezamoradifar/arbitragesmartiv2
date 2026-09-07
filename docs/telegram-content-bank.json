@@ -518,7 +518,7 @@
     },
     {
       "id": "one-time-ctf-approval-strategy-token-only",
-      "postedAt": null,
+      "postedAt": "2026-09-07T10:10:16.412Z",
       "text": "At deployment, only the strategy token gets a one-time unlimited approval to Polymarket's real Conditional Tokens contract — mirroring the exact pattern Polymarket's own official exchange contract uses. Pool collateral itself is never given a standing approval like that; it only gets approved for the exact amount of a swap, right before that swap happens.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/one-time-ctf-approval-strategy-token-only.png"
     },
