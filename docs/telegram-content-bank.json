@@ -512,7 +512,7 @@
     },
     {
       "id": "identical-tokens-rejected-at-deploy",
-      "postedAt": null,
+      "postedAt": "2026-09-07T06:21:36.630Z",
       "text": "The constructor refuses to deploy at all if the collateral token and the arbitrage strategy token are set to the same address. Letting that through would make every swap between them a silent no-op while the cost-basis counters kept moving anyway — a whole class of accounting bug closed off before the contract can even go live.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/identical-tokens-rejected-at-deploy.png"
     },
