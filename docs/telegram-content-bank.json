@@ -536,7 +536,7 @@
     },
     {
       "id": "erc1155-hooks-not-optional",
-      "postedAt": null,
+      "postedAt": "2026-09-07T22:09:31.923Z",
       "text": "This contract implements the ERC-1155 receiver hooks Polymarket's own token contract calls back to on every split — not decoration, a hard requirement. Without them, the mint's acceptance check fails and every split reverts, in every market, permanently. Deliberately unrestricted to accept any token sent: refusing would risk blocking a legitimate mint for no real security gain.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/erc1155-hooks-not-optional.png"
     },
