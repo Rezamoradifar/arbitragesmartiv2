@@ -533,6 +533,18 @@
       "postedAt": null,
       "text": "Realized arbitrage profit that hasn't been redeployed yet adds directly onto the deployment ceiling, on top of the flat percentage-of-pool cap. A strategy that's actually making money earns room to run bigger; one that hasn't stays capped at the base percentage. Size follows results, not the other way around.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/arbitrage-headroom-grows-with-real-profit.png"
+    },
+    {
+      "id": "erc1155-hooks-not-optional",
+      "postedAt": null,
+      "text": "This contract implements the ERC-1155 receiver hooks Polymarket's own token contract calls back to on every split — not decoration, a hard requirement. Without them, the mint's acceptance check fails and every split reverts, in every market, permanently. Deliberately unrestricted to accept any token sent: refusing would risk blocking a legitimate mint for no real security gain.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/erc1155-hooks-not-optional.png"
+    },
+    {
+      "id": "per-user-deposit-breakdown-view",
+      "postedAt": null,
+      "text": "Anyone can look up any address's own numbers in a single call: total gross deposited, platform fees paid, net amount actually staked, and current active stake. Same read-only, on-chain transparency as the pool-wide dashboard figures — just scoped down to one specific staker instead of the whole pool.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/per-user-deposit-breakdown-view.png"
     }
   ]
 }
