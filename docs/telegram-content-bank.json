@@ -545,6 +545,18 @@
       "postedAt": null,
       "text": "Anyone can look up any address's own numbers in a single call: total gross deposited, platform fees paid, net amount actually staked, and current active stake. Same read-only, on-chain transparency as the pool-wide dashboard figures — just scoped down to one specific staker instead of the whole pool.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/per-user-deposit-breakdown-view.png"
+    },
+    {
+      "id": "split-doesnt-double-book-exposure",
+      "postedAt": null,
+      "text": "Opening a Polymarket position moves capital from the strategy-token balance into that specific market's committed amount — but the pool's overall arbitrage exposure figure isn't touched again here. That capital already left the pool at the earlier swap step; counting it a second time at the split would double-book the same money as deployed twice.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/split-doesnt-double-book-exposure.png"
+    },
+    {
+      "id": "merge-not-taxed-as-unwinding",
+      "postedAt": null,
+      "text": "Merging a position back before a market resolves is treated as unwinding, not as realizing profit — so no performance fee applies there, whatever the outcome. The fee only ever gets charged once, at final redemption after a market actually settles, never on a mid-flight exit.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/merge-not-taxed-as-unwinding.png"
     }
   ]
 }
