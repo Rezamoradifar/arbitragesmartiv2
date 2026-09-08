@@ -557,6 +557,18 @@
       "postedAt": null,
       "text": "Merging a position back before a market resolves is treated as unwinding, not as realizing profit — so no performance fee applies there, whatever the outcome. The fee only ever gets charged once, at final redemption after a market actually settles, never on a mid-flight exit.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/merge-not-taxed-as-unwinding.png"
+    },
+    {
+      "id": "three-revenue-streams-separately-tracked",
+      "postedAt": null,
+      "text": "Three separate kinds of platform revenue — the deposit fee, the yield-claim fee, and the arbitrage performance fee — each go to their own distinct wallet address, tracked independently on-chain. Nothing is pooled together into one number; every revenue stream stays separately attributable to exactly where it came from.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/three-revenue-streams-separately-tracked.png"
+    },
+    {
+      "id": "removepartner-clears-live-vote",
+      "postedAt": null,
+      "text": "Removing a partner automatically clears any emergency vote they'd already cast and drops the tally by one — the vote count can never silently drift out of sync with who's actually still in the voting body. This can only happen outside emergency mode in the first place, since the voting body itself is frozen once a vote is live.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/removepartner-clears-live-vote.png"
     }
   ]
 }
