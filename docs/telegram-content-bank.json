@@ -548,7 +548,7 @@
     },
     {
       "id": "split-doesnt-double-book-exposure",
-      "postedAt": null,
+      "postedAt": "2026-09-08T10:09:51.707Z",
       "text": "Opening a Polymarket position moves capital from the strategy-token balance into that specific market's committed amount — but the pool's overall arbitrage exposure figure isn't touched again here. That capital already left the pool at the earlier swap step; counting it a second time at the split would double-book the same money as deployed twice.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/split-doesnt-double-book-exposure.png"
     },
