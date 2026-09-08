@@ -542,7 +542,7 @@
     },
     {
       "id": "per-user-deposit-breakdown-view",
-      "postedAt": null,
+      "postedAt": "2026-09-08T06:16:37.465Z",
       "text": "Anyone can look up any address's own numbers in a single call: total gross deposited, platform fees paid, net amount actually staked, and current active stake. Same read-only, on-chain transparency as the pool-wide dashboard figures — just scoped down to one specific staker instead of the whole pool.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/per-user-deposit-breakdown-view.png"
     },
