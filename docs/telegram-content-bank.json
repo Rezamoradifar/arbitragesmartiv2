@@ -566,7 +566,7 @@
     },
     {
       "id": "removepartner-clears-live-vote",
-      "postedAt": null,
+      "postedAt": "2026-09-08T22:09:48.144Z",
       "text": "Removing a partner automatically clears any emergency vote they'd already cast and drops the tally by one — the vote count can never silently drift out of sync with who's actually still in the voting body. This can only happen outside emergency mode in the first place, since the voting body itself is frozen once a vote is live.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/removepartner-clears-live-vote.png"
     },
