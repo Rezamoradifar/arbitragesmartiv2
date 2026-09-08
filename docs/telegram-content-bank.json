@@ -554,7 +554,7 @@
     },
     {
       "id": "merge-not-taxed-as-unwinding",
-      "postedAt": null,
+      "postedAt": "2026-09-08T14:12:01.936Z",
       "text": "Merging a position back before a market resolves is treated as unwinding, not as realizing profit — so no performance fee applies there, whatever the outcome. The fee only ever gets charged once, at final redemption after a market actually settles, never on a mid-flight exit.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/merge-not-taxed-as-unwinding.png"
     },
