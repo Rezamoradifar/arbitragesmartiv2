@@ -560,7 +560,7 @@
     },
     {
       "id": "three-revenue-streams-separately-tracked",
-      "postedAt": null,
+      "postedAt": "2026-09-08T18:08:41.329Z",
       "text": "Three separate kinds of platform revenue — the deposit fee, the yield-claim fee, and the arbitrage performance fee — each go to their own distinct wallet address, tracked independently on-chain. Nothing is pooled together into one number; every revenue stream stays separately attributable to exactly where it came from.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/three-revenue-streams-separately-tracked.png"
     },
