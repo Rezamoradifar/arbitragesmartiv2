@@ -581,6 +581,18 @@
       "postedAt": null,
       "text": "This contract only compiles correctly with Solidity's viaIR pipeline enabled — without it, one of the read functions hits a genuine \"stack too deep\" compiler error, not a style choice. This was verified directly by compiling this exact file both ways: it fails under the legacy codegen and produces valid bytecode with viaIR on, which is exactly how the project's build config is set.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/viair-build-requirement-verified.png"
+    },
+    {
+      "id": "swap-slippage-floor-bounded-onchain",
+      "postedAt": null,
+      "text": "Every swap between pool collateral and the strategy currency has a hard minimum-return floor written into the contract, not left to whatever value is passed in off-chain. Both sides of that swap are dollar stablecoins, so anything worse than about 1% back would mean a sandwich attack or a depeg, not ordinary slippage — bounding it on-chain means even a mistyped or zeroed minimum can't hand the pool to a searcher.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/swap-slippage-floor-bounded-onchain.png"
+    },
+    {
+      "id": "pending-fees-excluded-from-pool-aum",
+      "postedAt": null,
+      "text": "Platform fees that have been charged but not yet withdrawn sit in the same token balance as pool capital — so the contract explicitly subtracts them before reporting total assets under management. Skipping that step would inflate every solvency figure and the arbitrage deployment ceiling, making the pool look backed by money that's actually earmarked for the fee wallets.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/pending-fees-excluded-from-pool-aum.png"
     }
   ]
 }
