@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Assistant } from "@/components/Assistant";
+import { RouteProgress } from "@/components/RouteProgress";
 import { captureReferral } from "@/lib/referral";
 
 /**
@@ -38,11 +39,17 @@ export function AppShell({
   }, [pathname]);
 
   if (pathname?.startsWith("/tg")) {
-    return <main className="layer">{children}</main>;
+    return (
+      <>
+        <RouteProgress />
+        <main className="layer">{children}</main>
+      </>
+    );
   }
 
   return (
     <>
+      <RouteProgress />
       {nav}
       {/* Bottom padding clears the bottom tab bar; xl drops it again once that
           bar is gone. Must track MobileNav's own breakpoint — if the two
