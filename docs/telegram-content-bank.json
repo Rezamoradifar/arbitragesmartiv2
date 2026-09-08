@@ -569,6 +569,18 @@
       "postedAt": null,
       "text": "Removing a partner automatically clears any emergency vote they'd already cast and drops the tally by one — the vote count can never silently drift out of sync with who's actually still in the voting body. This can only happen outside emergency mode in the first place, since the voting body itself is frozen once a vote is live.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/removepartner-clears-live-vote.png"
+    },
+    {
+      "id": "conditionaltokens-interface-copied-verbatim",
+      "postedAt": null,
+      "text": "The interface this contract uses to call Polymarket's real Conditional Tokens contract wasn't guessed or reconstructed from docs — the three function signatures (split, merge, redeem) were copied verbatim from Gnosis's actual open-source, deployed contract. Anyone can call those same three functions directly on Polymarket's contract too; no special role or permission is required for them.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/conditionaltokens-interface-copied-verbatim.png"
+    },
+    {
+      "id": "viair-build-requirement-verified",
+      "postedAt": null,
+      "text": "This contract only compiles correctly with Solidity's viaIR pipeline enabled — without it, one of the read functions hits a genuine \"stack too deep\" compiler error, not a style choice. This was verified directly by compiling this exact file both ways: it fails under the legacy codegen and produces valid bytecode with viaIR on, which is exactly how the project's build config is set.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/viair-build-requirement-verified.png"
     }
   ]
 }
