@@ -572,7 +572,7 @@
     },
     {
       "id": "conditionaltokens-interface-copied-verbatim",
-      "postedAt": null,
+      "postedAt": "2026-09-09T06:17:17.473Z",
       "text": "The interface this contract uses to call Polymarket's real Conditional Tokens contract wasn't guessed or reconstructed from docs — the three function signatures (split, merge, redeem) were copied verbatim from Gnosis's actual open-source, deployed contract. Anyone can call those same three functions directly on Polymarket's contract too; no special role or permission is required for them.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/conditionaltokens-interface-copied-verbatim.png"
     },
