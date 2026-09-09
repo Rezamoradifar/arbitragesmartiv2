@@ -578,7 +578,7 @@
     },
     {
       "id": "viair-build-requirement-verified",
-      "postedAt": null,
+      "postedAt": "2026-09-09T10:09:42.482Z",
       "text": "This contract only compiles correctly with Solidity's viaIR pipeline enabled — without it, one of the read functions hits a genuine \"stack too deep\" compiler error, not a style choice. This was verified directly by compiling this exact file both ways: it fails under the legacy codegen and produces valid bytecode with viaIR on, which is exactly how the project's build config is set.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/viair-build-requirement-verified.png"
     },
