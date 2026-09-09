@@ -596,7 +596,7 @@
     },
     {
       "id": "deposit-fee-volume-discount-not-flat",
-      "postedAt": null,
+      "postedAt": "2026-09-09T22:09:41.081Z",
       "text": "The deposit fee isn't a flat rate — it drops in bands as the deposit gets bigger, from 12% below $500 down to 5% above $10,000. A flat fee would make the smallest positions the cheapest thing to create, which is exactly backwards for resisting Sybil attacks. The bands are tested for monotonicity: a smaller deposit can never legally net more than a larger one just by crossing a fee tier.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/deposit-fee-volume-discount-not-flat.png"
     },
