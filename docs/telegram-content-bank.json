@@ -584,7 +584,7 @@
     },
     {
       "id": "swap-slippage-floor-bounded-onchain",
-      "postedAt": null,
+      "postedAt": "2026-09-09T14:12:07.473Z",
       "text": "Every swap between pool collateral and the strategy currency has a hard minimum-return floor written into the contract, not left to whatever value is passed in off-chain. Both sides of that swap are dollar stablecoins, so anything worse than about 1% back would mean a sandwich attack or a depeg, not ordinary slippage — bounding it on-chain means even a mistyped or zeroed minimum can't hand the pool to a searcher.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/swap-slippage-floor-bounded-onchain.png"
     },
