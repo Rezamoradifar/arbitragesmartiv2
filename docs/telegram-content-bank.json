@@ -590,7 +590,7 @@
     },
     {
       "id": "pending-fees-excluded-from-pool-aum",
-      "postedAt": null,
+      "postedAt": "2026-09-09T18:08:38.690Z",
       "text": "Platform fees that have been charged but not yet withdrawn sit in the same token balance as pool capital — so the contract explicitly subtracts them before reporting total assets under management. Skipping that step would inflate every solvency figure and the arbitrage deployment ceiling, making the pool look backed by money that's actually earmarked for the fee wallets.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/pending-fees-excluded-from-pool-aum.png"
     },
