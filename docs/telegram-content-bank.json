@@ -617,6 +617,18 @@
       "postedAt": null,
       "text": "Referral volume counters use saturating subtraction rather than plain subtraction — if a rounding mismatch would ever push a running total negative, it clamps to zero instead of reverting. Volume is tracked across several code paths at once, so a tiny credited-volume discrepancy costs a member a sliver of tier progress; it can never brick every exit beneath them in the referral tree.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/volume-counters-saturate-never-revert.png"
+    },
+    {
+      "id": "blacklist-cannot-freeze-principal",
+      "postedAt": null,
+      "text": "Blacklisting an address blocks new stakes, top-ups, plan upgrades, and claiming yield or referral rewards — but it cannot touch early exit or emergency withdrawal. A blacklisted user's principal can never be permanently frozen by this flag; the two paths back to your own money are carved out of the owner's reach entirely.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/blacklist-cannot-freeze-principal.png"
+    },
+    {
+      "id": "claim-fee-halves-for-higher-tiers",
+      "postedAt": null,
+      "text": "The fee charged on claiming yield isn't the same across all plans — Advanced and Elite stakers pay half what the entry-level tiers pay. Committing to a bigger, longer position doesn't just earn a higher rate; it also costs less to actually collect what you've earned.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/claim-fee-halves-for-higher-tiers.png"
     }
   ]
 }
