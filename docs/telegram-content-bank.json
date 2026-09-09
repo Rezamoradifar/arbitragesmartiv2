@@ -593,6 +593,18 @@
       "postedAt": null,
       "text": "Platform fees that have been charged but not yet withdrawn sit in the same token balance as pool capital — so the contract explicitly subtracts them before reporting total assets under management. Skipping that step would inflate every solvency figure and the arbitrage deployment ceiling, making the pool look backed by money that's actually earmarked for the fee wallets.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/pending-fees-excluded-from-pool-aum.png"
+    },
+    {
+      "id": "deposit-fee-volume-discount-not-flat",
+      "postedAt": null,
+      "text": "The deposit fee isn't a flat rate — it drops in bands as the deposit gets bigger, from 12% below $500 down to 5% above $10,000. A flat fee would make the smallest positions the cheapest thing to create, which is exactly backwards for resisting Sybil attacks. The bands are tested for monotonicity: a smaller deposit can never legally net more than a larger one just by crossing a fee tier.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/deposit-fee-volume-discount-not-flat.png"
+    },
+    {
+      "id": "emergency-withdraw-two-independent-paths",
+      "postedAt": null,
+      "text": "Self-serve recovery of your own remaining principal is available through two completely independent unlock paths: 30 days of continuous pause with no owner action, or partner-vote quorum plus a 12-hour delay that doesn't depend on the owner at all. This works for ANY staker, including a blacklisted one, and no penalty applies either way.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/emergency-withdraw-two-independent-paths.png"
     }
   ]
 }
