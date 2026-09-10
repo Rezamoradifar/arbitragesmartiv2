@@ -626,7 +626,7 @@
     },
     {
       "id": "claim-fee-halves-for-higher-tiers",
-      "postedAt": null,
+      "postedAt": "2026-09-10T22:09:12.568Z",
       "text": "The fee charged on claiming yield isn't the same across all plans — Advanced and Elite stakers pay half what the entry-level tiers pay. Committing to a bigger, longer position doesn't just earn a higher rate; it also costs less to actually collect what you've earned.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/claim-fee-halves-for-higher-tiers.png"
     },
