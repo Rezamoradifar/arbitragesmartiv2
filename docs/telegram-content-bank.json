@@ -602,7 +602,7 @@
     },
     {
       "id": "emergency-withdraw-two-independent-paths",
-      "postedAt": null,
+      "postedAt": "2026-09-10T06:14:48.123Z",
       "text": "Self-serve recovery of your own remaining principal is available through two completely independent unlock paths: 30 days of continuous pause with no owner action, or partner-vote quorum plus a 12-hour delay that doesn't depend on the owner at all. This works for ANY staker, including a blacklisted one, and no penalty applies either way.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/emergency-withdraw-two-independent-paths.png"
     },
