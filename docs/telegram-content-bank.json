@@ -641,6 +641,18 @@
       "postedAt": null,
       "text": "Every downstream figure from a deposit — plan tier, min/max bounds, referral volume, the recorded stake itself — is derived from the NET amount after the platform fee, never the gross figure that left your wallet. That's what keeps the contract's booked liability equal to the capital it actually holds; it can never record a stake larger than what's really backing it.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/stake-liability-tracked-on-net-not-gross.png"
+    },
+    {
+      "id": "topup-lets-free-positions-become-funded",
+      "postedAt": null,
+      "text": "Topping up is now open to free (giveaway) positions too — the only route by which a promotional stake can become a real, funded one. An earlier version locked this shut, leaving free-position holders with no path except claiming yield the pool was paying for nothing. The free portion still keeps its own separate accounting, so the giveaway itself never becomes withdrawable just because the position got topped up.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/topup-lets-free-positions-become-funded.png"
+    },
+    {
+      "id": "arbitrage-deployed-held-at-cost-not-marked-to-market",
+      "postedAt": null,
+      "text": "Capital currently out on the arbitrage strategy is tracked at cost — what was actually spent — deliberately never marked to market. That means the pool's total-assets figure needs no external price feed and can never report an unrealized gain as if it were spendable. The only profit that ever reaches the books is profit that has already come back as real collateral.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/arbitrage-deployed-held-at-cost-not-marked-to-market.png"
     }
   ]
 }
