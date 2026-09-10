@@ -629,6 +629,18 @@
       "postedAt": null,
       "text": "The fee charged on claiming yield isn't the same across all plans — Advanced and Elite stakers pay half what the entry-level tiers pay. Committing to a bigger, longer position doesn't just earn a higher rate; it also costs less to actually collect what you've earned.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/claim-fee-halves-for-higher-tiers.png"
+    },
+    {
+      "id": "deactivate-stake-fixes-claim-after-exit-drain",
+      "postedAt": null,
+      "text": "Exiting a stake fully zeroes its amount and rate on-chain, not just marks it inactive — so no later claim call could ever compute a nonzero reward against a position that already paid out. This is a direct, documented fix for a real fund-drain bug found in an earlier version of the contract, where claiming after an early exit was still reachable.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/deactivate-stake-fixes-claim-after-exit-drain.png"
+    },
+    {
+      "id": "stake-liability-tracked-on-net-not-gross",
+      "postedAt": null,
+      "text": "Every downstream figure from a deposit — plan tier, min/max bounds, referral volume, the recorded stake itself — is derived from the NET amount after the platform fee, never the gross figure that left your wallet. That's what keeps the contract's booked liability equal to the capital it actually holds; it can never record a stake larger than what's really backing it.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/stake-liability-tracked-on-net-not-gross.png"
     }
   ]
 }
