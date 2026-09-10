@@ -608,7 +608,7 @@
     },
     {
       "id": "fee-withdrawal-three-arithmetic-limits",
-      "postedAt": null,
+      "postedAt": "2026-09-10T10:10:14.567Z",
       "text": "Paying out collected platform fees to their wallet is bounded by three separate arithmetic checks, not policy: it can never exceed that budget's own uncollected balance, never exceed the contract's actual liquid balance, and never dip into what stakers are owed. There's no path from this function to staker principal — the ceiling is set only by fees already charged, at a rate the owner can never raise after deployment.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/fee-withdrawal-three-arithmetic-limits.png"
     },
