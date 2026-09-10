@@ -620,7 +620,7 @@
     },
     {
       "id": "blacklist-cannot-freeze-principal",
-      "postedAt": null,
+      "postedAt": "2026-09-10T18:08:40.940Z",
       "text": "Blacklisting an address blocks new stakes, top-ups, plan upgrades, and claiming yield or referral rewards — but it cannot touch early exit or emergency withdrawal. A blacklisted user's principal can never be permanently frozen by this flag; the two paths back to your own money are carved out of the owner's reach entirely.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/blacklist-cannot-freeze-principal.png"
     },
