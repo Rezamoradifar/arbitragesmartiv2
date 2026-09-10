@@ -614,7 +614,7 @@
     },
     {
       "id": "volume-counters-saturate-never-revert",
-      "postedAt": null,
+      "postedAt": "2026-09-10T14:10:28.033Z",
       "text": "Referral volume counters use saturating subtraction rather than plain subtraction — if a rounding mismatch would ever push a running total negative, it clamps to zero instead of reverting. Volume is tracked across several code paths at once, so a tiny credited-volume discrepancy costs a member a sliver of tier progress; it can never brick every exit beneath them in the referral tree.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/volume-counters-saturate-never-revert.png"
     },
