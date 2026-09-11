@@ -632,7 +632,7 @@
     },
     {
       "id": "deactivate-stake-fixes-claim-after-exit-drain",
-      "postedAt": null,
+      "postedAt": "2026-09-11T06:14:26.128Z",
       "text": "Exiting a stake fully zeroes its amount and rate on-chain, not just marks it inactive — so no later claim call could ever compute a nonzero reward against a position that already paid out. This is a direct, documented fix for a real fund-drain bug found in an earlier version of the contract, where claiming after an early exit was still reachable.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/deactivate-stake-fixes-claim-after-exit-drain.png"
     },
