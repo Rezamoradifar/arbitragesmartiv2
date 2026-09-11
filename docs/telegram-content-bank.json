@@ -677,6 +677,18 @@
       "postedAt": null,
       "text": "The two deposit-fee rates are set once at deployment and are immutable — no governance vote, no key compromise, no later decision can ever raise what a depositor gets charged after they've read the rate. The contract goes further and refuses to even deploy if the combined fee would exceed 20%, so there was never a window where an honest number could balloon into something that isn't a platform fee anymore.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/deposit-fee-ceiling-enforced-at-construction.png"
+    },
+    {
+      "id": "adding-partners-blocked-during-emergency",
+      "postedAt": null,
+      "text": "The owner cannot add a new partner to the voting body while an emergency vote is already live. Without that block, an owner facing a real vote could pack the body with friendly addresses to dilute it out mid-flight — blocking the addition during emergency mode closes that door entirely.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/adding-partners-blocked-during-emergency.png"
+    },
+    {
+      "id": "emergency-vote-quorum-triggers-immediate-pause",
+      "postedAt": null,
+      "text": "The moment an emergency vote reaches quorum, three things happen in the same transaction: the contract pauses immediately, new arbitrage deployments stop cold, and a fixed delay clock starts ticking toward the point where every staker can pull their own principal out through the emergency exit — no further action from the owner required, and none possible to stop it.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/emergency-vote-quorum-triggers-immediate-pause.png"
     }
   ]
 }
