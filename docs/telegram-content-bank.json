@@ -656,7 +656,7 @@
     },
     {
       "id": "claim-fee-combined-rate-immutable",
-      "postedAt": null,
+      "postedAt": "2026-09-11T22:09:13.891Z",
       "text": "The yield-claim fee's combined rate is a hard constant at the code level — 10% total, split evenly between two wallets — and that's the one fee on the entire contract that not even the owner can raise after deployment. An earlier version split the same combined rate unevenly between wallets; what a user actually pays has always totalled the same number.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/claim-fee-combined-rate-immutable.png"
     },
