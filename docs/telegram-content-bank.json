@@ -638,7 +638,7 @@
     },
     {
       "id": "stake-liability-tracked-on-net-not-gross",
-      "postedAt": null,
+      "postedAt": "2026-09-11T10:10:08.246Z",
       "text": "Every downstream figure from a deposit — plan tier, min/max bounds, referral volume, the recorded stake itself — is derived from the NET amount after the platform fee, never the gross figure that left your wallet. That's what keeps the contract's booked liability equal to the capital it actually holds; it can never record a stake larger than what's really backing it.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/stake-liability-tracked-on-net-not-gross.png"
     },
