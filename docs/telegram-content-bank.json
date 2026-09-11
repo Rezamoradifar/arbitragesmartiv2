@@ -653,6 +653,18 @@
       "postedAt": null,
       "text": "Capital currently out on the arbitrage strategy is tracked at cost — what was actually spent — deliberately never marked to market. That means the pool's total-assets figure needs no external price feed and can never report an unrealized gain as if it were spendable. The only profit that ever reaches the books is profit that has already come back as real collateral.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/arbitrage-deployed-held-at-cost-not-marked-to-market.png"
+    },
+    {
+      "id": "claim-fee-combined-rate-immutable",
+      "postedAt": null,
+      "text": "The yield-claim fee's combined rate is a hard constant at the code level — 10% total, split evenly between two wallets — and that's the one fee on the entire contract that not even the owner can raise after deployment. An earlier version split the same combined rate unevenly between wallets; what a user actually pays has always totalled the same number.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/claim-fee-combined-rate-immutable.png"
+    },
+    {
+      "id": "free-stake-cap-raised-because-liability-is-conditional",
+      "postedAt": null,
+      "text": "Free promotional positions are capped at 100 in this version, up from just 3 in an earlier one — safe to raise because the free liability is now conditional, not automatic. Claiming stays locked until the holder deposits real collateral, and neither exit path ever returns the free principal itself, so a free position that never converts into a real stake costs the pool nothing.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/free-stake-cap-raised-because-liability-is-conditional.png"
     }
   ]
 }
