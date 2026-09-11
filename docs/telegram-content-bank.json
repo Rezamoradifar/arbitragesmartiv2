@@ -650,7 +650,7 @@
     },
     {
       "id": "arbitrage-deployed-held-at-cost-not-marked-to-market",
-      "postedAt": null,
+      "postedAt": "2026-09-11T18:08:05.064Z",
       "text": "Capital currently out on the arbitrage strategy is tracked at cost — what was actually spent — deliberately never marked to market. That means the pool's total-assets figure needs no external price feed and can never report an unrealized gain as if it were spendable. The only profit that ever reaches the books is profit that has already come back as real collateral.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/arbitrage-deployed-held-at-cost-not-marked-to-market.png"
     },
