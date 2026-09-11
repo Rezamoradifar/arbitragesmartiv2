@@ -644,7 +644,7 @@
     },
     {
       "id": "topup-lets-free-positions-become-funded",
-      "postedAt": null,
+      "postedAt": "2026-09-11T14:11:01.401Z",
       "text": "Topping up is now open to free (giveaway) positions too — the only route by which a promotional stake can become a real, funded one. An earlier version locked this shut, leaving free-position holders with no path except claiming yield the pool was paying for nothing. The free portion still keeps its own separate accounting, so the giveaway itself never becomes withdrawable just because the position got topped up.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/topup-lets-free-positions-become-funded.png"
     },
