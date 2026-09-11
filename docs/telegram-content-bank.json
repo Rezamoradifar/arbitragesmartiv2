@@ -665,6 +665,18 @@
       "postedAt": null,
       "text": "Free promotional positions are capped at 100 in this version, up from just 3 in an earlier one — safe to raise because the free liability is now conditional, not automatic. Claiming stays locked until the holder deposits real collateral, and neither exit path ever returns the free principal itself, so a free position that never converts into a real stake costs the pool nothing.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/free-stake-cap-raised-because-liability-is-conditional.png"
+    },
+    {
+      "id": "eoa-check-is-restriction-not-authorization",
+      "postedAt": null,
+      "text": "Blocking contract-mediated calls checks that the caller equals the transaction's origin — a pattern that's usually a red flag, since checking tx.origin for authorization is a classic phishing vector. Here it isn't: nothing gets authorized based on that identity, it only narrows who may participate at all (no smart-contract wallets). A restriction, not an access-control decision, which is precisely what keeps it safe.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/eoa-check-is-restriction-not-authorization.png"
+    },
+    {
+      "id": "deposit-fee-ceiling-enforced-at-construction",
+      "postedAt": null,
+      "text": "The two deposit-fee rates are set once at deployment and are immutable — no governance vote, no key compromise, no later decision can ever raise what a depositor gets charged after they've read the rate. The contract goes further and refuses to even deploy if the combined fee would exceed 20%, so there was never a window where an honest number could balloon into something that isn't a platform fee anymore.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/deposit-fee-ceiling-enforced-at-construction.png"
     }
   ]
 }
