@@ -1,0 +1,62 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .card {
+    width: 1200px; height: 675px; position: relative; overflow: hidden;
+    background: #0b0d11;
+    font-family: 'Sora', system-ui, -apple-system, sans-serif;
+    color: #f4f5f7;
+  }
+  .dotgrid {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+    -webkit-mask-image: linear-gradient(120deg, transparent 0%, black 35%, black 65%, transparent 100%);
+            mask-image: linear-gradient(120deg, transparent 0%, black 35%, black 65%, transparent 100%);
+    opacity: 0.5;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 14px; border-radius: 999px;
+    border: 1px solid var(--chip-border);
+    background: var(--chip-bg);
+    color: var(--chip-fg); font-size: 13px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--chip-fg); flex: none; }
+</style>
+</head><body>
+<div class="card">
+  <div class="dotgrid"></div>
+  <div style="position:relative; z-index:1; display:flex; flex-direction:column; justify-content:center; height:100%; padding:60px;">
+
+    <div style="display:flex; flex-direction:column; gap:26px; max-width:990px;">
+      <span class="chip" style="--chip-fg:CHIP_COLOR; --chip-border:CHIP_BORDER; --chip-bg:CHIP_BG;">
+        <span class="dot"></span>CHIP_LABEL
+      </span>
+      <p style="margin:0; font-size:BODY_SIZEpx; line-height:1.55; font-weight:500; color:#eef0f3; text-wrap:balance;">
+        BODY_TEXT
+      </p>
+    </div>
+
+  </div>
+
+  <div style="position:absolute; left:60px; right:60px; bottom:44px; display:flex; align-items:center; justify-content:space-between; z-index:1;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="24" height="24" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="24" height="24" rx="6" transform="rotate(45 13 13)" stroke="#e0ad3c" stroke-width="1.6"/>
+        <circle cx="13" cy="13" r="3" fill="#e0ad3c"/>
+      </svg>
+      <span style="font-size:17px; font-weight:700; letter-spacing:0.01em;">
+        ARBI<span style="color:#e0ad3c; font-weight:700;">SMART</span>
+      </span>
+    </div>
+    <span style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:#5b6270; letter-spacing:0.02em;">
+      @arbhub_site
+    </span>
+  </div>
+</div>
+</body></html>

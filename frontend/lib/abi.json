@@ -1,0 +1,3426 @@
+[
+ {
+  "type": "constructor",
+  "inputs": [
+   {
+    "name": "_collateralToken",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "_arbitrageToken",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "_swapRouter",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "_swapFeeTier",
+    "type": "uint24",
+    "internalType": "uint24"
+   },
+   {
+    "name": "initialOwner",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "_feeWallet1",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "_feeWallet2",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "_profitRecipient",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "_developmentFeeWallet1",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "_developmentFeeWallet2",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "_developmentFeeBps1",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "_developmentFeeBps2",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "fallback",
+  "stateMutability": "payable"
+ },
+ {
+  "type": "receive",
+  "stateMutability": "payable"
+ },
+ {
+  "type": "function",
+  "name": "DEVELOPMENT_FEE_BPS_1",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "DEVELOPMENT_FEE_BPS_2",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "DEVELOPMENT_FEE_MAX_BPS",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "EMERGENCY_DELAY",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "EMERGENCY_GRACE_PERIOD",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "FREE_PERIOD",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "MAX_FREE_STAKES",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "MAX_PARTNERS",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "MIN_ACTIVATION_DEPOSIT",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "MIN_COUNTABLE_REFERRAL",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "MIN_SWAP_OUTPUT_BPS",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "POLYMARKET_CONDITIONAL_TOKENS",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "POLYMARKET_CTF_EXCHANGE",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "POLYMARKET_NEG_RISK_EXCHANGE",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "PROFIT_FEE_MAX_BPS",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "PROTOCOL_WALLET_STAKE",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "REQUIRED_VOTES",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "RESCUE_DELAY",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "acceptOwnership",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "addPartner",
+  "inputs": [
+   {
+    "name": "partner",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "arbitrageDeploymentCeiling",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "arbitrageProfitSurplus",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "arbitrageToken",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "contract IERC20"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "arbitrageTokenBalance",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "blacklisted",
+  "inputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "claim",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "claimFeeBps",
+  "inputs": [
+   {
+    "name": "plan",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "pure"
+ },
+ {
+  "type": "function",
+  "name": "claimRef",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "collateralToken",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "contract IERC20"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "committedByCondition",
+  "inputs": [
+   {
+    "name": "",
+    "type": "bytes32",
+    "internalType": "bytes32"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "dailyRates",
+  "inputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "dailyWithdrawn",
+  "inputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "dashboard",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "grossDeposits",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "developmentFees",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "userNetStakes",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "mainPoolBalance",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "developmentFeeBalance",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "deployedToArbitrage",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "deployTime",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "depositArbitrageProfit",
+  "inputs": [
+   {
+    "name": "amount",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "depositFeeBps",
+  "inputs": [
+   {
+    "name": "grossAmount",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "pure"
+ },
+ {
+  "type": "function",
+  "name": "developmentFeeWallet1",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "developmentFeeWallet2",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "developmentFeesCollected1",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "developmentFeesCollected2",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "developmentFeesWithdrawn1",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "developmentFeesWithdrawn2",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "earlyExit",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "emergencyActivatedAt",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "emergencyMode",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "emergencyVoteCount",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "emergencyVotes",
+  "inputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "emergencyWithdraw",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "emergencyWithdrawOpen",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "executePolymarketMerge",
+  "inputs": [
+   {
+    "name": "conditionId",
+    "type": "bytes32",
+    "internalType": "bytes32"
+   },
+   {
+    "name": "partition",
+    "type": "uint256[]",
+    "internalType": "uint256[]"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "executePolymarketRedeem",
+  "inputs": [
+   {
+    "name": "conditionId",
+    "type": "bytes32",
+    "internalType": "bytes32"
+   },
+   {
+    "name": "indexSets",
+    "type": "uint256[]",
+    "internalType": "uint256[]"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "executePolymarketSplit",
+  "inputs": [
+   {
+    "name": "conditionId",
+    "type": "bytes32",
+    "internalType": "bytes32"
+   },
+   {
+    "name": "partition",
+    "type": "uint256[]",
+    "internalType": "uint256[]"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "executeRescue",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "feeWallet1",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "feeWallet2",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "freeStakeCount",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getBalance",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getClaimCount",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getF1Count",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getF1List",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "addrs",
+    "type": "address[]",
+    "internalType": "address[]"
+   },
+   {
+    "name": "amounts",
+    "type": "uint256[]",
+    "internalType": "uint256[]"
+   },
+   {
+    "name": "plans",
+    "type": "uint256[]",
+    "internalType": "uint256[]"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getF2List",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address[]",
+    "internalType": "address[]"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getF3List",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address[]",
+    "internalType": "address[]"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getGlobalStats",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getPolymarketOutcomeBalance",
+  "inputs": [
+   {
+    "name": "positionId",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getRefReward",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getReferralInfo",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getReward",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getStakeBasic",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   },
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getTeamVolume",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getTimeLeft",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getUserStatsExtended",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "getVoters",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "voters",
+    "type": "address[]",
+    "internalType": "address[]"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "grantStake",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "grossDeposited",
+  "inputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "isFreePeriod",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "isPartner",
+  "inputs": [
+   {
+    "name": "account",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "isProtocolWallet",
+  "inputs": [
+   {
+    "name": "account",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "lastWithdrawalDay",
+  "inputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "levelRequirement",
+  "inputs": [
+   {
+    "name": "level",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "stakeReq",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "volumeReq",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "countReq",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "pure"
+ },
+ {
+  "type": "function",
+  "name": "minStakes",
+  "inputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "netStaked",
+  "inputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "onERC1155BatchReceived",
+  "inputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "",
+    "type": "uint256[]",
+    "internalType": "uint256[]"
+   },
+   {
+    "name": "",
+    "type": "uint256[]",
+    "internalType": "uint256[]"
+   },
+   {
+    "name": "",
+    "type": "bytes",
+    "internalType": "bytes"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bytes4",
+    "internalType": "bytes4"
+   }
+  ],
+  "stateMutability": "pure"
+ },
+ {
+  "type": "function",
+  "name": "onERC1155Received",
+  "inputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "",
+    "type": "bytes",
+    "internalType": "bytes"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bytes4",
+    "internalType": "bytes4"
+   }
+  ],
+  "stateMutability": "pure"
+ },
+ {
+  "type": "function",
+  "name": "owner",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "partnerCount",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "partners",
+  "inputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "pause",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "paused",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "pausedAt",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "pendingDevelopmentFees",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "pendingOwner",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "planDurations",
+  "inputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "platformFeePaid",
+  "inputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "polymarketArbitrageAvailable",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "profitFeeBPS",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "profitRecipient",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "quoteDeposit",
+  "inputs": [
+   {
+    "name": "grossAmount",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "fee1",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "fee2",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "totalFee",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "netStake",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "recoveryWallet",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "referralRate",
+  "inputs": [
+   {
+    "name": "level",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "depth",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "pure"
+ },
+ {
+  "type": "function",
+  "name": "referrals",
+  "inputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "referrer",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "totalEarned",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "pendingReward",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "activeReferrals",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "level",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "removePartner",
+  "inputs": [
+   {
+    "name": "index",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "renounceOwnership",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "rescueExecutableAt",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "rescueInitiatedAt",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "rescueReady",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "rescueVoteCount",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "rescueVotes",
+  "inputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "revokeEmergencyVote",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "revokeRescueVote",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "setBlacklist",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "value",
+    "type": "bool",
+    "internalType": "bool"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "setDevelopmentFeeWallet",
+  "inputs": [
+   {
+    "name": "budget",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "newWallet",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "setFeeWallets",
+  "inputs": [
+   {
+    "name": "newFeeWallet1",
+    "type": "address",
+    "internalType": "address"
+   },
+   {
+    "name": "newFeeWallet2",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "setProfitFeeBPS",
+  "inputs": [
+   {
+    "name": "newFeeBPS",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "setProfitRecipient",
+  "inputs": [
+   {
+    "name": "newRecipient",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "setRecoveryWallet",
+  "inputs": [
+   {
+    "name": "newRecoveryWallet",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "stake",
+  "inputs": [
+   {
+    "name": "grossAmount",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "referrer",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "stakes",
+  "inputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "amount",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "plan",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "rate",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "startTime",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "lastClaimTime",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "totalClaimed",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "active",
+    "type": "bool",
+    "internalType": "bool"
+   },
+   {
+    "name": "earlyExited",
+    "type": "bool",
+    "internalType": "bool"
+   },
+   {
+    "name": "freeStake",
+    "type": "bool",
+    "internalType": "bool"
+   },
+   {
+    "name": "freeAmount",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "supportsInterface",
+  "inputs": [
+   {
+    "name": "interfaceId",
+    "type": "bytes4",
+    "internalType": "bytes4"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "",
+    "type": "bool",
+    "internalType": "bool"
+   }
+  ],
+  "stateMutability": "pure"
+ },
+ {
+  "type": "function",
+  "name": "swapFeeTier",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint24",
+    "internalType": "uint24"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "swapFromArbitrageToken",
+  "inputs": [
+   {
+    "name": "amountIn",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "amountOutMinimum",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "swapRouter",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "address",
+    "internalType": "contract ISwapRouter02"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "swapToArbitrageToken",
+  "inputs": [
+   {
+    "name": "amountIn",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "amountOutMinimum",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "topUp",
+  "inputs": [
+   {
+    "name": "grossAmount",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "totalArbitrageDeployed",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "totalArbitrageProfit",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "totalAssets",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "totalGranted",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "totalGrossDeposits",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "totalPaidOut",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "totalStaked",
+  "inputs": [],
+  "outputs": [
+   {
+    "name": "",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "transferOwnership",
+  "inputs": [
+   {
+    "name": "newOwner",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "unpause",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "upgradePlan",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "userDepositBreakdown",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "internalType": "address"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "gross",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "platformFee",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "netStake",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "activeStake",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "stateMutability": "view"
+ },
+ {
+  "type": "function",
+  "name": "voteEmergency",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "voteRescue",
+  "inputs": [],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "function",
+  "name": "withdrawDevelopmentFees",
+  "inputs": [
+   {
+    "name": "budget",
+    "type": "uint256",
+    "internalType": "uint256"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "internalType": "uint256"
+   }
+  ],
+  "outputs": [],
+  "stateMutability": "nonpayable"
+ },
+ {
+  "type": "event",
+  "name": "ArbitrageMergeExecuted",
+  "inputs": [
+   {
+    "name": "conditionId",
+    "type": "bytes32",
+    "indexed": true,
+    "internalType": "bytes32"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "partition",
+    "type": "uint256[]",
+    "indexed": false,
+    "internalType": "uint256[]"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "ArbitrageProfitAccrued",
+  "inputs": [
+   {
+    "name": "amount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "totalProfit",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "ArbitrageRedeemed",
+  "inputs": [
+   {
+    "name": "conditionId",
+    "type": "bytes32",
+    "indexed": true,
+    "internalType": "bytes32"
+   },
+   {
+    "name": "indexSets",
+    "type": "uint256[]",
+    "indexed": false,
+    "internalType": "uint256[]"
+   },
+   {
+    "name": "collateralReceived",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "ArbitrageSplitExecuted",
+  "inputs": [
+   {
+    "name": "conditionId",
+    "type": "bytes32",
+    "indexed": true,
+    "internalType": "bytes32"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "partition",
+    "type": "uint256[]",
+    "indexed": false,
+    "internalType": "uint256[]"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "BlacklistUpdated",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "value",
+    "type": "bool",
+    "indexed": false,
+    "internalType": "bool"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "Claimed",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "fee",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "DevelopmentFeeCharged",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "grossAmount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "fee1",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "fee2",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "netStake",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "DevelopmentFeeWalletUpdated",
+  "inputs": [
+   {
+    "name": "budget",
+    "type": "uint256",
+    "indexed": true,
+    "internalType": "uint256"
+   },
+   {
+    "name": "newWallet",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "DevelopmentFeeWithdrawn",
+  "inputs": [
+   {
+    "name": "budget",
+    "type": "uint256",
+    "indexed": true,
+    "internalType": "uint256"
+   },
+   {
+    "name": "to",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "remainingUnwithdrawn",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "EarlyExited",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "penalty",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "EmergencyActivated",
+  "inputs": [
+   {
+    "name": "activatedAt",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "EmergencyCancelled",
+  "inputs": [],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "EmergencyPaused",
+  "inputs": [
+   {
+    "name": "timestamp",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "EmergencyVoteRevoked",
+  "inputs": [
+   {
+    "name": "voter",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "totalVotes",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "EmergencyVoted",
+  "inputs": [
+   {
+    "name": "voter",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "totalVotes",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "EmergencyWithdrawn",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "FeeWalletsUpdated",
+  "inputs": [
+   {
+    "name": "newFeeWallet1",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "newFeeWallet2",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "OwnershipTransferStarted",
+  "inputs": [
+   {
+    "name": "previousOwner",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "newOwner",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "OwnershipTransferred",
+  "inputs": [
+   {
+    "name": "previousOwner",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "newOwner",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "PartnerAdded",
+  "inputs": [
+   {
+    "name": "partner",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "index",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "PartnerRemoved",
+  "inputs": [
+   {
+    "name": "partner",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "index",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "Paused",
+  "inputs": [
+   {
+    "name": "account",
+    "type": "address",
+    "indexed": false,
+    "internalType": "address"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "PlanUpgraded",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "oldPlan",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "newPlan",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "ProfitFeeBpsUpdated",
+  "inputs": [
+   {
+    "name": "newFeeBPS",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "ProfitFeeCharged",
+  "inputs": [
+   {
+    "name": "conditionId",
+    "type": "bytes32",
+    "indexed": true,
+    "internalType": "bytes32"
+   },
+   {
+    "name": "profitAmount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "feeAmount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "recipient",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "ProfitRecipientUpdated",
+  "inputs": [
+   {
+    "name": "newRecipient",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "RecoveryWalletUpdated",
+  "inputs": [
+   {
+    "name": "newRecoveryWallet",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "ReferralClaimed",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "RescueCancelled",
+  "inputs": [],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "RescueExecuted",
+  "inputs": [
+   {
+    "name": "recoveryWallet",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "RescueInitiated",
+  "inputs": [
+   {
+    "name": "initiatedAt",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "executableAt",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "RescueVoteRevoked",
+  "inputs": [
+   {
+    "name": "voter",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "totalVotes",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "RescueVoted",
+  "inputs": [
+   {
+    "name": "voter",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "totalVotes",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "StakeGranted",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "plan",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "Staked",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "plan",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "referrer",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "free",
+    "type": "bool",
+    "indexed": false,
+    "internalType": "bool"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "SwappedFromArbitrageToken",
+  "inputs": [
+   {
+    "name": "strategyIn",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "collateralOut",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "profit",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "SwappedToArbitrageToken",
+  "inputs": [
+   {
+    "name": "collateralIn",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "strategyOut",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "ToppedUp",
+  "inputs": [
+   {
+    "name": "user",
+    "type": "address",
+    "indexed": true,
+    "internalType": "address"
+   },
+   {
+    "name": "amount",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   },
+   {
+    "name": "newTotal",
+    "type": "uint256",
+    "indexed": false,
+    "internalType": "uint256"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "event",
+  "name": "Unpaused",
+  "inputs": [
+   {
+    "name": "account",
+    "type": "address",
+    "indexed": false,
+    "internalType": "address"
+   }
+  ],
+  "anonymous": false
+ },
+ {
+  "type": "error",
+  "name": "AboveMaxStake",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "AlreadyActive",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "AlreadyExited",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "AlreadyVoted",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "AlreadyVotedRescue",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "AmountExceedsAvailable",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "BelowMinStake",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "Blacklisted",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "CannotAddOwnerAsPartner",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "CannotBlacklistOwner",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "ContractCallerNotAllowed",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "DailyWithdrawalCapExceeded",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "DevelopmentFeeTooHigh",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "DuplicatePartner",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "EmergencyActive",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "EmergencyDelayNotElapsed",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "EmergencyIrrevocable",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "EnforcedPause",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "ExceedsCollectedFees",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "ExpectedPause",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "FreeStakeLimitReached",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "FreeStakeNotActivated",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "GracePeriodNotElapsed",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "IdenticalSwapTokens",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "InsufficientLiquidityForFees",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "InvalidFreeStakeAmount",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "InvalidPartnerIndex",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "NoActiveStake",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "NoRecoveryWallet",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "NotAVoter",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "NotPausedError",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "NotVoted",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "NotVotedRescue",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "NothingToClaim",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "NothingToRescue",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "OwnableInvalidOwner",
+  "inputs": [
+   {
+    "name": "owner",
+    "type": "address",
+    "internalType": "address"
+   }
+  ]
+ },
+ {
+  "type": "error",
+  "name": "OwnableUnauthorizedAccount",
+  "inputs": [
+   {
+    "name": "account",
+    "type": "address",
+    "internalType": "address"
+   }
+  ]
+ },
+ {
+  "type": "error",
+  "name": "PartnerLimitReached",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "PlanUnchanged",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "ProfitFeeTooHigh",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "ProtocolWalletStakeInvalid",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "ReentrancyGuardReentrantCall",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "RescueDelayNotElapsed",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "RescueNotArmed",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "RescueQuorumNotReached",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "RescueVotePending",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "SafeERC20FailedOperation",
+  "inputs": [
+   {
+    "name": "token",
+    "type": "address",
+    "internalType": "address"
+   }
+  ]
+ },
+ {
+  "type": "error",
+  "name": "SlippageBoundTooLoose",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "TransferAmountMismatch",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "ZeroAddress",
+  "inputs": []
+ },
+ {
+  "type": "error",
+  "name": "ZeroAmount",
+  "inputs": []
+ }
+]

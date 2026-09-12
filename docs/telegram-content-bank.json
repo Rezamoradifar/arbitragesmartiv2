@@ -1,0 +1,694 @@
+{
+  "_readme": [
+    "Content bank for @arbhub_site, posted 2-3 items/day by a scheduled routine.",
+    "Every fact here was verified this session against the deployed bytecode at",
+    "0x5589105c61154f93D11aa350a25c634d5B324bFB (41 checks, zero mismatches) or",
+    "measured directly with a Foundry test. Nothing here is invented, and nothing",
+    "new should be appended to this file unless it is equally verified first.",
+    "",
+    "postedAt is null until sent; the routine picks the next null item in array",
+    "order, posts it, sets postedAt, commits and pushes. Never reorders or",
+    "reuses a posted item — when the array runs out, the routine says so instead",
+    "of inventing content or repeating an old post."
+  ],
+  "items": [
+    {
+      "id": "yield-simple",
+      "postedAt": "2026-08-19T00:44:14Z",
+      "text": "Yield here is simple interest, not compounded. It accrues on the recorded stake alone, every second, and stops the moment the plan's term ends — Starter at day 180, Elite at day 90. Claiming does not restart the clock and unclaimed yield does not compound while it waits.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/yield-simple.png"
+    },
+    {
+      "id": "min-deposit-real",
+      "postedAt": "2026-08-19T08:02:40.295Z",
+      "text": "The advertised minimum is 10 USDT. The real one is 11.37. The contract requires 10 USDT to remain AFTER the entry fee, and small deposits pay 12% — so 11.37 sent is the smallest amount that actually clears. Send exactly 10 and it reverts; you lose only gas, but you lose it for nothing.\n\n#ArbiSmart #Polygon #USDT #HowTo",
+      "image": "docs/telegram-cards/min-deposit-real.png"
+    },
+    {
+      "id": "tier-by-net",
+      "postedAt": "2026-08-19T14:17:51.436Z",
+      "text": "Your plan is decided by what gets RECORDED, not what you send. Send 500 and 450 is recorded — below the Growth threshold, so you land on Starter. To actually reach Growth you need to send 555.56. The site's calculator works this out before you sign; read it before you pick a round number.\n\n#ArbiSmart #Polygon #USDT #Staking #HowTo",
+      "image": "docs/telegram-cards/tier-by-net.png"
+    },
+    {
+      "id": "claim-fee-halves",
+      "postedAt": "2026-08-19T20:15:47.111Z",
+      "text": "Claim fee is 10% of yield on Starter and Growth, half that — 5% — on Advanced and Elite. It is charged on yield only; principal is never touched by it. claimFeeBps() is a pure function in the contract, which means not even the owner can change it later.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/claim-fee-halves.png"
+    },
+    {
+      "id": "upline-deduction",
+      "postedAt": "2026-08-20T08:12:20.123Z",
+      "text": "If you joined through a referral link, part of your claim goes to the people above you — 8% of your yield for one Base-tier referrer, up to 35% for three Platinum uplines stacked. It comes out of YOUR claim, not paid by the protocol on top. No referrer, no deduction. Your dashboard shows your exact number once your wallet is connected.\n\n#ArbiSmart #Polygon #USDT #Referral #Transparency",
+      "image": "docs/telegram-cards/upline-deduction.png"
+    },
+    {
+      "id": "exit-penalty-schedule",
+      "postedAt": "2026-08-20T14:17:11.718Z",
+      "text": "Exit is open at all times, no approval needed. The penalty on principal declines every week: 50% in week 1, 40% in week 2, 30% in week 3, 20% in week 4, 10% from week 5 onward — and it never goes lower than 10%. Unclaimed yield is lost separately when you exit, so claim first if you're leaving.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/exit-penalty-schedule.png"
+    },
+    {
+      "id": "no-maturity",
+      "postedAt": "2026-08-20T20:09:14.688Z",
+      "text": "There is no maturity function in this contract. After the full term, yield simply stops accruing — the only way out is still earlyExit(), still at the week-5+ rate. Hold a position to the very end and you still get 90% of principal back, not 100%. We'd rather you read that here than find out at withdrawal.\n\n#ArbiSmart #Polygon #USDT #Staking #Transparency",
+      "image": "docs/telegram-cards/no-maturity.png"
+    },
+    {
+      "id": "exit-always-open",
+      "postedAt": "2026-08-21T08:13:50.270Z",
+      "text": "Exit works even if the contract is paused, and even if your address is blacklisted. Blacklisting blocks new stakes and claims — it does not freeze your principal. There is no state the owner can put the contract into that traps your exit.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/exit-always-open.png"
+    },
+    {
+      "id": "emergency-withdraw",
+      "postedAt": "2026-08-21T14:19:58.576Z",
+      "text": "Two independent ways to unlock a zero-penalty full withdrawal, and neither needs the owner's cooperation: the contract has been paused for 30 continuous days, or 3 votes from the partner body flip emergency mode and 12 hours pass. Either path, principal comes back whole.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/emergency-withdraw.png"
+    },
+    {
+      "id": "rescue-function",
+      "postedAt": "2026-08-21T20:11:07.187Z",
+      "text": "There is a rescue function that can move the contract's full balance — and it needs 3 votes from the voting body plus a 48-hour delay before it's callable, and it can only ever send funds to a pre-set Gnosis Safe multisig, never an arbitrary address. We're telling you it exists because you should know, not because we expect to need it.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
+      "image": "docs/telegram-cards/rescue-function.png"
+    },
+    {
+      "id": "referral-all-three",
+      "postedAt": "2026-08-22T08:09:31.297Z",
+      "text": "Referral tiers above Base require THREE conditions at once — your own stake, your direct volume, and your active referral count. All three, not any one. A tier priced in wallets alone gets gamed with throwaway accounts; a tier priced in real capital doesn't.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-all-three.png"
+    },
+    {
+      "id": "referral-tiers-table",
+      "postedAt": "2026-08-22T14:13:15.469Z",
+      "text": "Referral tiers, three levels deep: Base pays 8/4/0%, Silver 12/6/2% (needs 500 staked, 2,500 direct volume, 3 referrals), Gold 15/8/4% (2,500 staked, 15,000 volume, 10 referrals), Platinum 20/10/5% (10,000 staked, 75,000 volume, 25 referrals). Every rate is paid at the UPLINE's own tier, never the tier below them.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-tiers-table.png"
+    },
+    {
+      "id": "referral-volume-falls",
+      "postedAt": "2026-08-22T20:08:27.886Z",
+      "text": "A referral's volume counts toward your tier only while their position stays open. If they exit, your counted volume falls with them — it doesn't just stop rising, it actually decreases. That's deliberate: a tier earned once and kept forever regardless of whether the team is still there isn't measuring anything real.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-volume-falls.png"
+    },
+    {
+      "id": "deposit-fee-bands",
+      "postedAt": "2026-08-23T08:09:11.328Z",
+      "text": "Entry fee is a sliding scale, not one flat number: 12% under 500 USDT, 10% from 500, 7% from 2,500, 5% from 10,000. It comes off before your stake is even recorded — the deposit screen shows the exact split before you ever sign.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/deposit-fee-bands.png"
+    },
+    {
+      "id": "free-stake-program",
+      "postedAt": "2026-08-23T14:09:16.649Z",
+      "text": "The free-stake window offers 100 places, each a 10 USDT position that costs the pool nothing until it's actually funded — a giveaway earns yield from day one but can't be claimed against until real capital backs it. That's what stops a hundred free positions from being a withdrawal on other people's deposits.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/free-stake-program.png"
+    },
+    {
+      "id": "free-stake-upgrade",
+      "postedAt": "2026-08-23T20:09:15.350Z",
+      "text": "A free position isn't a dead end — top it up with real capital and it converts to an ordinary funded position on the spot, eligible for a plan upgrade like any other. The giveaway principal itself stays walled off forever, but everything else about the position becomes fully yours.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/free-stake-upgrade.png"
+    },
+    {
+      "id": "no-upgradeable",
+      "postedAt": "2026-08-24T08:12:59.914Z",
+      "text": "No proxy. No delegatecall. No upgradeable pattern anywhere in this contract. The code running today is the code that runs for as long as this contract exists — nobody, including us, can swap the logic underneath you later.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/no-upgradeable.png"
+    },
+    {
+      "id": "rates-immutable",
+      "postedAt": "2026-08-24T14:18:27.948Z",
+      "text": "dailyRates is set once, at deployment, and is never assigned anywhere else in roughly 2,400 lines of contract code. We checked. There is no function — not for the owner, not for anyone — that raises or lowers it after the fact.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
+      "image": "docs/telegram-cards/rates-immutable.png"
+    },
+    {
+      "id": "what-split-merge-redeem",
+      "postedAt": "2026-08-24T20:14:27.812Z",
+      "text": "Three things this contract can genuinely do on Polymarket, unaided and permissionlessly: split collateral into a complete YES/NO set, merge a set back to collateral before resolution, and redeem winning tokens after a market settles. All three are real calls to Polymarket's own deployed contracts, and every event fires only once the call has actually succeeded.\n\n#ArbiSmart #Polygon #USDT #DeFi",
+      "image": "docs/telegram-cards/what-split-merge-redeem.png"
+    },
+    {
+      "id": "why-onlyoperator-blocks-arb",
+      "postedAt": "2026-08-25T08:13:15.688Z",
+      "text": "What this contract cannot do: place an order on Polymarket's book. fillOrder, fillOrders and matchOrders are gated behind an onlyOperator permission that Polymarket's own admins control — not something we can code around, and not something granted to arbitrary third-party contracts. Until that changes, split-and-redeem alone nets to zero before gas; the profit in this kind of arbitrage only ever comes from the order book.\n\n#ArbiSmart #Polygon #USDT #DeFi #Transparency",
+      "image": "docs/telegram-cards/why-onlyoperator-blocks-arb.png"
+    },
+    {
+      "id": "per-dollar-shortfall",
+      "postedAt": "2026-08-25T14:20:13.245Z",
+      "text": "The honest math, per dollar deposited: Starter must pay back $2.59, Growth $3.09, Advanced $3.47, Elite $3.39 — against a strategy that has earned $0 so far. The gap is real and it's the same ratio at any size, because the rates are proportions, not fixed sums. Full table at arbhub.site/strategy.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/per-dollar-shortfall.png"
+    },
+    {
+      "id": "days-to-empty",
+      "postedAt": "2026-08-25T20:14:06.903Z",
+      "text": "An idle pool — no new deposits, everyone claiming as it accrues — drains before its own term ends on every single plan: Starter empties day 93 of 180, Growth day 62 of 150, Advanced day 44 of 120, Elite day 35 of 90. That's not a liquidity risk good management avoids; it's what a fixed rate above what the capital earns means, arithmetically.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/days-to-empty.png"
+    },
+    {
+      "id": "payable-rate",
+      "postedAt": "2026-08-26T08:14:17.229Z",
+      "text": "What a real trading return could actually fund, after a 20% performance fee: 15%/year gets you 0.033%/day, 25%/year gets 0.055%/day, even 50%/year — better than almost any fund — only gets 0.11%/day. Starter's advertised 1.2%/day is still 11x that top scenario. The gap closes with a lower, honest rate, not a better guess at the strategy.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/payable-rate.png"
+    },
+    {
+      "id": "sourcify-verified",
+      "postedAt": "2026-08-26T14:17:13.946Z",
+      "text": "Source is verified on Sourcify with an EXACT match — both creation and runtime bytecode, not just a similar-looking recompile. That means the code you can read on Sourcify is byte-for-byte what's actually running at the deployed address. Nothing to take on trust there.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/sourcify-verified.png"
+    },
+    {
+      "id": "referral-compounds",
+      "postedAt": "2026-08-26T14:58:01.078Z",
+      "text": "Your team doesn't have to be big to start — it has to start. Every person you bring in builds volume that counts toward your referral tier and your gold tier at once, three levels deep, the moment they claim. The compounding is real, it's just not automatic — that part's on you.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-compounds.png"
+    },
+    {
+      "id": "gold-banner-live",
+      "postedAt": "2026-08-26T15:01:44.644Z",
+      "text": "Nine gold tiers, from a single gram to a full kilo, now sit right on the homepage — not just in the menu. Your team volume across three levels is being tracked on-chain today, before the rounds even open. Build now, qualify later.\n\n#ArbiSmart #Polygon #USDT #Rewards",
+      "image": "docs/telegram-cards/gold-banner-live.png"
+    },
+    {
+      "id": "exit-freedom-motivation",
+      "postedAt": "2026-08-26T15:15:45.397Z",
+      "text": "No lockup you can't leave. No maturity date holding your money hostage. Stake today, watch it build, and walk away whenever you decide to — the early-exit penalty drops every week and caps at 10%. Nothing here asks for your trust, only your address.\n\n#ArbiSmart #Polygon #USDT #Flexibility",
+      "image": "docs/telegram-cards/exit-freedom-motivation.png"
+    },
+    {
+      "id": "team-building-motivation",
+      "postedAt": "2026-08-26T15:29:16.011Z",
+      "text": "The referral programme pays real USDT the moment your team claims, and the gold tiers stack on top of that — same volume, two rewards. You don't need permission to start building; the contract doesn't ask who referred you first before it counts.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/team-building-motivation.png"
+    },
+    {
+      "id": "security-confidence",
+      "postedAt": "2026-08-26T16:18:53.035Z",
+      "text": "Read the code, not our word for it. Exact-match verified on Sourcify, no proxy, no upgradeable pattern, and the owner cannot touch a single dollar of staked principal. Confidence here isn't a marketing line — it's something you can check yourself in five minutes.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/security-confidence.png"
+    },
+    {
+      "id": "yield-every-second",
+      "postedAt": "2026-08-26T17:15:49.419Z",
+      "text": "Yield doesn't wait for you to check the app. It builds every second, against the stake the contract already recorded, whether you're watching or not. Check in once a week or once an hour — the number keeps moving either way.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/yield-every-second.png"
+    },
+    {
+      "id": "why-onchain-matters",
+      "postedAt": "2026-08-26T18:15:57.162Z",
+      "text": "Every stake, every claim, every fee — it's all sitting on Polygon where anyone can look. Not a dashboard we control, not a number we could quietly change. The chain doesn't take our word for it either.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/why-onchain-matters.png"
+    },
+    {
+      "id": "small-start-motivation",
+      "postedAt": "2026-08-26T19:15:27.727Z",
+      "text": "You don't need to arrive with a fortune. A modest, honest stake today is still a real position building real yield — the same contract, the same rates, the same rules as anyone depositing ten times more.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/small-start-motivation.png"
+    },
+    {
+      "id": "claim-whenever-motivation",
+      "postedAt": "2026-08-26T20:15:51.099Z",
+      "text": "Claim today, claim next month, or let it build — the choice is entirely yours, and the contract has no opinion about it. There's no bonus for waiting and no penalty for claiming often. Take it on your own schedule.\n\n#ArbiSmart #Polygon #USDT #Flexibility",
+      "image": "docs/telegram-cards/claim-whenever-motivation.png"
+    },
+    {
+      "id": "verify-dont-trust-motivation",
+      "postedAt": "2026-08-26T21:16:05.181Z",
+      "text": "Don't take a screenshot's word for a live number. Every figure on this channel and on the site traces back to the same contract call anyone can run themselves — read-only, no login, no permission needed. Check it, then decide.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/verify-dont-trust-motivation.png"
+    },
+    {
+      "id": "building-in-the-open",
+      "postedAt": "2026-08-26T22:16:37.502Z",
+      "text": "Questions get real answers here, not a support ticket that disappears into a queue. If something about the contract, the rates, or the security model doesn't add up to you, ask — that's exactly what this channel is for.\n\n#ArbiSmart #Polygon #USDT #Community",
+      "image": "docs/telegram-cards/building-in-the-open.png"
+    },
+    {
+      "id": "site-keeps-shipping",
+      "postedAt": "2026-08-26T23:18:07.600Z",
+      "text": "This week alone: multi-provider RPC failover so no single outage can take a page down, a mobile display fix, a live market-news feed, and a homepage banner for the gold rewards. All of it shipped in the open, on the same branch anyone can read. A platform that's still building beats one that's finished pretending.\n\n#ArbiSmart #Polygon #USDT #Update",
+      "image": "docs/telegram-cards/site-keeps-shipping.png"
+    },
+    {
+      "id": "verify-yourself",
+      "postedAt": "2026-08-27T06:24:42.987Z",
+      "text": "Every rate, fee, and threshold we publish was checked this session directly against the deployed contract — 41 separate reads, zero mismatches. You don't need to trust that we did it right: pull up 0x5589105c61154f93D11aa350a25c634d5B324bFB on Polygonscan and read dailyRates, claimFeeBps and planDurations yourself.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
+      "image": "docs/telegram-cards/verify-yourself.png"
+    },
+    {
+      "id": "governance-voting-body",
+      "postedAt": "2026-08-27T10:13:01.923Z",
+      "text": "The voting body for anything requiring quorum — emergency mode, a rescue — is the owner plus every registered partner, and it takes 3 votes to move. One person alone, including the owner, can't trigger either path. The partner list is public and readable on-chain any time.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/governance-voting-body.png"
+    },
+    {
+      "id": "only-channel-no-email",
+      "postedAt": "2026-08-27T14:21:08.013Z",
+      "text": "We have exactly one channel: @arbhub_site. No email address exists for this project — anything claiming to be one is forged. No DM, no \"support agent,\" no second channel with our name and logo is us, no matter how convincing it looks.\n\n#ArbiSmart #Polygon #USDT #Scam #Security",
+      "image": "docs/telegram-cards/only-channel-no-email.png"
+    },
+    {
+      "id": "min-countable-referral",
+      "postedAt": "2026-08-27T18:11:16.018Z",
+      "text": "A referral only counts toward your headcount once their recorded stake crosses a minimum floor. An empty or never-funded position doesn't count as a person on your team — which is what stops a tier from being priced in throwaway wallets that hold nothing.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/min-countable-referral.png"
+    },
+    {
+      "id": "protocol-wallets-fixed",
+      "postedAt": "2026-08-27T22:09:29.340Z",
+      "text": "The two development-fee wallets are barred from the free-stake window entirely, and everywhere else they're limited to one fixed-size position — no exceptions, enforced by the contract itself, not by policy. A wallet that collects protocol revenue getting a free claim on other depositors' capital would be exactly the kind of thing this project exists to not do.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
+      "image": "docs/telegram-cards/protocol-wallets-fixed.png"
+    },
+    {
+      "id": "network-and-collateral",
+      "postedAt": "2026-08-28T06:19:48.249Z",
+      "text": "Everything runs on Polygon mainnet, chain id 137. Collateral is USDT — check the token contract matches ours before you approve anything; a look-alike token on the wrong contract is a classic way people get separated from their money.\n\n#ArbiSmart #Polygon #USDT #HowTo #Security",
+      "image": "docs/telegram-cards/network-and-collateral.png"
+    },
+    {
+      "id": "how-to-check-split",
+      "postedAt": "2026-08-28T10:12:12.115Z",
+      "text": "Before you sign a deposit: the screen shows what leaves your wallet, what the entry fee takes, and what actually gets recorded as your stake — three different numbers, all visible before you commit to anything. If a platform only shows you the amount you send, ask why.\n\n#ArbiSmart #Polygon #USDT #HowTo",
+      "image": "docs/telegram-cards/how-to-check-split.png"
+    },
+    {
+      "id": "onlyeoa-no-bots",
+      "postedAt": "2026-08-30T09:09:41.081Z",
+      "text": "Staking calls require tx.origin to equal msg.sender — a plain wallet, not a smart-contract intermediary. It's a participation rule, not a permission check: nothing here is authorized based on tx.origin, it can only narrow who's allowed to call in, so none of the classic tx.origin-phishing risk applies.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/onlyeoa-no-bots.png"
+    },
+    {
+      "id": "fee-withdrawal-capped",
+      "postedAt": "2026-08-30T10:08:35.984Z",
+      "text": "Owner fee withdrawals aren't limited by policy, they're limited by arithmetic — three checks, every time: can't exceed that budget's own uncollected balance, can't exceed the contract's actual liquid balance, and can't dip into what non-fee liabilities need. There's no path from here to a single dollar of staked principal.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
+      "image": "docs/telegram-cards/fee-withdrawal-capped.png"
+    },
+    {
+      "id": "dashboard-one-call",
+      "postedAt": "2026-08-30T14:10:04.970Z",
+      "text": "Two read-only functions, dashboard() and userDepositBreakdown(), return the whole picture in one call each — gross deposits, fees collected, net stakes, pool balance, what's deployed to arbitrage; per-user gross, fee paid, net stake, active stake. No login, no dashboard we control, callable by anyone directly against the contract.\n\n#ArbiSmart #Polygon #USDT #Transparency #HowTo",
+      "image": "docs/telegram-cards/dashboard-one-call.png"
+    },
+    {
+      "id": "grantstake-real-funds",
+      "postedAt": "2026-08-30T18:07:57.541Z",
+      "text": "grantStake exists for the owner to seed a promotional or migrated position — but it isn't free money out of thin air: the same amount has to actually leave the owner's wallet and land in the contract, transferred and balance-checked exactly like a real user deposit. No mechanism here mints stake without matching collateral arriving.\n\n#ArbiSmart #Polygon #USDT #Security #Transparency",
+      "image": "docs/telegram-cards/grantstake-real-funds.png"
+    },
+    {
+      "id": "blacklist-cant-freeze-principal",
+      "postedAt": "2026-08-30T22:11:25.135Z",
+      "text": "A blacklist flag exists, but it can only block new stakes, top-ups, plan upgrades, and claiming — never earlyExit or emergencyWithdraw. Whatever a wallet is flagged for, its principal can never be permanently frozen by this switch. The owner can't even blacklist themselves; that path is closed off in the code.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/blacklist-cant-freeze-principal.png"
+    },
+    {
+      "id": "unpause-blocked-during-emergency",
+      "postedAt": "2026-08-31T06:25:44.388Z",
+      "text": "Once the partner body votes emergency mode active, the owner cannot unpause the contract to undo it — that path is blocked while emergency mode is set. A vote that passes is a one-way wind-down decision; stakers exit through emergencyWithdraw, not a switch the owner can flip back.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/unpause-blocked-during-emergency.png"
+    },
+    {
+      "id": "partner-list-frozen-during-emergency",
+      "postedAt": "2026-08-31T10:12:57.714Z",
+      "text": "Adding or removing a partner is blocked the moment emergency mode is active. The owner can't shrink the voting body mid-vote to cancel a rescue or an emergency exit already in flight — the people who can vote are locked in before the vote even starts moving.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/partner-list-frozen-during-emergency.png"
+    },
+    {
+      "id": "slippage-floor-enforced",
+      "postedAt": "2026-08-31T14:18:16.812Z",
+      "text": "Every swap into the arbitrage leg has a hard floor on acceptable slippage, and the contract checks it in code — a bound looser than that floor reverts, even when the owner is the one calling. It isn't a policy the owner promises to follow; it's a number the transaction can't get past.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/slippage-floor-enforced.png"
+    },
+    {
+      "id": "loss-not-hidden",
+      "postedAt": "2026-08-31T18:09:36.092Z",
+      "text": "When a strategy position unwinds, cost basis is retired first — so a loss simply retires less basis, it isn't absorbed elsewhere or written off the books. The performance fee only ever applies to a realized gain above that basis, never to returned principal, and never on a leg that lost money.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/loss-not-hidden.png"
+    },
+    {
+      "id": "recovery-wallet-locked-during-vote",
+      "postedAt": "2026-08-31T22:12:45.078Z",
+      "text": "The recovery wallet — the only address a rescue can ever send funds to — can't be changed once a rescue vote is already pending. The owner can't quietly redirect the sweep target mid-vote; that address has to be set before anyone starts voting.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/recovery-wallet-locked-during-vote.png"
+    },
+    {
+      "id": "profit-fee-capped-20pct",
+      "postedAt": "2026-09-01T06:22:35.643Z",
+      "text": "The performance fee on realized arbitrage profit starts at 10% and is owner-adjustable — but hard-capped in code at 20%. There's no path to raise it past that ceiling, whatever the reason. It only ever applies to realized gains, never to staked principal.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/profit-fee-capped-20pct.png"
+    },
+    {
+      "id": "arbitrage-frozen-during-emergency",
+      "postedAt": "2026-09-01T10:13:07.856Z",
+      "text": "The moment emergency mode activates, the owner loses the ability to open new arbitrage positions or move any more pool collateral into the strategy — both paths are blocked in code. From that point on, the only things that happen are unwinding and stakers withdrawing their principal.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/arbitrage-frozen-during-emergency.png"
+    },
+    {
+      "id": "free-stake-capped-100",
+      "postedAt": "2026-09-01T14:17:15.690Z",
+      "text": "The free-stake programme has a hard cap in code — 100 slots, first-come, first-served. Once they're claimed, that specific door closes; it isn't a marketing number, it's a limit the contract itself enforces.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/free-stake-capped-100.png"
+    },
+    {
+      "id": "self-serve-plan-upgrade",
+      "postedAt": "2026-09-01T18:10:08.355Z",
+      "text": "When a top-up pushes your stake into a higher plan, the rate doesn't wait on us to notice — you call upgradePlan yourself, permissionless, and it only ever moves your rate up to match what you actually have staked. No ticket, no approval, no owner in the loop.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/self-serve-plan-upgrade.png"
+    },
+    {
+      "id": "daily-claim-cap",
+      "postedAt": "2026-09-01T22:10:11.676Z",
+      "text": "Every claim is checked against a per-day ceiling — 200% of your staked amount, tracked per UTC day. Ordinary yield never comes close to that number; it exists purely as a backstop, so a miscalculation or an edge case can't drain a position in one call.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/daily-claim-cap.png"
+    },
+    {
+      "id": "scanner-findings-documented",
+      "postedAt": "2026-09-02T06:18:14.344Z",
+      "text": "Automated security scanners flag things worth a second look — five spots in this contract got flagged. Every single one has a written note right next to it explaining why it isn't actually exploitable, not just a blanket suppression. Reviewed and documented, not silently muted.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/scanner-findings-documented.png"
+    },
+    {
+      "id": "totalassets-excludes-pending-fees",
+      "postedAt": "2026-09-02T10:10:45.978Z",
+      "text": "The contract's own solvency figure explicitly subtracts platform fees that have been charged but not yet withdrawn. Fees sit in the same balance as pool capital until swept out — without that subtraction, revenue earmarked for us would quietly inflate what the pool looks backed by. This is the line that keeps the two from mixing.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/totalassets-excludes-pending-fees.png"
+    },
+    {
+      "id": "development-fee-fixed-at-deploy",
+      "postedAt": "2026-09-02T14:16:11.144Z",
+      "text": "The platform's own revenue cut is set once, at deployment, capped at 20% combined across both fee wallets — and there is no function anywhere in the contract to change it afterward. Not owner-adjustable like the performance fee; it's simply fixed for the life of the contract.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/development-fee-fixed-at-deploy.png"
+    },
+    {
+      "id": "free-stake-window-closed",
+      "postedAt": "2026-09-02T22:10:42.120Z",
+      "text": "For the record: the free-stake giveaway was a 24-hour window from deployment, not a standing offer — and it closed weeks ago, checked in code against the block timestamp, not a policy anyone can extend. If you missed it, there's no owner switch to reopen it. The 100-slot cap we mentioned before was the second, independent limit on top of that clock.\n\n#ArbiSmart #Polygon #USDT #Staking #Transparency",
+      "image": "docs/telegram-cards/free-stake-window-closed.png"
+    },
+    {
+      "id": "referral-needs-active-position",
+      "postedAt": "2026-09-03T06:17:24.455Z",
+      "text": "A referrer only earns while their own position stays active — the moment they exit, their upline share stops too. Skin in the game is the whole basis for getting paid a cut of someone else's yield; it isn't a one-time signup bonus that keeps paying after they've left.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-needs-active-position.png"
+    },
+    {
+      "id": "unwind-never-blocked",
+      "postedAt": "2026-09-03T10:12:49.578Z",
+      "text": "Pause the contract or trigger emergency mode, and only one direction of the arbitrage strategy freezes: opening new positions. Merging, redeeming, and swapping strategy tokens back to collateral all stay callable regardless — so money already committed can always come back to the pool, never get stuck mid-recovery.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/unwind-never-blocked.png"
+    },
+    {
+      "id": "owner-cant-be-partner",
+      "postedAt": "2026-09-03T14:15:53.950Z",
+      "text": "The owner cannot add themselves as a partner — the contract checks the address and blocks it outright. There's no way to pad the emergency or rescue vote count with a second seat; the voting body's math only ever counts the owner once.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/owner-cant-be-partner.png"
+    },
+    {
+      "id": "emergency-withdraw-excludes-free",
+      "postedAt": "2026-09-03T18:08:20.673Z",
+      "text": "emergencyWithdraw only ever pays out the funded part of a position — a free-stake giveaway's principal is excluded by the same math every time. It never cost the pool anything going in, so it isn't something the pool pays back on the way out either.\n\n#ArbiSmart #Polygon #USDT #Staking #Transparency",
+      "image": "docs/telegram-cards/emergency-withdraw-excludes-free.png"
+    },
+    {
+      "id": "exit-zeros-state-first",
+      "postedAt": "2026-09-03T22:09:50.442Z",
+      "text": "The moment a position exits, its amount and rate are zeroed before anything else happens — deliberately, so no later claim call could ever compute a reward against a position that's already gone. It's the direct fix for a claim-after-exit drain bug that existed in an earlier version of this contract.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/exit-zeros-state-first.png"
+    },
+    {
+      "id": "emergency-vote-irrevocable-after-delay",
+      "postedAt": "2026-09-04T06:16:08.204Z",
+      "text": "An emergency vote can be withdrawn right up until the 12-hour delay after activation elapses — after that, it's locked in and can no longer be revoked. Once the withdrawal escape hatch is live, no later change of heart among the voting body can pull it back out from under stakers.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/emergency-vote-irrevocable-after-delay.png"
+    },
+    {
+      "id": "rescue-delay-longer-than-emergency",
+      "postedAt": "2026-09-04T10:09:54.683Z",
+      "text": "The same 3-of-5 voting body (owner + up to 4 partners) that can trigger emergency withdrawals also gates a separate fund-rescue sweep — but rescue carries a deliberately longer 48-hour delay before it executes, versus 12 hours for emergency mode. More consequence, more time to react.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/rescue-delay-longer-than-emergency.png"
+    },
+    {
+      "id": "rescue-vote-independent-of-emergency",
+      "postedAt": "2026-09-04T14:12:03.709Z",
+      "text": "Voting to sweep funds to the recovery wallet is a separate act from voting for emergency mode — a partner who agrees to one hasn't thereby agreed to the other. And arming a rescue automatically opens stakers' own emergency withdrawal too, so a pending sweep never leaves anyone locked in with no way out.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/rescue-vote-independent-of-emergency.png"
+    },
+    {
+      "id": "stolen-key-cant-rescue-alone",
+      "postedAt": "2026-09-04T18:08:00.284Z",
+      "text": "A stolen owner key alone cannot drain this contract. Sweeping funds to the recovery wallet needs partner quorum first, then a 48-hour public countdown before it's callable — and any partner can revoke their vote at any time right up until execution, no lock-in window, unlike the separate emergency vote.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/stolen-key-cant-rescue-alone.png"
+    },
+    {
+      "id": "owner-cant-blacklist-self",
+      "postedAt": "2026-09-04T22:09:25.135Z",
+      "text": "The blacklist function has one hardcoded exception: the owner's own address. There's no path — accidental or deliberate — to the owner blacklisting themselves and no path to blacklisting anyone else being some kind of loophole for self-privilege either. It's a plain address check, not a policy.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/owner-cant-blacklist-self.png"
+    },
+    {
+      "id": "quote-deposit-preview",
+      "postedAt": "2026-09-05T06:08:51.714Z",
+      "text": "Before you ever sign a deposit transaction, a free read-only call tells you the exact fee split and net amount that will be staked — same math the contract itself uses. The fee is only honest if it's disclosed before you commit to it, not discovered after.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/quote-deposit-preview.png"
+    },
+    {
+      "id": "emergency-withdraw-ignores-blacklist",
+      "postedAt": "2026-09-05T10:08:01.361Z",
+      "text": "emergencyWithdraw is open to any staker, blacklisted or not. Blacklisting can stop someone from opening new stakes or claiming yield, but it was never built as a way to trap a position during an emergency — the escape hatch doesn't check that flag at all.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/emergency-withdraw-ignores-blacklist.png"
+    },
+    {
+      "id": "max-stake-cap",
+      "postedAt": "2026-09-05T14:08:16.332Z",
+      "text": "Every position, whatever route it comes in through — a first stake, a top-up, or an owner-granted stake — is capped at 25,000 USDT of funded principal. The same ceiling applies everywhere, so no single position can be built up past it by picking a different entry point.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/max-stake-cap.png"
+    },
+    {
+      "id": "referral-deducted-not-added",
+      "postedAt": "2026-09-05T18:08:21.538Z",
+      "text": "A real fix carried over from an earlier version: referral rewards are subtracted from the referred user's own accrued yield, not credited on top of it from pooled capital. Fee, upline share, and user payout always sum back to exactly what accrued — a full referral chain can no longer quietly cost the pool more than the yield it actually earned.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-deducted-not-added.png"
+    },
+    {
+      "id": "free-stake-accrues-but-locked",
+      "postedAt": "2026-09-05T22:08:18.170Z",
+      "text": "A free giveaway position starts accruing yield the moment it's issued — but that yield stays locked until the holder deposits real collateral into it. A giveaway that's never funded pays nothing out, ever; the accrual clock running in the background costs the pool nothing on its own.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/free-stake-accrues-but-locked.png"
+    },
+    {
+      "id": "referral-tier-requires-real-volume",
+      "postedAt": "2026-09-06T02:51:51.460Z",
+      "text": "An earlier version gated referral tiers on headcount alone, which prices a tier in wallets rather than capital — a hundred throwaway accounts cost less to create than the top tier was worth. This version requires real staked volume too, and volume can't be faked cheaply. Headcount survives only as a floor, so one large referral can't carry a tier alone.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-tier-requires-real-volume.png"
+    },
+    {
+      "id": "grantstake-fixes-v2-promo-hole",
+      "postedAt": "2026-09-06T06:10:11.489Z",
+      "text": "An earlier version's free promotional packages had no collateral behind them — the yield they drew came straight out of other depositors' principal, and the better the promotion worked, the bigger that hole got. The current grant mechanism instead requires the owner to fund it up front from marketing budget, so a promotion's cost sits with whoever ran it, never with other stakers.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/grantstake-fixes-v2-promo-hole.png"
+    },
+    {
+      "id": "profit-fee-only-on-real-gains",
+      "postedAt": "2026-09-06T10:08:41.596Z",
+      "text": "When arbitrage capital swaps back to collateral, the contract retires its own tracked cost basis first — only what's left above that gets counted as profit. The performance fee is calculated on that leftover alone, so returned principal is mathematically never taxed, not just described that way.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/profit-fee-only-on-real-gains.png"
+    },
+    {
+      "id": "per-condition-commitment-tracked",
+      "postedAt": "2026-09-06T14:08:23.771Z",
+      "text": "Capital committed to each Polymarket market is tracked separately, keyed to that specific market's condition. When a position redeems, the contract knows exactly how much of that particular market's principal it's getting back — commitments across different open positions are never lumped together or guessed at.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/per-condition-commitment-tracked.png"
+    },
+    {
+      "id": "arbitrage-cap-fixes-converging-exploit",
+      "postedAt": "2026-09-06T18:07:39.701Z",
+      "text": "A flat per-call percentage cap on arbitrage deployment isn't a cap at all — each call shrinks the balance the next one is measured against, so repeated calls converge on the entire pool. An earlier design was moved past 99% of collateral this way in 40 calls, leaving emergencyWithdraw unable to pay out. The cap here is cumulative against a fixed ceiling that doesn't shrink as it's consumed.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/arbitrage-cap-fixes-converging-exploit.png"
+    },
+    {
+      "id": "swap-router-allowance-cleared-after-use",
+      "postedAt": "2026-09-06T22:09:34.949Z",
+      "text": "Every time pool collateral is approved for a swap, that approval is reset to zero again immediately after the call completes. The router never holds a standing claim on pool funds between transactions — only ever the exact amount of the swap in front of it, for as long as that swap takes.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/swap-router-allowance-cleared-after-use.png"
+    },
+    {
+      "id": "identical-tokens-rejected-at-deploy",
+      "postedAt": "2026-09-07T06:21:36.630Z",
+      "text": "The constructor refuses to deploy at all if the collateral token and the arbitrage strategy token are set to the same address. Letting that through would make every swap between them a silent no-op while the cost-basis counters kept moving anyway — a whole class of accounting bug closed off before the contract can even go live.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/identical-tokens-rejected-at-deploy.png"
+    },
+    {
+      "id": "one-time-ctf-approval-strategy-token-only",
+      "postedAt": "2026-09-07T10:10:16.412Z",
+      "text": "At deployment, only the strategy token gets a one-time unlimited approval to Polymarket's real Conditional Tokens contract — mirroring the exact pattern Polymarket's own official exchange contract uses. Pool collateral itself is never given a standing approval like that; it only gets approved for the exact amount of a swap, right before that swap happens.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/one-time-ctf-approval-strategy-token-only.png"
+    },
+    {
+      "id": "protocol-wallet-restriction-follows-live-address",
+      "postedAt": "2026-09-07T14:15:02.038Z",
+      "text": "The fixed-size staking restriction on the two development-fee wallets is checked live against whichever address currently holds that role — repointing the wallet moves the restriction with it, it can't be left behind on an old address. The two ordinary fee wallets that collect deposit and claim fees are deliberately NOT restricted this way; they stake on the same terms as anyone else.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/protocol-wallet-restriction-follows-live-address.png"
+    },
+    {
+      "id": "arbitrage-headroom-grows-with-real-profit",
+      "postedAt": "2026-09-07T18:08:19.680Z",
+      "text": "Realized arbitrage profit that hasn't been redeployed yet adds directly onto the deployment ceiling, on top of the flat percentage-of-pool cap. A strategy that's actually making money earns room to run bigger; one that hasn't stays capped at the base percentage. Size follows results, not the other way around.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/arbitrage-headroom-grows-with-real-profit.png"
+    },
+    {
+      "id": "erc1155-hooks-not-optional",
+      "postedAt": "2026-09-07T22:09:31.923Z",
+      "text": "This contract implements the ERC-1155 receiver hooks Polymarket's own token contract calls back to on every split — not decoration, a hard requirement. Without them, the mint's acceptance check fails and every split reverts, in every market, permanently. Deliberately unrestricted to accept any token sent: refusing would risk blocking a legitimate mint for no real security gain.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/erc1155-hooks-not-optional.png"
+    },
+    {
+      "id": "per-user-deposit-breakdown-view",
+      "postedAt": "2026-09-08T06:16:37.465Z",
+      "text": "Anyone can look up any address's own numbers in a single call: total gross deposited, platform fees paid, net amount actually staked, and current active stake. Same read-only, on-chain transparency as the pool-wide dashboard figures — just scoped down to one specific staker instead of the whole pool.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/per-user-deposit-breakdown-view.png"
+    },
+    {
+      "id": "split-doesnt-double-book-exposure",
+      "postedAt": "2026-09-08T10:09:51.707Z",
+      "text": "Opening a Polymarket position moves capital from the strategy-token balance into that specific market's committed amount — but the pool's overall arbitrage exposure figure isn't touched again here. That capital already left the pool at the earlier swap step; counting it a second time at the split would double-book the same money as deployed twice.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/split-doesnt-double-book-exposure.png"
+    },
+    {
+      "id": "merge-not-taxed-as-unwinding",
+      "postedAt": "2026-09-08T14:12:01.936Z",
+      "text": "Merging a position back before a market resolves is treated as unwinding, not as realizing profit — so no performance fee applies there, whatever the outcome. The fee only ever gets charged once, at final redemption after a market actually settles, never on a mid-flight exit.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/merge-not-taxed-as-unwinding.png"
+    },
+    {
+      "id": "three-revenue-streams-separately-tracked",
+      "postedAt": "2026-09-08T18:08:41.329Z",
+      "text": "Three separate kinds of platform revenue — the deposit fee, the yield-claim fee, and the arbitrage performance fee — each go to their own distinct wallet address, tracked independently on-chain. Nothing is pooled together into one number; every revenue stream stays separately attributable to exactly where it came from.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/three-revenue-streams-separately-tracked.png"
+    },
+    {
+      "id": "removepartner-clears-live-vote",
+      "postedAt": "2026-09-08T22:09:48.144Z",
+      "text": "Removing a partner automatically clears any emergency vote they'd already cast and drops the tally by one — the vote count can never silently drift out of sync with who's actually still in the voting body. This can only happen outside emergency mode in the first place, since the voting body itself is frozen once a vote is live.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/removepartner-clears-live-vote.png"
+    },
+    {
+      "id": "conditionaltokens-interface-copied-verbatim",
+      "postedAt": "2026-09-09T06:17:17.473Z",
+      "text": "The interface this contract uses to call Polymarket's real Conditional Tokens contract wasn't guessed or reconstructed from docs — the three function signatures (split, merge, redeem) were copied verbatim from Gnosis's actual open-source, deployed contract. Anyone can call those same three functions directly on Polymarket's contract too; no special role or permission is required for them.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/conditionaltokens-interface-copied-verbatim.png"
+    },
+    {
+      "id": "viair-build-requirement-verified",
+      "postedAt": "2026-09-09T10:09:42.482Z",
+      "text": "This contract only compiles correctly with Solidity's viaIR pipeline enabled — without it, one of the read functions hits a genuine \"stack too deep\" compiler error, not a style choice. This was verified directly by compiling this exact file both ways: it fails under the legacy codegen and produces valid bytecode with viaIR on, which is exactly how the project's build config is set.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/viair-build-requirement-verified.png"
+    },
+    {
+      "id": "swap-slippage-floor-bounded-onchain",
+      "postedAt": "2026-09-09T14:12:07.473Z",
+      "text": "Every swap between pool collateral and the strategy currency has a hard minimum-return floor written into the contract, not left to whatever value is passed in off-chain. Both sides of that swap are dollar stablecoins, so anything worse than about 1% back would mean a sandwich attack or a depeg, not ordinary slippage — bounding it on-chain means even a mistyped or zeroed minimum can't hand the pool to a searcher.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/swap-slippage-floor-bounded-onchain.png"
+    },
+    {
+      "id": "pending-fees-excluded-from-pool-aum",
+      "postedAt": "2026-09-09T18:08:38.690Z",
+      "text": "Platform fees that have been charged but not yet withdrawn sit in the same token balance as pool capital — so the contract explicitly subtracts them before reporting total assets under management. Skipping that step would inflate every solvency figure and the arbitrage deployment ceiling, making the pool look backed by money that's actually earmarked for the fee wallets.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/pending-fees-excluded-from-pool-aum.png"
+    },
+    {
+      "id": "deposit-fee-volume-discount-not-flat",
+      "postedAt": "2026-09-09T22:09:41.081Z",
+      "text": "The deposit fee isn't a flat rate — it drops in bands as the deposit gets bigger, from 12% below $500 down to 5% above $10,000. A flat fee would make the smallest positions the cheapest thing to create, which is exactly backwards for resisting Sybil attacks. The bands are tested for monotonicity: a smaller deposit can never legally net more than a larger one just by crossing a fee tier.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/deposit-fee-volume-discount-not-flat.png"
+    },
+    {
+      "id": "emergency-withdraw-two-independent-paths",
+      "postedAt": "2026-09-10T06:14:48.123Z",
+      "text": "Self-serve recovery of your own remaining principal is available through two completely independent unlock paths: 30 days of continuous pause with no owner action, or partner-vote quorum plus a 12-hour delay that doesn't depend on the owner at all. This works for ANY staker, including a blacklisted one, and no penalty applies either way.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/emergency-withdraw-two-independent-paths.png"
+    },
+    {
+      "id": "fee-withdrawal-three-arithmetic-limits",
+      "postedAt": "2026-09-10T10:10:14.567Z",
+      "text": "Paying out collected platform fees to their wallet is bounded by three separate arithmetic checks, not policy: it can never exceed that budget's own uncollected balance, never exceed the contract's actual liquid balance, and never dip into what stakers are owed. There's no path from this function to staker principal — the ceiling is set only by fees already charged, at a rate the owner can never raise after deployment.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/fee-withdrawal-three-arithmetic-limits.png"
+    },
+    {
+      "id": "volume-counters-saturate-never-revert",
+      "postedAt": "2026-09-10T14:10:28.033Z",
+      "text": "Referral volume counters use saturating subtraction rather than plain subtraction — if a rounding mismatch would ever push a running total negative, it clamps to zero instead of reverting. Volume is tracked across several code paths at once, so a tiny credited-volume discrepancy costs a member a sliver of tier progress; it can never brick every exit beneath them in the referral tree.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/volume-counters-saturate-never-revert.png"
+    },
+    {
+      "id": "blacklist-cannot-freeze-principal",
+      "postedAt": "2026-09-10T18:08:40.940Z",
+      "text": "Blacklisting an address blocks new stakes, top-ups, plan upgrades, and claiming yield or referral rewards — but it cannot touch early exit or emergency withdrawal. A blacklisted user's principal can never be permanently frozen by this flag; the two paths back to your own money are carved out of the owner's reach entirely.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/blacklist-cannot-freeze-principal.png"
+    },
+    {
+      "id": "claim-fee-halves-for-higher-tiers",
+      "postedAt": "2026-09-10T22:09:12.568Z",
+      "text": "The fee charged on claiming yield isn't the same across all plans — Advanced and Elite stakers pay half what the entry-level tiers pay. Committing to a bigger, longer position doesn't just earn a higher rate; it also costs less to actually collect what you've earned.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/claim-fee-halves-for-higher-tiers.png"
+    },
+    {
+      "id": "deactivate-stake-fixes-claim-after-exit-drain",
+      "postedAt": "2026-09-11T06:14:26.128Z",
+      "text": "Exiting a stake fully zeroes its amount and rate on-chain, not just marks it inactive — so no later claim call could ever compute a nonzero reward against a position that already paid out. This is a direct, documented fix for a real fund-drain bug found in an earlier version of the contract, where claiming after an early exit was still reachable.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/deactivate-stake-fixes-claim-after-exit-drain.png"
+    },
+    {
+      "id": "stake-liability-tracked-on-net-not-gross",
+      "postedAt": "2026-09-11T10:10:08.246Z",
+      "text": "Every downstream figure from a deposit — plan tier, min/max bounds, referral volume, the recorded stake itself — is derived from the NET amount after the platform fee, never the gross figure that left your wallet. That's what keeps the contract's booked liability equal to the capital it actually holds; it can never record a stake larger than what's really backing it.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/stake-liability-tracked-on-net-not-gross.png"
+    },
+    {
+      "id": "topup-lets-free-positions-become-funded",
+      "postedAt": "2026-09-11T14:11:01.401Z",
+      "text": "Topping up is now open to free (giveaway) positions too — the only route by which a promotional stake can become a real, funded one. An earlier version locked this shut, leaving free-position holders with no path except claiming yield the pool was paying for nothing. The free portion still keeps its own separate accounting, so the giveaway itself never becomes withdrawable just because the position got topped up.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/topup-lets-free-positions-become-funded.png"
+    },
+    {
+      "id": "arbitrage-deployed-held-at-cost-not-marked-to-market",
+      "postedAt": "2026-09-11T18:08:05.064Z",
+      "text": "Capital currently out on the arbitrage strategy is tracked at cost — what was actually spent — deliberately never marked to market. That means the pool's total-assets figure needs no external price feed and can never report an unrealized gain as if it were spendable. The only profit that ever reaches the books is profit that has already come back as real collateral.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/arbitrage-deployed-held-at-cost-not-marked-to-market.png"
+    },
+    {
+      "id": "claim-fee-combined-rate-immutable",
+      "postedAt": "2026-09-11T22:09:13.891Z",
+      "text": "The yield-claim fee's combined rate is a hard constant at the code level — 10% total, split evenly between two wallets — and that's the one fee on the entire contract that not even the owner can raise after deployment. An earlier version split the same combined rate unevenly between wallets; what a user actually pays has always totalled the same number.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/claim-fee-combined-rate-immutable.png"
+    },
+    {
+      "id": "free-stake-cap-raised-because-liability-is-conditional",
+      "postedAt": "2026-09-12T06:08:54.747Z",
+      "text": "Free promotional positions are capped at 100 in this version, up from just 3 in an earlier one — safe to raise because the free liability is now conditional, not automatic. Claiming stays locked until the holder deposits real collateral, and neither exit path ever returns the free principal itself, so a free position that never converts into a real stake costs the pool nothing.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/free-stake-cap-raised-because-liability-is-conditional.png"
+    },
+    {
+      "id": "eoa-check-is-restriction-not-authorization",
+      "postedAt": null,
+      "text": "Blocking contract-mediated calls checks that the caller equals the transaction's origin — a pattern that's usually a red flag, since checking tx.origin for authorization is a classic phishing vector. Here it isn't: nothing gets authorized based on that identity, it only narrows who may participate at all (no smart-contract wallets). A restriction, not an access-control decision, which is precisely what keeps it safe.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/eoa-check-is-restriction-not-authorization.png"
+    },
+    {
+      "id": "deposit-fee-ceiling-enforced-at-construction",
+      "postedAt": null,
+      "text": "The two deposit-fee rates are set once at deployment and are immutable — no governance vote, no key compromise, no later decision can ever raise what a depositor gets charged after they've read the rate. The contract goes further and refuses to even deploy if the combined fee would exceed 20%, so there was never a window where an honest number could balloon into something that isn't a platform fee anymore.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/deposit-fee-ceiling-enforced-at-construction.png"
+    },
+    {
+      "id": "adding-partners-blocked-during-emergency",
+      "postedAt": null,
+      "text": "The owner cannot add a new partner to the voting body while an emergency vote is already live. Without that block, an owner facing a real vote could pack the body with friendly addresses to dilute it out mid-flight — blocking the addition during emergency mode closes that door entirely.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/adding-partners-blocked-during-emergency.png"
+    },
+    {
+      "id": "emergency-vote-quorum-triggers-immediate-pause",
+      "postedAt": null,
+      "text": "The moment an emergency vote reaches quorum, three things happen in the same transaction: the contract pauses immediately, new arbitrage deployments stop cold, and a fixed delay clock starts ticking toward the point where every staker can pull their own principal out through the emergency exit — no further action from the owner required, and none possible to stop it.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/emergency-vote-quorum-triggers-immediate-pause.png"
+    }
+  ]
+}
