@@ -662,7 +662,7 @@
     },
     {
       "id": "free-stake-cap-raised-because-liability-is-conditional",
-      "postedAt": null,
+      "postedAt": "2026-09-12T06:08:54.747Z",
       "text": "Free promotional positions are capped at 100 in this version, up from just 3 in an earlier one — safe to raise because the free liability is now conditional, not automatic. Claiming stays locked until the holder deposits real collateral, and neither exit path ever returns the free principal itself, so a free position that never converts into a real stake costs the pool nothing.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/free-stake-cap-raised-because-liability-is-conditional.png"
     },
