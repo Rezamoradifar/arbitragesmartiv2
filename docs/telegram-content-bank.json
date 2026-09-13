@@ -674,7 +674,7 @@
     },
     {
       "id": "deposit-fee-ceiling-enforced-at-construction",
-      "postedAt": null,
+      "postedAt": "2026-09-13T10:09:09.433Z",
       "text": "The two deposit-fee rates are set once at deployment and are immutable — no governance vote, no key compromise, no later decision can ever raise what a depositor gets charged after they've read the rate. The contract goes further and refuses to even deploy if the combined fee would exceed 20%, so there was never a window where an honest number could balloon into something that isn't a platform fee anymore.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/deposit-fee-ceiling-enforced-at-construction.png"
     },
