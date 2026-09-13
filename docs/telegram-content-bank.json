@@ -686,7 +686,7 @@
     },
     {
       "id": "emergency-vote-quorum-triggers-immediate-pause",
-      "postedAt": null,
+      "postedAt": "2026-09-13T10:11:34.841Z",
       "text": "The moment an emergency vote reaches quorum, three things happen in the same transaction: the contract pauses immediately, new arbitrage deployments stop cold, and a fixed delay clock starts ticking toward the point where every staker can pull their own principal out through the emergency exit — no further action from the owner required, and none possible to stop it.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/emergency-vote-quorum-triggers-immediate-pause.png"
     },
