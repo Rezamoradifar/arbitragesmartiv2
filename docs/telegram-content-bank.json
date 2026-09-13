@@ -698,7 +698,7 @@
     },
     {
       "id": "rescue-destination-frozen-once-votes-are-live",
-      "postedAt": null,
+      "postedAt": "2026-09-13T10:14:14.679Z",
       "text": "The owner can repoint where a rescue sweep would send funds — but not while any rescue vote is currently outstanding. Partners approve a sweep to a specific address; the owner can't quietly swap that address out from under an approval already in motion. To change the destination, the pending votes have to be revoked first.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/rescue-destination-frozen-once-votes-are-live.png"
     },
