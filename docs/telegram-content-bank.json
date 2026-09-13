@@ -701,6 +701,18 @@
       "postedAt": null,
       "text": "The owner can repoint where a rescue sweep would send funds — but not while any rescue vote is currently outstanding. Partners approve a sweep to a specific address; the owner can't quietly swap that address out from under an approval already in motion. To change the destination, the pending votes have to be revoked first.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/rescue-destination-frozen-once-votes-are-live.png"
+    },
+    {
+      "id": "rescue-sweep-survives-stolen-owner-key",
+      "postedAt": null,
+      "text": "The last-resort sweep of remaining collateral is deliberately not a unilateral owner action: it needs standing partner quorum, it's announced on-chain days in advance, and stakers' own emergency exit opens 36 hours before the sweep can even fire. A stolen owner private key alone cannot reach it — the owner calling the function is just the last of three independent conditions that all have to already be true.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/rescue-sweep-survives-stolen-owner-key.png"
+    },
+    {
+      "id": "performance-fee-hard-capped-at-20-percent",
+      "postedAt": null,
+      "text": "The performance fee charged on realized arbitrage profit is owner-settable within limits, not arbitrary — the contract enforces a hard ceiling of 20% at the code level, and no owner action can ever push it past that regardless of what governance or a compromised key might attempt. It only ever applies to real, redeemed profit, never to principal.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/performance-fee-hard-capped-at-20-percent.png"
     }
   ]
 }
