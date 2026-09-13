@@ -710,7 +710,7 @@
     },
     {
       "id": "performance-fee-hard-capped-at-20-percent",
-      "postedAt": null,
+      "postedAt": "2026-09-13T18:08:10.161Z",
       "text": "The performance fee charged on realized arbitrage profit is owner-settable within limits, not arbitrary — the contract enforces a hard ceiling of 20% at the code level, and no owner action can ever push it past that regardless of what governance or a compromised key might attempt. It only ever applies to real, redeemed profit, never to principal.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/performance-fee-hard-capped-at-20-percent.png"
     },
