@@ -689,6 +689,18 @@
       "postedAt": null,
       "text": "The moment an emergency vote reaches quorum, three things happen in the same transaction: the contract pauses immediately, new arbitrage deployments stop cold, and a fixed delay clock starts ticking toward the point where every staker can pull their own principal out through the emergency exit — no further action from the owner required, and none possible to stop it.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/emergency-vote-quorum-triggers-immediate-pause.png"
+    },
+    {
+      "id": "emergency-vote-becomes-irrevocable-after-delay",
+      "postedAt": null,
+      "text": "A partner can withdraw their emergency vote right up until the delay period fully elapses — after that moment it can no longer be revoked. That's deliberate: once stakers' withdrawal right has actually opened, nobody can vote it back closed out from under them. Revoking below quorum beforehand cancels emergency mode, but the contract stays paused until the owner deliberately unpauses it.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/emergency-vote-becomes-irrevocable-after-delay.png"
+    },
+    {
+      "id": "rescue-destination-frozen-once-votes-are-live",
+      "postedAt": null,
+      "text": "The owner can repoint where a rescue sweep would send funds — but not while any rescue vote is currently outstanding. Partners approve a sweep to a specific address; the owner can't quietly swap that address out from under an approval already in motion. To change the destination, the pending votes have to be revoked first.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/rescue-destination-frozen-once-votes-are-live.png"
     }
   ]
 }
