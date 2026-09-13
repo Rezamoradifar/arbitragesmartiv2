@@ -713,6 +713,18 @@
       "postedAt": null,
       "text": "The performance fee charged on realized arbitrage profit is owner-settable within limits, not arbitrary — the contract enforces a hard ceiling of 20% at the code level, and no owner action can ever push it past that regardless of what governance or a compromised key might attempt. It only ever applies to real, redeemed profit, never to principal.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/performance-fee-hard-capped-at-20-percent.png"
+    },
+    {
+      "id": "ownership-transfer-is-two-step",
+      "postedAt": null,
+      "text": "Ownership doesn't move in one transaction. This contract uses OpenZeppelin's Ownable2Step, so transferring it takes a proposal from the current owner AND a separate acceptance from the new address — a mistyped or unreachable address during handoff can no longer brick ownership forever. The recommended setup routes it to a Gnosis Safe multisig or a timelock, not a single key.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/ownership-transfer-is-two-step.png"
+    },
+    {
+      "id": "no-hardcoded-wallet-addresses",
+      "postedAt": null,
+      "text": "The owner and all three fee-recipient addresses — two deposit/claim fee wallets and the arbitrage profit recipient — are constructor parameters read from environment variables at deploy time, not constants baked into the bytecode. Nothing about where platform revenue goes is fixed by us in advance; it's set once, openly, at deployment and verifiable in the constructor call itself.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/no-hardcoded-wallet-addresses.png"
     }
   ]
 }
