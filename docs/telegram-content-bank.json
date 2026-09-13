@@ -668,7 +668,7 @@
     },
     {
       "id": "eoa-check-is-restriction-not-authorization",
-      "postedAt": null,
+      "postedAt": "2026-09-13T10:08:37.119Z",
       "text": "Blocking contract-mediated calls checks that the caller equals the transaction's origin — a pattern that's usually a red flag, since checking tx.origin for authorization is a classic phishing vector. Here it isn't: nothing gets authorized based on that identity, it only narrows who may participate at all (no smart-contract wallets). A restriction, not an access-control decision, which is precisely what keeps it safe.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/eoa-check-is-restriction-not-authorization.png"
     },
