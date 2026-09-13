@@ -704,7 +704,7 @@
     },
     {
       "id": "rescue-sweep-survives-stolen-owner-key",
-      "postedAt": null,
+      "postedAt": "2026-09-13T14:08:21.663Z",
       "text": "The last-resort sweep of remaining collateral is deliberately not a unilateral owner action: it needs standing partner quorum, it's announced on-chain days in advance, and stakers' own emergency exit opens 36 hours before the sweep can even fire. A stolen owner private key alone cannot reach it — the owner calling the function is just the last of three independent conditions that all have to already be true.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/rescue-sweep-survives-stolen-owner-key.png"
     },
