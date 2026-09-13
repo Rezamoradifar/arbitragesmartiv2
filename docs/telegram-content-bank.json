@@ -716,7 +716,7 @@
     },
     {
       "id": "ownership-transfer-is-two-step",
-      "postedAt": null,
+      "postedAt": "2026-09-13T22:07:57.623Z",
       "text": "Ownership doesn't move in one transaction. This contract uses OpenZeppelin's Ownable2Step, so transferring it takes a proposal from the current owner AND a separate acceptance from the new address — a mistyped or unreachable address during handoff can no longer brick ownership forever. The recommended setup routes it to a Gnosis Safe multisig or a timelock, not a single key.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/ownership-transfer-is-two-step.png"
     },
