@@ -737,6 +737,18 @@
       "postedAt": null,
       "text": "An earlier version rolled its own reentrancy guard, its own pause flag, and string-based require() errors by hand. This version replaces all three with OpenZeppelin's audited ReentrancyGuard, Pausable, and custom errors, and routes every token transfer through SafeERC20 — so a non-standard ERC-20 that returns false instead of reverting can no longer cause a silent, unaccounted-for transfer failure.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/hand-rolled-patterns-replaced-with-oz-primitives.png"
+    },
+    {
+      "id": "deposit-verified-by-balance-delta",
+      "postedAt": null,
+      "text": "Every deposit into this contract — a stake, a top-up, an owner-granted stake — is verified by comparing the contract's own token balance before and after the transfer, not by trusting the amount requested. A fee-on-transfer or otherwise non-standard token that delivers less than expected gets caught immediately; the position is never credited for collateral that didn't actually arrive.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/deposit-verified-by-balance-delta.png"
+    },
+    {
+      "id": "exit-is-permanent-per-address",
+      "postedAt": null,
+      "text": "Once an address exits a position — early or through the emergency escape hatch — that flag is permanent: the same address can never open a new stake in this contract again, ever. It's a deliberate one-way door, not a bug; a wallet that's already been paid out can't cycle back in.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/exit-is-permanent-per-address.png"
     }
   ]
 }
