@@ -728,7 +728,7 @@
     },
     {
       "id": "polymarket-addresses-hardcoded-constants",
-      "postedAt": null,
+      "postedAt": "2026-09-14T10:09:20.346Z",
       "text": "The three Polymarket contract addresses this code references are hardcoded constants, not owner-settable — copied verbatim from Polymarket's own official deployment, so there's no admin function that could ever repoint them to a lookalike. Only one of the three, the Conditional Tokens contract, is actually called; the other two exchange addresses are kept in the code purely for reference and are never invoked.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/polymarket-addresses-hardcoded-constants.png"
     },
