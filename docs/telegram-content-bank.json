@@ -746,7 +746,7 @@
     },
     {
       "id": "exit-is-permanent-per-address",
-      "postedAt": null,
+      "postedAt": "2026-09-14T22:09:11.364Z",
       "text": "Once an address exits a position — early or through the emergency escape hatch — that flag is permanent: the same address can never open a new stake in this contract again, ever. It's a deliberate one-way door, not a bug; a wallet that's already been paid out can't cycle back in.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/exit-is-permanent-per-address.png"
     },
