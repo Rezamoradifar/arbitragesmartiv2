@@ -761,6 +761,18 @@
       "postedAt": null,
       "text": "An earlier version had a function that let a small partner-appointed group vote to split 100% of the contract's balance among themselves. There's no way to make that safe with a more elaborate vote — so it's deleted entirely, not patched. What replaced it: emergencyWithdraw lets any individual staker pull out their own remaining principal alone, no one else's permission needed. No vote of any size can ever direct a single token to a partner or the owner.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/insider-drain-mechanism-deleted.png"
+    },
+    {
+      "id": "owner-is-structural-minority-in-emergency-vote",
+      "postedAt": null,
+      "text": "The owner holds exactly one vote out of up to five in the emergency-mode governance body — the same as any partner. Three partners can trigger emergency mode over the owner's own objection, and the owner alone can neither force it through nor block it once it's moving. That's not a courtesy; it's the vote count.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/owner-is-structural-minority-in-emergency-vote.png"
+    },
+    {
+      "id": "protocol-wallets-pay-full-fee-no-exemption",
+      "postedAt": null,
+      "text": "The two development-fee wallets are locked to a single, exact position size — 1,000 USDT, no more, no less — and they pay the deposit fee on it exactly the same as any other depositor. No carve-out, no fee-free treatment for the wallets that collect the platform's own revenue.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/protocol-wallets-pay-full-fee-no-exemption.png"
     }
   ]
 }
