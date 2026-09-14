@@ -749,6 +749,18 @@
       "postedAt": null,
       "text": "Once an address exits a position — early or through the emergency escape hatch — that flag is permanent: the same address can never open a new stake in this contract again, ever. It's a deliberate one-way door, not a bug; a wallet that's already been paid out can't cycle back in.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/exit-is-permanent-per-address.png"
+    },
+    {
+      "id": "fake-arbitrage-functions-deleted",
+      "postedAt": null,
+      "text": "An earlier version had functions called polymarketArbitrageTrade/polymarketArbitrageProfit that did nothing but transfer up to 20% of pool collateral straight to the owner, and pull it back only if the owner chose to — with zero on-chain evidence any trade ever happened. That's fund extraction mislabeled as arbitrage. Both functions are deleted entirely in this version; every Polymarket interaction now calls the real, official Conditional Tokens contract.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/fake-arbitrage-functions-deleted.png"
+    },
+    {
+      "id": "insider-drain-mechanism-deleted",
+      "postedAt": null,
+      "text": "An earlier version had a function that let a small partner-appointed group vote to split 100% of the contract's balance among themselves. There's no way to make that safe with a more elaborate vote — so it's deleted entirely, not patched. What replaced it: emergencyWithdraw lets any individual staker pull out their own remaining principal alone, no one else's permission needed. No vote of any size can ever direct a single token to a partner or the owner.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/insider-drain-mechanism-deleted.png"
     }
   ]
 }
