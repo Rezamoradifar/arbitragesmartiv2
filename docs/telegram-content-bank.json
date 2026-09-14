@@ -722,7 +722,7 @@
     },
     {
       "id": "no-hardcoded-wallet-addresses",
-      "postedAt": null,
+      "postedAt": "2026-09-14T06:14:23.541Z",
       "text": "The owner and all three fee-recipient addresses — two deposit/claim fee wallets and the arbitrage profit recipient — are constructor parameters read from environment variables at deploy time, not constants baked into the bytecode. Nothing about where platform revenue goes is fixed by us in advance; it's set once, openly, at deployment and verifiable in the constructor call itself.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/no-hardcoded-wallet-addresses.png"
     },
