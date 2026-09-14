@@ -740,7 +740,7 @@
     },
     {
       "id": "deposit-verified-by-balance-delta",
-      "postedAt": null,
+      "postedAt": "2026-09-14T18:07:56.816Z",
       "text": "Every deposit into this contract — a stake, a top-up, an owner-granted stake — is verified by comparing the contract's own token balance before and after the transfer, not by trusting the amount requested. A fee-on-transfer or otherwise non-standard token that delivers less than expected gets caught immediately; the position is never credited for collateral that didn't actually arrive.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/deposit-verified-by-balance-delta.png"
     },
