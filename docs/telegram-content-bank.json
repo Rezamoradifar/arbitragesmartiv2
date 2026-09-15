@@ -752,7 +752,7 @@
     },
     {
       "id": "fake-arbitrage-functions-deleted",
-      "postedAt": null,
+      "postedAt": "2026-09-15T06:11:26.151Z",
       "text": "An earlier version had functions called polymarketArbitrageTrade/polymarketArbitrageProfit that did nothing but transfer up to 20% of pool collateral straight to the owner, and pull it back only if the owner chose to — with zero on-chain evidence any trade ever happened. That's fund extraction mislabeled as arbitrage. Both functions are deleted entirely in this version; every Polymarket interaction now calls the real, official Conditional Tokens contract.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/fake-arbitrage-functions-deleted.png"
     },
