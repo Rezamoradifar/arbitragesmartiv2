@@ -773,6 +773,18 @@
       "postedAt": null,
       "text": "The two development-fee wallets are locked to a single, exact position size — 1,000 USDT, no more, no less — and they pay the deposit fee on it exactly the same as any other depositor. No carve-out, no fee-free treatment for the wallets that collect the platform's own revenue.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/protocol-wallets-pay-full-fee-no-exemption.png"
+    },
+    {
+      "id": "native-currency-explicitly-rejected",
+      "postedAt": null,
+      "text": "This contract cannot hold POL (native Polygon currency) even by accident. Both receive() and fallback() revert unconditionally — there's no path for native currency to land in this contract at all, so there's nothing to get stuck and no withdrawal function needed for it. An entire class of bugs is closed off by simply refusing the deposit in the first place.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/native-currency-explicitly-rejected.png"
+    },
+    {
+      "id": "renounce-ownership-not-disabled",
+      "postedAt": null,
+      "text": "This contract doesn't override OpenZeppelin's standard renounceOwnership — the owner genuinely can give up ownership forever. Doing so would permanently disable every owner-only function (pause, blacklist, fee changes, rescue) with no way back, but it would never touch a staker's own stake, claim, or exit — those never required the owner's permission to begin with.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/renounce-ownership-not-disabled.png"
     }
   ]
 }
