@@ -776,7 +776,7 @@
     },
     {
       "id": "native-currency-explicitly-rejected",
-      "postedAt": null,
+      "postedAt": "2026-09-15T22:08:13.940Z",
       "text": "This contract cannot hold POL (native Polygon currency) even by accident. Both receive() and fallback() revert unconditionally — there's no path for native currency to land in this contract at all, so there's nothing to get stuck and no withdrawal function needed for it. An entire class of bugs is closed off by simply refusing the deposit in the first place.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/native-currency-explicitly-rejected.png"
     },
