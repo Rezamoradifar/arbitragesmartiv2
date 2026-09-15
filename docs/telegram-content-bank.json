@@ -758,7 +758,7 @@
     },
     {
       "id": "insider-drain-mechanism-deleted",
-      "postedAt": null,
+      "postedAt": "2026-09-15T10:07:58.007Z",
       "text": "An earlier version had a function that let a small partner-appointed group vote to split 100% of the contract's balance among themselves. There's no way to make that safe with a more elaborate vote — so it's deleted entirely, not patched. What replaced it: emergencyWithdraw lets any individual staker pull out their own remaining principal alone, no one else's permission needed. No vote of any size can ever direct a single token to a partner or the owner.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/insider-drain-mechanism-deleted.png"
     },
