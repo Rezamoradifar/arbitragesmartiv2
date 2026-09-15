@@ -797,6 +797,18 @@
       "postedAt": null,
       "text": "Referral earnings don't ride along with a regular yield claim — they pile up in their own pending balance and need their own separate call, claimRef(), to actually reach your wallet. Claiming your staking yield and claiming your referral income are two distinct actions on two distinct balances.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/referral-earnings-claimed-separately-from-yield.png"
+    },
+    {
+      "id": "two-token-architecture-collateral-vs-arbitrage",
+      "postedAt": null,
+      "text": "What you deposit and what actually trades on Polymarket are deliberately two separate tokens. Your stake is recorded in the pool's own collateral token; Polymarket's markets are denominated in a different token entirely, and the contract converts between the two only when it deploys capital into a position. Your deposit never has to match what Polymarket itself settles in.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/two-token-architecture-collateral-vs-arbitrage.png"
+    },
+    {
+      "id": "swap-router-address-immutable",
+      "postedAt": null,
+      "text": "The Uniswap router this contract swaps through is set once at deployment and marked immutable — there is no function anywhere that lets the owner repoint it to a different router later. A malicious or compromised owner key can adjust fees and wallets within limits, but can never redirect trades through a router of their own choosing.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/swap-router-address-immutable.png"
     }
   ]
 }
