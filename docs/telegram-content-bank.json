@@ -770,7 +770,7 @@
     },
     {
       "id": "protocol-wallets-pay-full-fee-no-exemption",
-      "postedAt": null,
+      "postedAt": "2026-09-15T18:07:58.637Z",
       "text": "The two development-fee wallets are locked to a single, exact position size — 1,000 USDT, no more, no less — and they pay the deposit fee on it exactly the same as any other depositor. No carve-out, no fee-free treatment for the wallets that collect the platform's own revenue.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/protocol-wallets-pay-full-fee-no-exemption.png"
     },
