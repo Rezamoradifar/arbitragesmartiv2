@@ -785,6 +785,18 @@
       "postedAt": null,
       "text": "This contract doesn't override OpenZeppelin's standard renounceOwnership — the owner genuinely can give up ownership forever. Doing so would permanently disable every owner-only function (pause, blacklist, fee changes, rescue) with no way back, but it would never touch a staker's own stake, claim, or exit — those never required the owner's permission to begin with.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/renounce-ownership-not-disabled.png"
+    },
+    {
+      "id": "isprotocolwallet-lets-frontend-precheck",
+      "postedAt": null,
+      "text": "There's a public read-only isProtocolWallet(address) function whose only job is letting a front-end check, before a transaction is even signed, whether a wallet is one of the two development-fee wallets restricted to a fixed deposit size. It exists purely so a mismatched deposit fails gracefully in the UI instead of reverting on-chain after gas is already spent.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/isprotocolwallet-lets-frontend-precheck.png"
+    },
+    {
+      "id": "referral-earnings-claimed-separately-from-yield",
+      "postedAt": null,
+      "text": "Referral earnings don't ride along with a regular yield claim — they pile up in their own pending balance and need their own separate call, claimRef(), to actually reach your wallet. Claiming your staking yield and claiming your referral income are two distinct actions on two distinct balances.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-earnings-claimed-separately-from-yield.png"
     }
   ]
 }
