@@ -806,7 +806,7 @@
     },
     {
       "id": "swap-router-address-immutable",
-      "postedAt": null,
+      "postedAt": "2026-09-16T22:07:58.105Z",
       "text": "The Uniswap router this contract swaps through is set once at deployment and marked immutable — there is no function anywhere that lets the owner repoint it to a different router later. A malicious or compromised owner key can adjust fees and wallets within limits, but can never redirect trades through a router of their own choosing.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/swap-router-address-immutable.png"
     },
