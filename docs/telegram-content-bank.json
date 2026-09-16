@@ -809,6 +809,18 @@
       "postedAt": null,
       "text": "The Uniswap router this contract swaps through is set once at deployment and marked immutable — there is no function anywhere that lets the owner repoint it to a different router later. A malicious or compromised owner key can adjust fees and wallets within limits, but can never redirect trades through a router of their own choosing.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/swap-router-address-immutable.png"
+    },
+    {
+      "id": "unique-user-count-tracked-separately",
+      "postedAt": null,
+      "text": "How many distinct addresses have ever staked is its own running counter, incremented once per new depositor and never touched again after that — separate from total staked, total yield paid, and the pool's live balance. getGlobalStats() returns all four together, read-only, for anyone who wants the platform-wide picture in one call.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/unique-user-count-tracked-separately.png"
+    },
+    {
+      "id": "totalpaidout-tracks-yield-only-not-principal",
+      "postedAt": null,
+      "text": "The contract's totalPaidOut counter only accumulates from yield actually claimed — it never increases when someone exits and gets principal back, early or through the emergency path. It's a running total of profit-like payouts specifically, not a catch-all figure for every dollar that has ever left the pool.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/totalpaidout-tracks-yield-only-not-principal.png"
     }
   ]
 }
