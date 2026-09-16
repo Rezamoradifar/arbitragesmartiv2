@@ -782,7 +782,7 @@
     },
     {
       "id": "renounce-ownership-not-disabled",
-      "postedAt": null,
+      "postedAt": "2026-09-16T06:08:42.837Z",
       "text": "This contract doesn't override OpenZeppelin's standard renounceOwnership — the owner genuinely can give up ownership forever. Doing so would permanently disable every owner-only function (pause, blacklist, fee changes, rescue) with no way back, but it would never touch a staker's own stake, claim, or exit — those never required the owner's permission to begin with.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/renounce-ownership-not-disabled.png"
     },
