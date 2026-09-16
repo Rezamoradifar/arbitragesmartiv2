@@ -788,7 +788,7 @@
     },
     {
       "id": "isprotocolwallet-lets-frontend-precheck",
-      "postedAt": null,
+      "postedAt": "2026-09-16T10:09:12.358Z",
       "text": "There's a public read-only isProtocolWallet(address) function whose only job is letting a front-end check, before a transaction is even signed, whether a wallet is one of the two development-fee wallets restricted to a fixed deposit size. It exists purely so a mismatched deposit fails gracefully in the UI instead of reverting on-chain after gas is already spent.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/isprotocolwallet-lets-frontend-precheck.png"
     },
