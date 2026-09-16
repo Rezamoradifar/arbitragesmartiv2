@@ -794,7 +794,7 @@
     },
     {
       "id": "referral-earnings-claimed-separately-from-yield",
-      "postedAt": null,
+      "postedAt": "2026-09-16T14:08:25.889Z",
       "text": "Referral earnings don't ride along with a regular yield claim — they pile up in their own pending balance and need their own separate call, claimRef(), to actually reach your wallet. Claiming your staking yield and claiming your referral income are two distinct actions on two distinct balances.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/referral-earnings-claimed-separately-from-yield.png"
     },
