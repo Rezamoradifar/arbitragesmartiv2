@@ -821,6 +821,18 @@
       "postedAt": null,
       "text": "The contract's totalPaidOut counter only accumulates from yield actually claimed — it never increases when someone exits and gets principal back, early or through the emergency path. It's a running total of profit-like payouts specifically, not a catch-all figure for every dollar that has ever left the pool.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/totalpaidout-tracks-yield-only-not-principal.png"
+    },
+    {
+      "id": "referral-can-start-countable-after-topup",
+      "postedAt": null,
+      "text": "A referral who first stakes below the countable floor isn't locked out forever — if a later top-up pushes their position over that threshold, they start counting toward your headcount at that moment. The check isn't a one-time gate at the first deposit; it re-evaluates every time a referral adds to their stake.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-can-start-countable-after-topup.png"
+    },
+    {
+      "id": "plan-upgrade-rate-applies-retroactively",
+      "postedAt": null,
+      "text": "Upgrading your plan doesn't just change your rate going forward — because unclaimed yield is calculated from your last claim using whatever rate is stored right now, upgrading applies the new, higher daily rate to your entire unclaimed period since your last claim, not only to time after the upgrade.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/plan-upgrade-rate-applies-retroactively.png"
     }
   ]
 }
