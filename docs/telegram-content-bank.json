@@ -800,7 +800,7 @@
     },
     {
       "id": "two-token-architecture-collateral-vs-arbitrage",
-      "postedAt": null,
+      "postedAt": "2026-09-16T18:08:05.817Z",
       "text": "What you deposit and what actually trades on Polymarket are deliberately two separate tokens. Your stake is recorded in the pool's own collateral token; Polymarket's markets are denominated in a different token entirely, and the contract converts between the two only when it deploys capital into a position. Your deposit never has to match what Polymarket itself settles in.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/two-token-architecture-collateral-vs-arbitrage.png"
     },
