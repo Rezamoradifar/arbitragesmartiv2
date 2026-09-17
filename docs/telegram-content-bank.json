@@ -824,7 +824,7 @@
     },
     {
       "id": "referral-can-start-countable-after-topup",
-      "postedAt": null,
+      "postedAt": "2026-09-17T14:08:44.991Z",
       "text": "A referral who first stakes below the countable floor isn't locked out forever — if a later top-up pushes their position over that threshold, they start counting toward your headcount at that moment. The check isn't a one-time gate at the first deposit; it re-evaluates every time a referral adds to their stake.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/referral-can-start-countable-after-topup.png"
     },
