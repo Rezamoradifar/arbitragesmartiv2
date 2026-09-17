@@ -833,6 +833,18 @@
       "postedAt": null,
       "text": "Upgrading your plan doesn't just change your rate going forward — because unclaimed yield is calculated from your last claim using whatever rate is stored right now, upgrading applies the new, higher daily rate to your entire unclaimed period since your last claim, not only to time after the upgrade.\n\n#ArbiSmart #Polygon #USDT #Staking",
       "image": "docs/telegram-cards/plan-upgrade-rate-applies-retroactively.png"
+    },
+    {
+      "id": "rescue-vote-revocable-anytime-unlike-emergency",
+      "postedAt": null,
+      "text": "A rescue vote can be pulled back at any time right up until the sweep actually executes — even after the multi-day delay has fully elapsed. That's different from an emergency vote, which locks in and can no longer be revoked once the withdrawal window opens. A single partner changing their mind at the last second still stops the sweep, because the contract re-checks quorum at execution time, not just at the moment the vote first passed.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/rescue-vote-revocable-anytime-unlike-emergency.png"
+    },
+    {
+      "id": "arbitrage-profit-deposit-is-one-way",
+      "postedAt": null,
+      "text": "The function that credits externally-earned arbitrage profit back into the pool only moves value in — there's no matching function that lets the owner pull it back out to a wallet. Once profit is deposited this way, it becomes pool capital like any other, not a balance the owner can later reclaim for themselves.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/arbitrage-profit-deposit-is-one-way.png"
     }
   ]
 }
