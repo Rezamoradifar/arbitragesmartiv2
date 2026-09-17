@@ -812,7 +812,7 @@
     },
     {
       "id": "unique-user-count-tracked-separately",
-      "postedAt": null,
+      "postedAt": "2026-09-17T06:07:50.010Z",
       "text": "How many distinct addresses have ever staked is its own running counter, incremented once per new depositor and never touched again after that — separate from total staked, total yield paid, and the pool's live balance. getGlobalStats() returns all four together, read-only, for anyone who wants the platform-wide picture in one call.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/unique-user-count-tracked-separately.png"
     },
