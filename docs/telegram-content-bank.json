@@ -857,6 +857,18 @@
       "postedAt": null,
       "text": "When pool collateral is swapped into the arbitrage currency, what the strategy owes back is recorded as the amount that LEFT the pool, not whatever the swap happened to return. Booking the output instead would let a single bad fill quietly write down the strategy's debt to stakers — the pool is owed back what it actually put in, regardless of execution quality on any one trade.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/arbitrage-basis-booked-on-input-not-output.png"
+    },
+    {
+      "id": "referral-payout-capped-by-running-remainder",
+      "postedAt": null,
+      "text": "Referral shares for the three upline levels are paid out of a running remainder, not calculated independently and added up afterward. Each level's share is capped against whatever budget is left after the levels before it were paid, so three mismatched tier rates can never sum to more than the claim itself — it's impossible by construction, not just unlikely in practice.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referral-payout-capped-by-running-remainder.png"
+    },
+    {
+      "id": "blacklisted-referrer-share-stays-in-pool",
+      "postedAt": null,
+      "text": "If someone in your three-level upline chain is blacklisted, their share of your claim isn't rerouted to the next person up the chain — it simply stays in the pool. Blacklisting one link doesn't let the referrer above them collect an extra cut; that share is skipped entirely, not redirected.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/blacklisted-referrer-share-stays-in-pool.png"
     }
   ]
 }
