@@ -830,7 +830,7 @@
     },
     {
       "id": "plan-upgrade-rate-applies-retroactively",
-      "postedAt": null,
+      "postedAt": "2026-09-17T18:08:13.649Z",
       "text": "Upgrading your plan doesn't just change your rate going forward — because unclaimed yield is calculated from your last claim using whatever rate is stored right now, upgrading applies the new, higher daily rate to your entire unclaimed period since your last claim, not only to time after the upgrade.\n\n#ArbiSmart #Polygon #USDT #Staking",
       "image": "docs/telegram-cards/plan-upgrade-rate-applies-retroactively.png"
     },
