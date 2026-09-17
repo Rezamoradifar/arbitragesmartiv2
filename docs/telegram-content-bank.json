@@ -845,6 +845,18 @@
       "postedAt": null,
       "text": "The function that credits externally-earned arbitrage profit back into the pool only moves value in — there's no matching function that lets the owner pull it back out to a wallet. Once profit is deposited this way, it becomes pool capital like any other, not a balance the owner can later reclaim for themselves.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/arbitrage-profit-deposit-is-one-way.png"
+    },
+    {
+      "id": "redeem-retires-commitment-by-amount-recovered",
+      "postedAt": null,
+      "text": "When a Polymarket position is redeemed, the contract only retires that market's tracked commitment by whatever amount actually came back — never by zeroing it outright. An earlier design that zeroed the commitment on the first call would have let a second, partial redemption on the same market treat returned principal as pure gain. Tracking the real recovered amount closes that hole.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/redeem-retires-commitment-by-amount-recovered.png"
+    },
+    {
+      "id": "arbitrage-basis-booked-on-input-not-output",
+      "postedAt": null,
+      "text": "When pool collateral is swapped into the arbitrage currency, what the strategy owes back is recorded as the amount that LEFT the pool, not whatever the swap happened to return. Booking the output instead would let a single bad fill quietly write down the strategy's debt to stakers — the pool is owed back what it actually put in, regardless of execution quality on any one trade.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/arbitrage-basis-booked-on-input-not-output.png"
     }
   ]
 }
