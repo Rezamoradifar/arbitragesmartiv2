@@ -836,7 +836,7 @@
     },
     {
       "id": "rescue-vote-revocable-anytime-unlike-emergency",
-      "postedAt": null,
+      "postedAt": "2026-09-17T22:08:17.297Z",
       "text": "A rescue vote can be pulled back at any time right up until the sweep actually executes — even after the multi-day delay has fully elapsed. That's different from an emergency vote, which locks in and can no longer be revoked once the withdrawal window opens. A single partner changing their mind at the last second still stops the sweep, because the contract re-checks quorum at execution time, not just at the moment the vote first passed.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/rescue-vote-revocable-anytime-unlike-emergency.png"
     },
