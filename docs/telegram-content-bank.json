@@ -818,7 +818,7 @@
     },
     {
       "id": "totalpaidout-tracks-yield-only-not-principal",
-      "postedAt": null,
+      "postedAt": "2026-09-17T10:08:19.958Z",
       "text": "The contract's totalPaidOut counter only accumulates from yield actually claimed — it never increases when someone exits and gets principal back, early or through the emergency path. It's a running total of profit-like payouts specifically, not a catch-all figure for every dollar that has ever left the pool.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/totalpaidout-tracks-yield-only-not-principal.png"
     },
