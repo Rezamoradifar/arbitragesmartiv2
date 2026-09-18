@@ -848,7 +848,7 @@
     },
     {
       "id": "redeem-retires-commitment-by-amount-recovered",
-      "postedAt": null,
+      "postedAt": "2026-09-18T10:08:18.421Z",
       "text": "When a Polymarket position is redeemed, the contract only retires that market's tracked commitment by whatever amount actually came back — never by zeroing it outright. An earlier design that zeroed the commitment on the first call would have let a second, partial redemption on the same market treat returned principal as pure gain. Tracking the real recovered amount closes that hole.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/redeem-retires-commitment-by-amount-recovered.png"
     },
