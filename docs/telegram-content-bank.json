@@ -842,7 +842,7 @@
     },
     {
       "id": "arbitrage-profit-deposit-is-one-way",
-      "postedAt": null,
+      "postedAt": "2026-09-18T06:11:36.123Z",
       "text": "The function that credits externally-earned arbitrage profit back into the pool only moves value in — there's no matching function that lets the owner pull it back out to a wallet. Once profit is deposited this way, it becomes pool capital like any other, not a balance the owner can later reclaim for themselves.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/arbitrage-profit-deposit-is-one-way.png"
     },
