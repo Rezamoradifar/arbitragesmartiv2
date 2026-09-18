@@ -881,6 +881,18 @@
       "postedAt": null,
       "text": "Your referrer is recorded exactly once, the moment you first stake — there's no function anywhere in the contract that lets it be changed afterward, by you or by the owner. A top-up doesn't touch it, and it isn't reassignable. Whoever referred you at signup is who you're linked to for as long as that address stakes.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/referrer-set-once-never-changeable.png"
+    },
+    {
+      "id": "direct-downline-roster-publicly-queryable",
+      "postedAt": null,
+      "text": "Anyone can call a public view function and get back every one of your direct referrals by address, along with each one's exact stake size and plan — not just the aggregate volume number. Your downline roster isn't a private dashboard figure; it's readable on-chain by anyone who knows your address.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/direct-downline-roster-publicly-queryable.png"
+    },
+    {
+      "id": "second-third-level-downline-named-not-just-counted",
+      "postedAt": null,
+      "text": "An earlier version only ever exposed your direct referral level by name — the two levels above where your yield actually comes from were just a number with nobody attached. This version writes out full address lists for those levels too, so 'who's actually in my second and third level' has a real answer, not just a count.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/second-third-level-downline-named-not-just-counted.png"
     }
   ]
 }
