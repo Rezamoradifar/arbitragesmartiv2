@@ -854,7 +854,7 @@
     },
     {
       "id": "arbitrage-basis-booked-on-input-not-output",
-      "postedAt": null,
+      "postedAt": "2026-09-18T14:09:39.358Z",
       "text": "When pool collateral is swapped into the arbitrage currency, what the strategy owes back is recorded as the amount that LEFT the pool, not whatever the swap happened to return. Booking the output instead would let a single bad fill quietly write down the strategy's debt to stakers — the pool is owed back what it actually put in, regardless of execution quality on any one trade.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/arbitrage-basis-booked-on-input-not-output.png"
     },
