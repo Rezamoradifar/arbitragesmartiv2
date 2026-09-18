@@ -866,7 +866,7 @@
     },
     {
       "id": "blacklisted-referrer-share-stays-in-pool",
-      "postedAt": null,
+      "postedAt": "2026-09-18T22:06:56.660Z",
       "text": "If someone in your three-level upline chain is blacklisted, their share of your claim isn't rerouted to the next person up the chain — it simply stays in the pool. Blacklisting one link doesn't let the referrer above them collect an extra cut; that share is skipped entirely, not redirected.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/blacklisted-referrer-share-stays-in-pool.png"
     },
