@@ -860,7 +860,7 @@
     },
     {
       "id": "referral-payout-capped-by-running-remainder",
-      "postedAt": null,
+      "postedAt": "2026-09-18T18:08:04.420Z",
       "text": "Referral shares for the three upline levels are paid out of a running remainder, not calculated independently and added up afterward. Each level's share is capped against whatever budget is left after the levels before it were paid, so three mismatched tier rates can never sum to more than the claim itself — it's impossible by construction, not just unlikely in practice.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/referral-payout-capped-by-running-remainder.png"
     },
