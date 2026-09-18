@@ -869,6 +869,18 @@
       "postedAt": null,
       "text": "If someone in your three-level upline chain is blacklisted, their share of your claim isn't rerouted to the next person up the chain — it simply stays in the pool. Blacklisting one link doesn't let the referrer above them collect an extra cut; that share is skipped entirely, not redirected.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/blacklisted-referrer-share-stays-in-pool.png"
+    },
+    {
+      "id": "invalid-referrer-fails-silently-not-a-revert",
+      "postedAt": null,
+      "text": "Pass a referrer address that doesn't qualify — the zero address, yourself, someone with no active stake, or a blacklisted address — and your stake still goes through exactly the same. There's no revert for a bad referrer; the deposit just proceeds without a referral link attached, silently, rather than blocking you from staking at all.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/invalid-referrer-fails-silently-not-a-revert.png"
+    },
+    {
+      "id": "referrer-set-once-never-changeable",
+      "postedAt": null,
+      "text": "Your referrer is recorded exactly once, the moment you first stake — there's no function anywhere in the contract that lets it be changed afterward, by you or by the owner. A top-up doesn't touch it, and it isn't reassignable. Whoever referred you at signup is who you're linked to for as long as that address stakes.\n\n#ArbiSmart #Polygon #USDT #Referral",
+      "image": "docs/telegram-cards/referrer-set-once-never-changeable.png"
     }
   ]
 }
