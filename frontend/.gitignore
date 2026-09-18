@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# next.js build output
+.next/
+out/
+
+# env files (never commit real secrets)
+.env.local
+.env*.local
+
+# misc
+.DS_Store
+*.log
+
+# Written by bot/publish-scan.mjs on the server, on a timer. Not committed:
+# it's live scan output, and a stale committed copy would silently become a
+# lie the moment it fell out of date. The component treats a 404 as
+# "scanner not installed yet" and just doesn't render, so its absence here
+# is harmless.
+public/arbitrage-status.json
