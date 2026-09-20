@@ -905,6 +905,18 @@
       "postedAt": null,
       "text": "A public view function reads the contract's real ERC-1155 outcome-token balance straight from Polymarket's own Conditional Tokens ledger for any specific market position. Anyone can check what the contract actually holds against Polymarket's own records — not just trust the contract's internal accounting.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/outcome-balance-independently-verifiable-onchain.png"
+    },
+    {
+      "id": "supportsinterface-cosmetic-not-load-bearing",
+      "postedAt": null,
+      "text": "The contract advertises ERC-1155-receiver support through the standard supportsInterface check, but that isn't actually what lets it accept Polymarket's tokens — Polymarket's own contract only cares about the return value from the receiver hooks themselves. supportsInterface exists purely so wallets and block explorers can tell at a glance that this address can safely hold ERC-1155 tokens.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/supportsinterface-cosmetic-not-load-bearing.png"
+    },
+    {
+      "id": "getglobalstats-balance-differs-from-totalassets",
+      "postedAt": null,
+      "text": "getGlobalStats() reports the contract's raw token balance — not the same figure dashboard() reports as pool assets. The raw balance includes fees not yet swept out and excludes whatever capital is currently deployed to Polymarket positions, so it isn't the number to read for the pool's real backing; totalAssets() is.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/getglobalstats-balance-differs-from-totalassets.png"
     }
   ]
 }
