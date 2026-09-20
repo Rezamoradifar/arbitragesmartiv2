@@ -929,6 +929,18 @@
       "postedAt": null,
       "text": "Unlike an emergency vote, which stops being castable the instant quorum is reached, a rescue vote has no such lockout — a partner can still cast one even after emergency mode is already active. The two votes are deliberately independent: arming a fund rescue can keep gathering support through and after the point the withdrawal escape hatch has already opened.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/rescue-voting-stays-open-through-emergency-mode.png"
+    },
+    {
+      "id": "deposit-totals-stay-queryable-after-exit-forever",
+      "postedAt": null,
+      "text": "Your gross deposited, platform fee paid, and net staked figures are permanent counters that never reset to zero — even after you exit for good and your active stake drops to nothing, those three numbers stay exactly as they were, forever readable by anyone who calls the contract with your address.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/deposit-totals-stay-queryable-after-exit-forever.png"
+    },
+    {
+      "id": "topup-doesnt-reset-early-exit-penalty-clock",
+      "postedAt": null,
+      "text": "Topping up an existing position doesn't restart your early-exit penalty timer — the penalty schedule is measured from your stake's ORIGINAL start time, which a top-up never touches. Add funds to a position you opened weeks ago, and the whole thing — old and new capital alike — exits at whatever discount your original stake had already earned.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/topup-doesnt-reset-early-exit-penalty-clock.png"
     }
   ]
 }
