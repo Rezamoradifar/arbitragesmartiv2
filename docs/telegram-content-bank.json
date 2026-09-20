@@ -926,7 +926,7 @@
     },
     {
       "id": "rescue-voting-stays-open-through-emergency-mode",
-      "postedAt": null,
+      "postedAt": "2026-09-20T22:07:14.040Z",
       "text": "Unlike an emergency vote, which stops being castable the instant quorum is reached, a rescue vote has no such lockout — a partner can still cast one even after emergency mode is already active. The two votes are deliberately independent: arming a fund rescue can keep gathering support through and after the point the withdrawal escape hatch has already opened.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/rescue-voting-stays-open-through-emergency-mode.png"
     },
