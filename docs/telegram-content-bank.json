@@ -908,7 +908,7 @@
     },
     {
       "id": "supportsinterface-cosmetic-not-load-bearing",
-      "postedAt": null,
+      "postedAt": "2026-09-20T10:13:10.035Z",
       "text": "The contract advertises ERC-1155-receiver support through the standard supportsInterface check, but that isn't actually what lets it accept Polymarket's tokens — Polymarket's own contract only cares about the return value from the receiver hooks themselves. supportsInterface exists purely so wallets and block explorers can tell at a glance that this address can safely hold ERC-1155 tokens.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/supportsinterface-cosmetic-not-load-bearing.png"
     },
