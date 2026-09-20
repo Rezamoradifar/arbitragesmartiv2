@@ -914,7 +914,7 @@
     },
     {
       "id": "getglobalstats-balance-differs-from-totalassets",
-      "postedAt": null,
+      "postedAt": "2026-09-20T14:06:53.136Z",
       "text": "getGlobalStats() reports the contract's raw token balance — not the same figure dashboard() reports as pool assets. The raw balance includes fees not yet swept out and excludes whatever capital is currently deployed to Polymarket positions, so it isn't the number to read for the pool's real backing; totalAssets() is.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/getglobalstats-balance-differs-from-totalassets.png"
     },
