@@ -893,6 +893,18 @@
       "postedAt": null,
       "text": "An earlier version only ever exposed your direct referral level by name — the two levels above where your yield actually comes from were just a number with nobody attached. This version writes out full address lists for those levels too, so 'who's actually in my second and third level' has a real answer, not just a count.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/second-third-level-downline-named-not-just-counted.png"
+    },
+    {
+      "id": "daily-cap-skipped-on-first-claim-of-day",
+      "postedAt": null,
+      "text": "The 200%-of-stake daily withdrawal cap is only checked starting from your second claim within the same UTC day — the very first claim of a fresh day always goes through unchecked, since there's nothing yet recorded against that day. The cap exists to stop rapid repeated claiming, not to limit the size of any single claim.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/daily-cap-skipped-on-first-claim-of-day.png"
+    },
+    {
+      "id": "outcome-balance-independently-verifiable-onchain",
+      "postedAt": null,
+      "text": "A public view function reads the contract's real ERC-1155 outcome-token balance straight from Polymarket's own Conditional Tokens ledger for any specific market position. Anyone can check what the contract actually holds against Polymarket's own records — not just trust the contract's internal accounting.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/outcome-balance-independently-verifiable-onchain.png"
     }
   ]
 }
