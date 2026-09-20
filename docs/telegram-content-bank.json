@@ -872,7 +872,7 @@
     },
     {
       "id": "invalid-referrer-fails-silently-not-a-revert",
-      "postedAt": null,
+      "postedAt": "2026-09-20T10:07:57.758Z",
       "text": "Pass a referrer address that doesn't qualify — the zero address, yourself, someone with no active stake, or a blacklisted address — and your stake still goes through exactly the same. There's no revert for a bad referrer; the deposit just proceeds without a referral link attached, silently, rather than blocking you from staking at all.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/invalid-referrer-fails-silently-not-a-revert.png"
     },
