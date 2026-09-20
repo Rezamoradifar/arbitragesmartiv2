@@ -878,7 +878,7 @@
     },
     {
       "id": "referrer-set-once-never-changeable",
-      "postedAt": null,
+      "postedAt": "2026-09-20T10:08:24.300Z",
       "text": "Your referrer is recorded exactly once, the moment you first stake — there's no function anywhere in the contract that lets it be changed afterward, by you or by the owner. A top-up doesn't touch it, and it isn't reassignable. Whoever referred you at signup is who you're linked to for as long as that address stakes.\n\n#ArbiSmart #Polygon #USDT #Referral",
       "image": "docs/telegram-cards/referrer-set-once-never-changeable.png"
     },
