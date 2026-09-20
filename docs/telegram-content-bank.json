@@ -941,6 +941,18 @@
       "postedAt": null,
       "text": "Topping up an existing position doesn't restart your early-exit penalty timer — the penalty schedule is measured from your stake's ORIGINAL start time, which a top-up never touches. Add funds to a position you opened weeks ago, and the whole thing — old and new capital alike — exits at whatever discount your original stake had already earned.\n\n#ArbiSmart #Polygon #USDT #Staking",
       "image": "docs/telegram-cards/topup-doesnt-reset-early-exit-penalty-clock.png"
+    },
+    {
+      "id": "plan-upgrade-can-shorten-earning-window",
+      "postedAt": null,
+      "text": "Higher plans pay more per day but run for fewer days — Starter earns for 180 days, Elite for only 90. Your cutoff date is your ORIGINAL stake's start time plus whatever plan you currently hold, so upgrading to a higher tier can pull that cutoff earlier, not later, even though your start date never changes.\n\n#ArbiSmart #Polygon #USDT #Staking",
+      "image": "docs/telegram-cards/plan-upgrade-can-shorten-earning-window.png"
+    },
+    {
+      "id": "active-stake-count-tracked-but-never-exposed",
+      "postedAt": null,
+      "text": "The contract keeps a running internal counter of currently active stakers — incremented on every new stake, decremented on every exit — but never actually exposes it through any view function. What getGlobalStats() reports instead is a different number entirely: the lifetime count of every address that has ever staked, which only ever goes up.\n\n#ArbiSmart #Polygon #USDT #Transparency",
+      "image": "docs/telegram-cards/active-stake-count-tracked-but-never-exposed.png"
     }
   ]
 }
