@@ -920,7 +920,7 @@
     },
     {
       "id": "emergency-voting-closes-once-quorum-hits",
-      "postedAt": null,
+      "postedAt": "2026-09-20T18:06:56.254Z",
       "text": "The moment an emergency vote reaches quorum, casting a NEW emergency vote becomes uncallable — the function itself is blocked once emergency mode is active. A partner who hadn't voted yet can't add their voice after the fact; only revoking an already-cast vote stays open, and only until the delay makes even that irrevocable.\n\n#ArbiSmart #Polygon #USDT #Security",
       "image": "docs/telegram-cards/emergency-voting-closes-once-quorum-hits.png"
     },
