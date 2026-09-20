@@ -917,6 +917,18 @@
       "postedAt": null,
       "text": "getGlobalStats() reports the contract's raw token balance — not the same figure dashboard() reports as pool assets. The raw balance includes fees not yet swept out and excludes whatever capital is currently deployed to Polymarket positions, so it isn't the number to read for the pool's real backing; totalAssets() is.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/getglobalstats-balance-differs-from-totalassets.png"
+    },
+    {
+      "id": "emergency-voting-closes-once-quorum-hits",
+      "postedAt": null,
+      "text": "The moment an emergency vote reaches quorum, casting a NEW emergency vote becomes uncallable — the function itself is blocked once emergency mode is active. A partner who hadn't voted yet can't add their voice after the fact; only revoking an already-cast vote stays open, and only until the delay makes even that irrevocable.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/emergency-voting-closes-once-quorum-hits.png"
+    },
+    {
+      "id": "rescue-voting-stays-open-through-emergency-mode",
+      "postedAt": null,
+      "text": "Unlike an emergency vote, which stops being castable the instant quorum is reached, a rescue vote has no such lockout — a partner can still cast one even after emergency mode is already active. The two votes are deliberately independent: arming a fund rescue can keep gathering support through and after the point the withdrawal escape hatch has already opened.\n\n#ArbiSmart #Polygon #USDT #Security",
+      "image": "docs/telegram-cards/rescue-voting-stays-open-through-emergency-mode.png"
     }
   ]
 }
