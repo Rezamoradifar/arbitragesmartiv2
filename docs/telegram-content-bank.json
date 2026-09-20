@@ -902,7 +902,7 @@
     },
     {
       "id": "outcome-balance-independently-verifiable-onchain",
-      "postedAt": null,
+      "postedAt": "2026-09-20T10:12:51.860Z",
       "text": "A public view function reads the contract's real ERC-1155 outcome-token balance straight from Polymarket's own Conditional Tokens ledger for any specific market position. Anyone can check what the contract actually holds against Polymarket's own records — not just trust the contract's internal accounting.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/outcome-balance-independently-verifiable-onchain.png"
     },
