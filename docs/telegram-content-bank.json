@@ -896,7 +896,7 @@
     },
     {
       "id": "daily-cap-skipped-on-first-claim-of-day",
-      "postedAt": null,
+      "postedAt": "2026-09-20T10:10:59.391Z",
       "text": "The 200%-of-stake daily withdrawal cap is only checked starting from your second claim within the same UTC day — the very first claim of a fresh day always goes through unchecked, since there's nothing yet recorded against that day. The cap exists to stop rapid repeated claiming, not to limit the size of any single claim.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/daily-cap-skipped-on-first-claim-of-day.png"
     },
