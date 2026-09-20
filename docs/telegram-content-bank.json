@@ -884,7 +884,7 @@
     },
     {
       "id": "direct-downline-roster-publicly-queryable",
-      "postedAt": null,
+      "postedAt": "2026-09-20T10:10:14.669Z",
       "text": "Anyone can call a public view function and get back every one of your direct referrals by address, along with each one's exact stake size and plan — not just the aggregate volume number. Your downline roster isn't a private dashboard figure; it's readable on-chain by anyone who knows your address.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/direct-downline-roster-publicly-queryable.png"
     },
