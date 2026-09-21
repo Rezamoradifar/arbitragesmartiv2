@@ -19,7 +19,7 @@ function call(functionName: string, args: unknown[] = []) {
 
 /** Protocol-wide state: TVL, payouts, arbitrage capital, pause/emergency flags. */
 export function useProtocol() {
-  const { data, isLoading, refetch } = useReadContracts({
+  const { data, isLoading, refetch, dataUpdatedAt, isError } = useReadContracts({
     contracts: [
       call("getGlobalStats"),
       call("totalAssets"),
@@ -56,6 +56,8 @@ export function useProtocol() {
   return {
     isLoading,
     refetch,
+    dataUpdatedAt,
+    isError,
     userCount: stats?.[0],
     totalStaked: stats?.[1],
     totalPaidOut: stats?.[2],

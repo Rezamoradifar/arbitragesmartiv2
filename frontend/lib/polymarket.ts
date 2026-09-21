@@ -2,6 +2,7 @@ export type PolymarketMarket = {
   question: string;
   slug: string;
   yesPrice: number;
+  outcomeLabel: string;
   volume24hr: number;
   liquidity: number;
   endDate: string | null;
@@ -15,6 +16,7 @@ type GammaMarket = {
   volume24hr?: string | number;
   liquidity?: string | number;
   endDate?: string;
+  events?: Array<{ slug?: string }>;
 };
 
 function parseJsonArray(value: string | undefined): string[] {
@@ -36,10 +38,11 @@ function parseJsonArray(value: string | undefined): string[] {
 export async function fetchTopPolymarketMarkets(limit = 6): Promise<PolymarketMarket[]> {
   const url = `https://gamma-api.polymarket.com/markets?limit=${limit}&active=true&closed=false&order=volume24hr&ascending=false`;
 
-  const res = await fetch(url, { next: { revalidate: 120 } });
+  const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(6_000) });
   if (!res.ok) return [];
 
   const raw = (await res.json()) as GammaMarket[];
+  if (!Array.isArray(raw)) return [];
 
   return raw
     .map((m): PolymarketMarket | null => {
@@ -48,12 +51,13 @@ export async function fetchTopPolymarketMarkets(limit = 6): Promise<PolymarketMa
       const yesIdx = outcomes.findIndex((o) => o.toLowerCase() === "yes");
       const priceStr = prices[yesIdx >= 0 ? yesIdx : 0];
       const yesPrice = priceStr ? Number(priceStr) : NaN;
-      if (!m.question || Number.isNaN(yesPrice)) return null;
+      if (!m.question || !Number.isFinite(yesPrice) || yesPrice < 0 || yesPrice > 1) return null;
 
       return {
         question: m.question,
-        slug: m.slug ?? "",
+        slug: m.events?.[0]?.slug ?? m.slug ?? "",
         yesPrice,
+        outcomeLabel: outcomes[yesIdx >= 0 ? yesIdx : 0] ?? "Outcome",
         volume24hr: Number(m.volume24hr ?? 0),
         liquidity: Number(m.liquidity ?? 0),
         endDate: m.endDate ?? null,

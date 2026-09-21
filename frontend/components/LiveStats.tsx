@@ -20,11 +20,20 @@ function useSecondsSince(timestamp: number | undefined) {
 
 export function LiveStats() {
   const p = useProtocol();
-  const [lastUpdated, setLastUpdated] = useState<number | undefined>(undefined);
-  useEffect(() => {
-    if (!p.isLoading) setLastUpdated(Date.now());
-  }, [p.isLoading, p.totalAssets, p.totalStaked, p.totalPaidOut]);
-  const secondsAgo = useSecondsSince(lastUpdated);
+  const secondsAgo = useSecondsSince(p.dataUpdatedAt || undefined);
+
+  // Missing RPC results must not become zero balances or an "operating
+  // normally" badge. A query can settle with individual calls failing.
+  if (p.totalAssets === undefined || p.totalStaked === undefined || p.balance === undefined
+    || p.arbitrageDeployed === undefined || p.arbitrageProfit === undefined
+    || p.paused === undefined || p.emergencyMode === undefined) {
+    return <section><h2 className="h-section">Protocol at a glance</h2><div className="feed-empty glass mt-6">
+      <Icon name="layers" className="h-7 w-7 text-gold-300" />
+      <h3>{p.isLoading ? "Reading the Polygon contract" : "On-chain data is currently unavailable"}</h3>
+      <p>{p.isLoading ? "Fetching balances, strategy capital and protocol status." : "Balances and operating status will appear after a successful contract read."}</p>
+      <button type="button" onClick={() => p.refetch()} disabled={p.isLoading} className="btn-secondary !py-2">{p.isLoading ? "Connecting…" : "Retry contract read"}</button>
+    </div></section>;
+  }
 
   const deployed = p.arbitrageDeployed ?? 0n;
   const assets = p.totalAssets ?? 0n;
@@ -79,7 +88,7 @@ export function LiveStats() {
         <div className="min-w-0">
           <span className="eyebrow">
             <LiveDot />
-            Live on-chain
+            {secondsAgo !== undefined && secondsAgo > 60 ? "Last known on-chain data" : "Live on-chain"}
           </span>
           <h2 className="h-section mt-4">Protocol at a glance</h2>
           {secondsAgo !== undefined && (
