@@ -1,0 +1,10 @@
+{
+  "name": "arbismart-bot",
+  "private": true,
+  "type": "module",
+  "description": "Read-only Polymarket scanner (scan.mjs, publish-scan.mjs, watch.mjs) plus a separate-wallet execution engine (execute.mjs). See execute.mjs for the safety model before ever running it live.",
+  "dependencies": {
+    "ethers": "^6.13.4",
+    "@polymarket/clob-client": "^5.8.1"
+  }
+}

@@ -1,0 +1,72 @@
+name: Deploy frontend
+
+# Pushing the branch is the whole deploy. The previous routine was to open a
+# terminal and paste four commands, which meant a fix could sit finished and
+# unshipped for hours — and did.
+on:
+  push:
+    branches: [claude/arbismartv2-contract-setup-qz72zv]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/deploy.yml"
+  # Also runnable by hand from the Actions tab, for a redeploy with no code
+  # change behind it.
+  workflow_dispatch:
+
+concurrency:
+  # A second push while a deploy is running cancels the first. Two npm builds
+  # in the same directory at once would leave .next in a state neither of them
+  # meant to produce.
+  group: deploy-frontend
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Open an SSH session to the server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          command_timeout: 20m
+          script: |
+            set -euo pipefail
+
+            APP_DIR="${HOME}/arbitragesmartiv2"
+            BRANCH="claude/arbismartv2-contract-setup-qz72zv"
+
+            cd "$APP_DIR"
+            git fetch origin "$BRANCH"
+            git reset --hard "origin/$BRANCH"
+
+            cd frontend
+
+            # Small VPSes run out of heap partway through a Next build and the
+            # error blames the compiler rather than the memory. Ask for the
+            # headroom up front.
+            export NODE_OPTIONS="--max-old-space-size=2048"
+
+            npm install --no-audit --no-fund
+
+            # set -e means a failed build stops here, before the restart. The
+            # old .next is still on disk and the running process is still
+            # serving it, so a broken commit fails the deploy rather than the
+            # site.
+            npm run build
+
+            pm2 restart arbismart-frontend --update-env
+            pm2 save --force
+
+            # Give it a moment to bind, then prove it actually serves.
+            sleep 5
+            for path in / /dashboard /tg /get-usdt; do
+              code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:3001${path}")
+              echo "  ${path} -> ${code}"
+              [ "$code" = "200" ] || { echo "FAILED: ${path} returned ${code}"; exit 1; }
+            done
+            echo "Deployed $(git rev-parse --short HEAD)"
