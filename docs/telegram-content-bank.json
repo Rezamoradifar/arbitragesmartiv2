@@ -938,7 +938,7 @@
     },
     {
       "id": "topup-doesnt-reset-early-exit-penalty-clock",
-      "postedAt": null,
+      "postedAt": "2026-09-21T10:07:23.847Z",
       "text": "Topping up an existing position doesn't restart your early-exit penalty timer — the penalty schedule is measured from your stake's ORIGINAL start time, which a top-up never touches. Add funds to a position you opened weeks ago, and the whole thing — old and new capital alike — exits at whatever discount your original stake had already earned.\n\n#ArbiSmart #Polygon #USDT #Staking",
       "image": "docs/telegram-cards/topup-doesnt-reset-early-exit-penalty-clock.png"
     },
