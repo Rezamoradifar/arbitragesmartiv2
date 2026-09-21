@@ -1,0 +1,6 @@
+# Market workspace artwork
+
+- `public/icons/crypto/{btc,eth,sol,xrp,doge,link,usdt}.svg`: unmodified color SVGs from `cryptocurrency-icons@0.18.1`, https://github.com/spothq/cryptocurrency-icons. CC0-1.0; original license is included alongside the icons. These identify currencies, not partnerships or endorsements.
+- `public/images/market-network.webp`: original AI-generated decorative market-network artwork, generated for this redesign. Converted to WebP at quality 85 for delivery (115 KB); no market data or returns are depicted. Empty alt text because nearby copy supplies all semantic information.
+
+Generation prompt: Create one premium website hero image, wide landscape 1536x1024. An abstract editorial 3D visualization of a global prediction-market network: midnight-navy glass globe made of thin latitude and longitude arcs, restrained glowing electric-blue and icy-cyan connections, translucent circular nodes, ocean-blue atmospheric depth, precise studio lighting. Negative dark navy space on left third and bottom, globe in right two thirds. Background #071323, sapphire #4f8cff, cyan #38d6dc, pearl highlights. No gold, purple, text, numbers, charts, invented returns, badges, seals, logos, certificates, coins with writing or UI. Decorative artwork, not evidence of trading.

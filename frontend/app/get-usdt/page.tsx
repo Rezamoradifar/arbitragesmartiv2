@@ -7,7 +7,7 @@ import { useAccount, useBalance, useReadContracts } from "wagmi";
 import { formatUnits } from "viem";
 import { Icon } from "@/components/Icon";
 import { ERC20_ABI, COLLATERAL_ADDRESS } from "@/lib/contract";
-import { CopyButton } from "@/components/CopyButton";
+import { CurrencyIcon } from "@/components/CurrencyIcon";
 import { BuyWithCard } from "@/components/BuyWithCard";
 import { CONTACT_HREF } from "@/lib/contact";
 
@@ -159,19 +159,22 @@ export default function GetUsdtPage() {
 
       {/* ------------------------------------------------- the exact token */}
       <section className="glass glass-gold p-6 sm:p-8">
-        <h2 className="font-display text-lg font-semibold text-white">
-          The only token the contract accepts
-        </h2>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <code className="min-w-0 flex-1 break-all rounded-xl border border-white/[.07] bg-graphite-950/70 px-4 py-3 font-mono text-xs text-graphite-200">
-            {COLLATERAL_ADDRESS}
-          </code>
-          <CopyButton value={COLLATERAL_ADDRESS} />
+        <div className="flex flex-wrap items-center justify-between gap-5">
+          <div className="flex items-center gap-4">
+            <CurrencyIcon symbol="USDT" size={44} />
+            <div>
+              <p className="eyebrow">POOL DEPOSIT TOKEN</p>
+              <h2 className="mt-2 font-display text-xl font-semibold">USDT0 on Polygon</h2>
+            </div>
+          </div>
+          <a href={`https://polygonscan.com/token/${COLLATERAL_ADDRESS}`} target="_blank" rel="noreferrer" className="btn-secondary">
+            Verify token <Icon name="external" className="h-4 w-4" />
+          </a>
         </div>
-        <p className="mt-4 text-sm leading-relaxed text-graphite-300">
-          Tether on Polygon, six decimals, on-chain symbol USDT0. Several other tokens on Polygon
-          also call themselves USDT — the contract will reject every one of them. Paste this address
-          into your wallet or your exchange withdrawal screen rather than picking from a list.
+        <p className="mt-5 text-sm leading-relaxed text-graphite-300">
+          Six-decimal Tether collateral. Check the token on PolygonScan before
+          transferring: similarly named tokens may not be accepted by the pool.
+          Swaps and bridges below select the supported destination token for you.
         </p>
       </section>
 

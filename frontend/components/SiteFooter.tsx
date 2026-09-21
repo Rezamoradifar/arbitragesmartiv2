@@ -19,6 +19,7 @@ const columns: Array<{ titleKey: "platform" | "trust" | "community"; links: Arra
       { label: "Get USDT on Polygon", href: "/get-usdt" },
       { label: "Portfolio", href: "/portfolio" },
       { label: "Activity", href: "/activity" },
+      { label: "Polymarket Live", href: "/polymarket" },
       { label: "Gold rewards", href: "/rewards" },
       { label: "Dobrna (soon)", href: "/dobrna" },
       { label: "Governance", href: "/partners" },
@@ -28,6 +29,7 @@ const columns: Array<{ titleKey: "platform" | "trust" | "community"; links: Arra
     titleKey: "trust" as const,
     links: [
       { label: "Security model", href: "/security" },
+      { label: "Reserve report", href: "/transparency" },
       { label: "Bug bounty", href: "/security#bounty" },
       { label: "Verified source", href: `https://repo.sourcify.dev/137/${CONTRACT}`, external: true },
       { label: "PolygonScan", href: `https://polygonscan.com/address/${CONTRACT}`, external: true },

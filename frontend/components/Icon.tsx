@@ -11,9 +11,10 @@ export type IconName =
   | "home" | "grid" | "chart" | "shield" | "users" | "activity" | "settings"
   | "wallet" | "arrowUp" | "arrowDown" | "check" | "copy" | "external"
   | "lock" | "globe" | "layers" | "zap" | "bell" | "plus" | "minus" | "info"
-  | "clock" | "swap" | "sun" | "moon";
+  | "clock" | "swap" | "sun" | "moon" | "search";
 
 const paths: Record<IconName, JSX.Element> = {
+  search: <><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></>,
   home: <path d="M3 10.2 12 3l9 7.2V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
   grid: <><rect x="3" y="3" width="7.5" height="7.5" rx="1.6" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.6" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.6" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.6" /></>,
   chart: <><path d="M3 20h18" /><path d="M6 20v-6M11 20V8M16 20v-9M21 20V5" /></>,

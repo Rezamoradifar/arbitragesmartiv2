@@ -97,7 +97,7 @@ export function Progress({ value, max, tone = "brand" }: { value: number; max: n
     good: "bg-gradient-to-r from-success-600 to-success-400 shadow-[0_0_18px_-2px_rgba(16,185,129,.7)]",
     warn: "bg-gradient-to-r from-warn-500 to-warn-400 shadow-[0_0_18px_-2px_rgba(245,158,11,.7)]",
     bad: "bg-gradient-to-r from-danger-600 to-danger-400 shadow-[0_0_18px_-2px_rgba(239,68,68,.7)]",
-    brand: "bg-gold-sheen shadow-[0_0_18px_-2px_rgba(224,173,60,.75)]",
+    brand: "bg-gold-sheen shadow-[0_0_18px_-2px_rgba(79,140,255,.75)]",
     volt: "bg-volt-sheen shadow-[0_0_18px_-2px_rgba(51,132,251,.7)]",
   };
   return (
