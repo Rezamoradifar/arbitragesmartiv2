@@ -440,9 +440,9 @@ function TermRing({
       <svg viewBox="0 0 132 132" className="h-full w-full -rotate-90">
         <defs>
           <linearGradient id="ringGold" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#f4df9c" />
-            <stop offset="50%" stopColor="#e0ad3c" />
-            <stop offset="100%" stopColor="#b3741f" />
+            <stop offset="0%" stopColor="#9cd7ff" />
+            <stop offset="50%" stopColor="#63adff" />
+            <stop offset="100%" stopColor="#2865dc" />
           </linearGradient>
         </defs>
         <circle cx="66" cy="66" r={r} fill="none" stroke="rgba(255,255,255,.07)" strokeWidth="8" />

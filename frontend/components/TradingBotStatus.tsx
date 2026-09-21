@@ -1,118 +1,74 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui";
-import { LiveDot } from "@/components/Aurora";
+import { useQuery } from "@tanstack/react-query";
+import { Icon } from "./Icon";
+import { shortAddress } from "@/lib/contract";
+import { parseTradingBotReport, isFreshTradingBotReport, type TradingBotReport } from "@/lib/trading-bot-status";
 
-/**
- * Read-only status for the separate-wallet execution bot (bot/execute.mjs).
- *
- * Deliberately read-only. There is no control here that can flip the bot
- * into live trading — that switch (DRY_RUN / LIVE_CONFIRM) only exists in
- * bot/.env on the server, set by hand. A web button wired to a real-money
- * trading trigger is a bigger attack surface than the convenience is worth;
- * this component only ever displays what already happened.
- *
- * Reads /trading-bot-status.json, written by the bot itself after each run
- * (same pattern as arbitrage-status.json for the read-only scanner). Absent
- * file — bot not wired up to publish yet, or genuinely never run — renders
- * nothing rather than a placeholder, same rule the scanner already follows.
- */
-type BotStatus = {
-  updatedAt: string;
-  mode: "dry-run" | "live";
-  walletAddress: string;
-  lastRunAt: string;
-  lastDecision: "no-opportunity" | "found" | "executed" | "skipped-stale";
-  lastOpportunity: { side: "BUY" | "SELL"; market: string; expectedProfit: number } | null;
-  tradesExecuted: number;
-  realizedProfitUsd: number;
-};
-
-function timeAgo(iso: string): string {
-  const ms = Date.now() - new Date(iso).getTime();
-  const min = Math.round(ms / 60_000);
-  if (min < 1) return "moments ago";
-  if (min < 60) return `${min} minute${min === 1 ? "" : "s"} ago`;
-  const hr = Math.round(min / 60);
-  if (hr < 48) return `${hr} hour${hr === 1 ? "" : "s"} ago`;
-  return `${Math.round(hr / 24)} days ago`;
-}
-
-const DECISION_LABEL: Record<BotStatus["lastDecision"], string> = {
-  "no-opportunity": "No opportunity above the profit threshold",
-  found: "Found an opportunity",
-  executed: "Executed a trade",
-  "skipped-stale": "Opportunity was gone by execution time",
+const decisions: Record<TradingBotReport["lastDecision"], string> = {
+  "no-opportunity": "No opportunity reported",
+  found: "Opportunity reported · not an executed trade",
+  executed: "Execution reported by the bot",
+  "skipped-stale": "Skipped · opportunity expired",
 };
 
 export function TradingBotStatus() {
-  const [status, setStatus] = useState<BotStatus | null | "unavailable">(null);
-
+  const [now, setNow] = useState(0);
   useEffect(() => {
-    let cancelled = false;
-    fetch(`/trading-bot-status.json?t=${Date.now()}`, { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => !cancelled && setStatus(d))
-      .catch(() => !cancelled && setStatus("unavailable"));
-    return () => {
-      cancelled = true;
-    };
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), 10_000);
+    return () => clearInterval(timer);
   }, []);
-
-  if (status === "unavailable" || status === null) return null;
-
+  const query = useQuery({
+    queryKey: ["trading-bot-status"],
+    queryFn: async ({ signal }) => {
+      const response = await fetch(`/trading-bot-status.json?t=${Date.now()}`, { cache: "no-store", signal });
+      if (!response.ok) throw new Error("Bot report unavailable");
+      const report = parseTradingBotReport(await response.json());
+      if (!report) throw new Error("Invalid bot report");
+      return report;
+    },
+    refetchInterval: 60_000, staleTime: 30_000, retry: false,
+  });
+  const report = query.data;
+  const fresh = !query.isError && isFreshTradingBotReport(report, now);
+  const age = report ? Math.max(0, Math.floor((now - Date.parse(report.lastRunAt)) / 60_000)) : null;
   return (
-    <div className="glass p-6 sm:p-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <LiveDot />
-          <h3 className="font-display text-lg font-semibold text-white">Execution bot — separate wallet</h3>
+    <section className="glass p-6 sm:p-8" aria-label="Execution bot reporting">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span className="eyebrow"><Icon name="activity" className="h-3.5 w-3.5" /> EXECUTION MONITOR</span>
+          <h2 className="mt-3 font-display text-xl font-semibold">Polymarket bot connection</h2>
         </div>
-        <Badge tone={status.mode === "live" ? "brand" : "neutral"}>
-          {status.mode === "live" ? "Live" : "Dry run — no real orders"}
-        </Badge>
+        <span className="feed-pill"><span className="status-dot" />
+          {query.isLoading ? "Checking reports" : !report ? "No verified connection" : fresh ? "Report received" : "Last known report"}
+        </span>
       </div>
-
-      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-graphite-300">
-        A small, separate trading wallet — not the ArbiSmart pool — testing whether Polymarket&apos;s
-        own CLOB API can close the complete-set arbitrage the contract itself cannot reach (see above).
-        Any realized profit sits in this wallet until it is deliberately deposited into the pool; it is
-        never automatic.
+      <p className="mt-4 max-w-3xl text-sm leading-relaxed text-graphite-300">
+        Orders require the separate trading wallet and Polymarket&apos;s order service.
+        Pool contract functions alone do not place orders. This page reads the bot&apos;s
+        published reports; it does not start trading or transfer pool funds.
       </p>
-
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-white/[.07] bg-white/[.02] p-4">
-          <p className="text-xs uppercase tracking-wide text-graphite-400">Wallet</p>
-          <p className="mt-1 break-all font-mono text-xs text-graphite-200">{status.walletAddress}</p>
+      <dl className="bot-status-grid">
+        <div><dt>Reported execution mode</dt><dd>{report ? report.mode === "dry-run" ? "Simulation only" : "Configured for live orders" : "Unconfirmed"}</dd></div>
+        <div><dt>Last reported run</dt><dd>{age === null ? "No report available" : `${age}m ago${fresh ? "" : " · stale / unconfirmed"}`}</dd></div>
+        <div><dt>Pool profit settlement</dt><dd>Separate owner deposit</dd></div>
+      </dl>
+      {report ? (
+        <div className="mt-5 border-t border-white/10 pt-5 text-sm text-graphite-300">
+          <p>{decisions[report.lastDecision]}</p>
+          <p className="mt-2">Bot-reported totals: {report.tradesExecuted} trades · ${report.realizedProfitUsd.toFixed(2)} P&amp;L.</p>
+          <p className="mt-2 text-xs">These figures are not independently reconciled with fills, fees or wallet balances.</p>
+          <a className="mt-3 inline-flex items-center gap-2 text-gold-300" href={`https://polygonscan.com/address/${report.walletAddress}`} target="_blank" rel="noreferrer">Trading wallet {shortAddress(report.walletAddress)} <Icon name="external" className="h-3 w-3" /></a>
         </div>
-        <div className="rounded-xl border border-white/[.07] bg-white/[.02] p-4">
-          <p className="text-xs uppercase tracking-wide text-graphite-400">Last run</p>
-          <p className="mt-1 text-sm text-graphite-200">{timeAgo(status.lastRunAt)}</p>
-        </div>
+      ) : (
+        <p className="mt-5 text-sm text-graphite-300">No valid execution report is available. Market prices and scanner observations do not confirm a running trading bot.</p>
+      )}
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <span className="text-xs text-graphite-400">Checks every minute · reports expire after 30 minutes</span>
+        <button type="button" className="btn-secondary !py-2" disabled={query.isFetching} onClick={() => void query.refetch()}>{query.isFetching ? "Checking…" : "Check connection"}</button>
       </div>
-
-      <div className="mt-4 rounded-xl border border-white/[.07] bg-white/[.02] p-4">
-        <p className="text-xs uppercase tracking-wide text-graphite-400">Last decision</p>
-        <p className="mt-1 text-sm text-graphite-200">{DECISION_LABEL[status.lastDecision]}</p>
-        {status.lastOpportunity && (
-          <p className="mt-1.5 font-mono text-xs text-volt-300">
-            {status.lastOpportunity.side} · {status.lastOpportunity.market} · expected $
-            {status.lastOpportunity.expectedProfit.toFixed(2)}
-          </p>
-        )}
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-4 text-sm">
-        <span className="text-graphite-300">
-          <span className="font-display font-semibold text-white">{status.tradesExecuted}</span> trades
-          executed
-        </span>
-        <span className="text-graphite-300">
-          <span className="font-display font-semibold text-white">${status.realizedProfitUsd.toFixed(2)}</span>{" "}
-          realized in this wallet
-        </span>
-      </div>
-    </div>
+    </section>
   );
 }

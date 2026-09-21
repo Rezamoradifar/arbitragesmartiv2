@@ -14,7 +14,7 @@
 
 import type { ReactNode } from "react";
 
-export const GOLD = { light: "#f4df9c", mid: "#e0ad3c", deep: "#b3741f" };
+export const GOLD = { light: "#9cd7ff", mid: "#63adff", deep: "#2865dc" };
 export const VOLT = { light: "#8ec7ff", mid: "#3384fb", deep: "#164ddc" };
 
 /** Wraps a visual so every one crops, scales and lazy-composites the same way. */

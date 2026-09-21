@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import Image from "next/image";
+import { CurrencyIcon } from "./CurrencyIcon";
 import { Icon } from "@/components/Icon";
 import {
   ASSETS,
@@ -87,6 +89,7 @@ export function MarketTerminal() {
             const q = quotes.find((x) => x.asset === asset);
             return (
               <div className="tape-quote" key={asset}>
+                <CurrencyIcon symbol={asset} size={20} />
                 <strong>
                   {asset}
                   <span>/USDT</span>
@@ -110,15 +113,18 @@ export function MarketTerminal() {
       </div>
 
       <section className="container-page market-hero">
+        <div className="market-hero-art" aria-hidden="true">
+          <Image src="/images/market-network.webp" alt="" fill priority sizes="(max-width: 800px) 100vw, 80vw" />
+        </div>
         <div className="market-hero-copy">
           <div className="eyebrow">
             <span className="h-1.5 w-1.5 rounded-full bg-gold-400" /> THE MARKET
             DOESN&apos;T STAND STILL.
           </div>
           <h1>
-            See the market.
+            A world of markets.
             <br />
-            <span className="text-gold-gradient">Find your edge.</span>
+            <span className="text-gold-gradient">One sharper view.</span>
           </h1>
           <p>
             One clear view of exchange spreads, prediction markets and on-chain
@@ -129,8 +135,8 @@ export function MarketTerminal() {
               Explore live markets{" "}
               <Icon name="arrowUp" className="h-4 w-4 rotate-45" />
             </a>
-            <Link href="/dashboard" className="btn-secondary">
-              Open dashboard
+            <Link href="/polymarket" className="btn-secondary">
+              Polymarket live
             </Link>
           </div>
           <div className="hero-footnotes">
@@ -164,6 +170,7 @@ export function MarketTerminal() {
           </div>
           <div className="preview-pair">
             <span className="preview-symbol">
+              <CurrencyIcon symbol={hero?.asset ?? "BTC"} size={28} />
               {hero?.asset ?? "BTC"}
               <span> / USDT</span>
             </span>
@@ -250,6 +257,20 @@ export function MarketTerminal() {
             {query.isFetching ? "Refreshing" : "Refresh prices"}
           </button>
         </div>
+        <div className="exchange-directory">
+          {(["OKX", "KuCoin"] as const).map((venue) => {
+            const count = quotes.filter((quote) => quote.venue === venue).length;
+            return (
+              <article className="exchange-tile glass" key={venue}>
+                <div><span className="document-type">SPOT EXCHANGE</span><h3 className="mt-2">{venue}</h3><p>{count} / {ASSETS.length} fresh USDT pairs</p></div>
+                <div className="exchange-detail">
+                  <span className={`feed-pill ${count ? "is-live" : ""}`}><span className={`status-dot ${count ? "online" : ""}`} />{query.isLoading ? "Connecting" : count ? "Quotes available" : "Feed unavailable"}</span>
+                  <a href={venue === "OKX" ? "https://www.okx.com/markets/prices" : "https://www.kucoin.com/markets"} target="_blank" rel="noreferrer">View exchange <Icon name="external" className="h-3 w-3" /></a>
+                </div>
+              </article>
+            );
+          })}
+        </div>
         <div className="market-terminal glass overflow-hidden">
           <div className="market-toolbar">
             <div
@@ -323,11 +344,7 @@ export function MarketTerminal() {
                     <tr key={asset}>
                       <td>
                         <div className="asset-title">
-                          <span
-                            className={`asset-monogram asset-${asset.toLowerCase()}`}
-                          >
-                            {asset.slice(0, 1)}
-                          </span>
+                          <CurrencyIcon symbol={asset} />
                           <div>
                             <strong>
                               {asset}

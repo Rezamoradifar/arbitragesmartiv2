@@ -10,30 +10,14 @@ module.exports = {
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       colors: {
-        /**
-         * Gold carries value: balances, yield, the primary action. It is the
-         * scarcest ink on the page precisely so it still means something when
-         * it appears — spread across every surface it would read as costume
-         * jewellery rather than as money.
-         */
+        // Legacy token name retained so all existing wallet and admin views
+        // share the new azure palette without changing transactional logic.
         gold: {
-          50: "#fdf9ed",
-          100: "#faf0d0",
-          200: "#f4df9c",
-          300: "#ebc766",
-          400: "#e0ad3c",
-          500: "#d0932a",
-          600: "#b3741f",
-          700: "#8d551c",
-          800: "#74441e",
-          900: "#62391d",
-          950: "#391d0c",
+          50: "#eff7ff", 100: "#dceeff", 200: "#b9deff",
+          300: "#8ec7ff", 400: "#63adff", 500: "#448bfa",
+          600: "#2865dc", 700: "#1d4eb8", 800: "#1e4192",
+          900: "#1c376f", 950: "#112345",
         },
-        /**
-         * Electric blue carries movement: data, network, links, anything in
-         * flight. Pairing it against gold keeps "what I own" and "what the
-         * system is doing" visually separate without a third hue.
-         */
         volt: {
           50: "#eef6ff",
           100: "#d9ebff",
@@ -86,7 +70,7 @@ module.exports = {
          */
         white: "rgb(var(--c-ink) / <alpha-value>)",
         /**
-         * Text sitting on the gold gradient. Gold stays gold in both themes,
+         * Text sitting on the azure action gradient in both themes,
          * so this one must not flip with everything else.
          */
         onGold: "rgb(var(--c-on-gold) / <alpha-value>)",
@@ -103,8 +87,8 @@ module.exports = {
         // drop has to be far softer or every card looks like it is hovering.
         glass: "var(--shadow-glass)",
         "glass-lg": "var(--shadow-glass-lg)",
-        gold: "0 0 0 1px rgba(224,173,60,.25), 0 8px 32px -8px rgba(224,173,60,.35)",
-        "gold-lg": "0 0 0 1px rgba(224,173,60,.35), 0 20px 64px -16px rgba(224,173,60,.45)",
+        gold: "0 0 0 1px rgba(79,140,255,.25), 0 8px 32px -8px rgba(79,140,255,.35)",
+        "gold-lg": "0 0 0 1px rgba(79,140,255,.35), 0 20px 64px -16px rgba(79,140,255,.45)",
         volt: "0 0 0 1px rgba(51,132,251,.25), 0 8px 32px -8px rgba(51,132,251,.4)",
         lift: "0 32px 64px -32px rgba(0,0,0,.95)",
       },
@@ -112,7 +96,7 @@ module.exports = {
         "grid-fade":
           "linear-gradient(to bottom, rgba(255,255,255,.028) 1px, transparent 1px), linear-gradient(to right, rgba(255,255,255,.028) 1px, transparent 1px)",
         "gold-sheen":
-          "linear-gradient(135deg, #f4df9c 0%, #e0ad3c 38%, #b3741f 62%, #ebc766 100%)",
+          "linear-gradient(115deg, #9cd7ff 0%, #63adff 60%, #58d9df 100%)",
         "volt-sheen": "linear-gradient(135deg, #8ec7ff 0%, #3384fb 50%, #164ddc 100%)",
       },
       backgroundSize: { grid: "64px 64px" },

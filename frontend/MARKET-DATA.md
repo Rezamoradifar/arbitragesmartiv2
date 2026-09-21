@@ -103,3 +103,13 @@ At review time its website displayed eCorp/VentureOS material, so neither domain
 ownership nor affiliation with this project has been asserted. Domain records
 are not financial licenses. No authentic license image has been supplied, and
 none is fabricated or borrowed from a different entity.
+
+## Azure design and execution reports
+
+The navy/azure/cyan theme applies through the legacy `gold` Tailwind token alias. Light theme uses darker link colors. Currency SVGs are bundled and the generated network artwork is decorative; provenance and prompt are in ASSET-SOURCES.md. Exchange cards independently count fresh pairs. The funding page replaces the prominent raw collateral address with a token identity and PolygonScan verification link; transaction configuration is unchanged.
+
+Execution telemetry polls `/trading-bot-status.json` every 60 seconds with no cache, validates mode/address/timestamps/counts/P&L, expires after 30 minutes and distinguishes missing/stale reports from a confirmed connection. Bot totals remain labelled self-reported, separate from contract profit credits. See `bot/CONNECTION-REVIEW.md` for concrete live-execution blockers. No trade submission is enabled by this UI change.
+
+The asset-coverage disclosure remains available; the redesign does not conceal reserve deficits. The Arbhub.com record link remains a neutral lookup, with no license, ownership or partnership claim.
+
+Polymarket Gamma requests allow 12 seconds for slow public connections. Market thumbnails are passed through only from the observed provider-owned HTTPS upload host; failed images fall back to a neutral globe icon. Image labels inherit the adjacent market question and imply no ownership of the pictured event.

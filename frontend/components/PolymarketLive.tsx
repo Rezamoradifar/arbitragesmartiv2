@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { TradingBotStatus } from "./TradingBotStatus";
 import { usePublicClient } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import { parseAbiItem } from "viem";
@@ -129,6 +131,15 @@ export function PolymarketLive() {
         </button>
       </div>
 
+      <section className="market-story">
+        <div className="market-story-copy">
+          <span className="eyebrow">GLOBAL EVENTS · ON-CHAIN MARKETS</span>
+          <h2>A pulse on what happens next.</h2>
+          <p>Explore public market probabilities and follow the trail from a scanner observation to a recorded profit credit. Every source has its own connection status.</p>
+          <a href="#prediction-markets" className="btn-primary mt-6">Explore prediction markets <Icon name="arrowUp" className="h-4 w-4 rotate-45" /></a>
+        </div>
+        <div className="market-story-image"><Image src="/images/market-network.webp" alt="" fill sizes="(max-width: 800px) 100vw, 45vw" /></div>
+      </section>
       <div className="profit-metrics">
         <article className="glass profit-metric profit-metric-lead">
           <span className="document-type">RECORDED POOL PROFIT CREDITS</span>
@@ -284,7 +295,10 @@ export function PolymarketLive() {
       <div className="mt-12">
         <ArbitrageScanner />
       </div>
-      <div className="mt-12">
+      <div className="mt-8">
+        <TradingBotStatus />
+      </div>
+      <div className="mt-12 scroll-mt-28" id="prediction-markets">
         <PolymarketMarkets expanded />
       </div>
     </div>

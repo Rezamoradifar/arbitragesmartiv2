@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import type { PolymarketMarket } from "@/lib/polymarket";
 import { Icon } from "@/components/Icon";
@@ -44,7 +45,7 @@ export function PolymarketMarkets({
   const shown = (expanded ? markets : markets.slice(0, 6)).filter((m) =>
     m.question.toLowerCase().includes(search.trim().toLowerCase()),
   );
-  const stale = !!q.data?.fetchedAt && now - q.data.fetchedAt > 180_000;
+  const stale = q.isError || (!!q.data?.fetchedAt && now - q.data.fetchedAt > 180_000);
   return (
     <section className="prediction-section">
       <div className="market-section-heading">
@@ -107,7 +108,7 @@ export function PolymarketMarkets({
                 <span>MARKET {String(i + 1).padStart(2, "0")}</span>
                 <Icon name="external" className="h-3.5 w-3.5" />
               </div>
-              <h3>{m.question}</h3>
+              <div className="prediction-title"><MarketThumbnail url={m.imageUrl} /><h3>{m.question}</h3></div>
               <div className="prediction-price">
                 <div>
                   <span>{m.outcomeLabel}</span>
@@ -174,5 +175,14 @@ export function PolymarketMarkets({
         or trading recommendations.
       </p>
     </section>
+  );
+}
+
+function MarketThumbnail({ url }: { url: string | null }) {
+  const [failed, setFailed] = useState<string | null>(null);
+  return (
+    <span className="prediction-thumbnail" aria-hidden="true">
+      {url && failed !== url ? <Image src={url} alt="" width={44} height={44} unoptimized referrerPolicy="no-referrer" onError={() => setFailed(url)} /> : <Icon name="globe" className="h-5 w-5 text-gold-300" />}
+    </span>
   );
 }

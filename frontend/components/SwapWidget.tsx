@@ -1,5 +1,6 @@
 "use client";
 
+import { useThemeName } from "./ThemeToggle";
 import { useMemo } from "react";
 import { LiFiWidget, type WidgetConfig } from "@lifi/widget";
 import { COLLATERAL_ADDRESS } from "@/lib/contract";
@@ -21,6 +22,8 @@ import { COLLATERAL_ADDRESS } from "@/lib/contract";
  * mounts it. Nobody who is not converting should pay for it.
  */
 export default function SwapWidget() {
+  const theme = useThemeName();
+  const light = theme === "light";
   const config = useMemo<WidgetConfig>(
     () => ({
       integrator: "arbismart",
@@ -30,7 +33,7 @@ export default function SwapWidget() {
       toChain: 137,
       toToken: COLLATERAL_ADDRESS,
 
-      appearance: "dark",
+      appearance: theme,
       variant: "compact",
       subvariant: "default",
 
@@ -40,11 +43,11 @@ export default function SwapWidget() {
 
       theme: {
         palette: {
-          primary: { main: "#e0ad3c" },
-          secondary: { main: "#3384fb" },
-          background: { default: "#0b0f1c", paper: "#11162a" },
-          text: { primary: "#f4f5f8", secondary: "#9aa1b4" },
-          grey: { 300: "#2a3145", 800: "#161b2e" },
+          primary: { main: light ? "#2865dc" : "#63adff" },
+          secondary: { main: "#36bfc9" },
+          background: { default: light ? "#f7f9fc" : "#071323", paper: light ? "#ffffff" : "#0f1e32" },
+          text: { primary: light ? "#14233a" : "#f4f8ff", secondary: light ? "#526178" : "#adbed4" },
+          grey: { 300: light ? "#d8e0ed" : "#2a3d57", 800: light ? "#edf2f8" : "#12253c" },
         },
         shape: { borderRadius: 14, borderRadiusSecondary: 10 },
         typography: { fontFamily: "var(--font-sans), system-ui, sans-serif" },
@@ -55,7 +58,7 @@ export default function SwapWidget() {
         },
       },
     }),
-    [],
+    [theme, light],
   );
 
   return <LiFiWidget integrator="arbismart" config={config} />;

@@ -97,13 +97,13 @@ export const wagmiConfig = createConfig({
 /**
  * RainbowKit is themed with a JavaScript object, not CSS, so it cannot ride
  * the variable swap the rest of the app uses — it has to be rebuilt when the
- * theme changes. Gold stays gold in both; only the surfaces move.
+ * theme changes. Azure actions remain consistent across both themes.
  */
 function useWalletTheme() {
   const theme = useThemeName();
 
   return useMemo(() => {
-    const base = { accentColor: "#e0ad3c", accentColorForeground: "#05060b" };
+    const base = { accentColor: "#63adff", accentColorForeground: "#05060b" };
     const opts = { ...base, borderRadius: "large", overlayBlur: "small" } as const;
 
     if (theme === "light") {
