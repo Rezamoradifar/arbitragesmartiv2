@@ -10,5 +10,5 @@
     "rootDir": ".",
     "types": ["node"]
   },
-  "include": ["lib/market-pulse.ts", "tests/market-pulse.test.ts"]
+  "include": ["lib/market-pulse.ts", "lib/arbitrage-scan.ts", "tests/*.test.ts"]
 }

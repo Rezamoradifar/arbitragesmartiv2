@@ -1,30 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useArbitrageScan } from "@/lib/use-arbitrage-scan";
+import { isFreshScan } from "@/lib/arbitrage-scan";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 
-type Scan = {
-  scannedAt: string;
-  marketsScanned: number;
-  marketsFeeFree: number;
-  minProfitThreshold: number;
-  opportunitiesFound: number;
-  topOpportunity: { profit: number } | null;
-  sampleMarkets?: Array<{ question: string; feeFree: boolean }>;
-};
-function validScan(d: Scan): boolean {
-  return (
-    d &&
-    Number.isFinite(Date.parse(d.scannedAt)) &&
-    Date.parse(d.scannedAt) <= Date.now() + 5_000 &&
-    [d.marketsScanned, d.marketsFeeFree, d.opportunitiesFound].every(
-      (n) => Number.isInteger(n) && n >= 0,
-    ) &&
-    Number.isFinite(d.minProfitThreshold) &&
-    d.minProfitThreshold >= 0
-  );
-}
 export function ArbitrageScanner() {
   const [now, setNow] = useState(0);
   useEffect(() => {
@@ -32,25 +12,10 @@ export function ArbitrageScanner() {
     const timer = setInterval(() => setNow(Date.now()), 10_000);
     return () => clearInterval(timer);
   }, []);
-  const q = useQuery<Scan>({
-    queryKey: ["arbitrage-scan"],
-    queryFn: async ({ signal }) => {
-      const r = await fetch(`/arbitrage-status.json?t=${Date.now()}`, {
-        cache: "no-store",
-        signal,
-      });
-      if (!r.ok) throw new Error("No scanner report published");
-      const d = await r.json();
-      if (!validScan(d)) throw new Error("Invalid scanner report");
-      return d;
-    },
-    refetchInterval: 60_000,
-    staleTime: 30_000,
-    retry: false,
-  });
+  const q = useArbitrageScan();
   const d = q.data;
   const age = d ? Math.max(0, now - Date.parse(d.scannedAt)) : null;
-  const fresh = age !== null && age <= 30 * 60_000;
+  const fresh = isFreshScan(d, now);
   return (
     <section className="scanner-strip glass">
       <div className="scanner-intro">
@@ -62,8 +27,8 @@ export function ArbitrageScanner() {
           The latest published order-book scan. Observed opportunities are
           separate from executed trades.
         </p>
-        <Link href="/strategy" className="scanner-link">
-          Explore the strategy{" "}
+        <Link href="/polymarket" className="scanner-link">
+          Open live profit monitor{" "}
           <Icon name="arrowUp" className="h-3.5 w-3.5 rotate-45" />
         </Link>
       </div>

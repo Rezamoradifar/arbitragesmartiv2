@@ -17,7 +17,7 @@ export async function GET() {
     pending ??= (async () => {
       lastAttempt = Date.now();
       try {
-        const markets = await fetchTopPolymarketMarkets(6);
+        const markets = await fetchTopPolymarketMarkets(12);
         if (markets.length) snapshot = { markets, fetchedAt: Date.now() };
       } catch {
         /* Keep the original timestamp on a last-known snapshot. */

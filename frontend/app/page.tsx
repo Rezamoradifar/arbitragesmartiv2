@@ -41,7 +41,7 @@ export default function Home() {
       <section className="container-page pb-16" id="prediction-markets">
         <div className="section-label">
           <span>02 / PREDICTION MARKETS</span>
-          <span>POLYMARKET</span>
+          <Link href="/polymarket">OPEN POLYMARKET LIVE <Icon name="external" className="h-3 w-3" /></Link>
         </div>
         <ArbitrageScanner />
         <div className="mt-10">

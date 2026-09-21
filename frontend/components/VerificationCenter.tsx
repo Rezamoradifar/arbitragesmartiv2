@@ -83,6 +83,23 @@ export function VerificationCenter() {
               : "Documents not supplied"}
           </span>
         </article>
+        <article className="verification-card glass">
+          <Icon name="globe" className="h-6 w-6 text-gold-300" />
+          <span className="document-type">DOMAIN RECORD LOOKUP</span>
+          <h3>Arbhub.com</h3>
+          <p>
+            Look up public registration data through ICANN. A domain record does
+            not verify a financial license or this project’s ownership of the
+            domain.
+          </p>
+          <a
+            href="https://lookup.icann.org/en/lookup?name=arbhub.com"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Check domain record <Icon name="external" className="h-3.5 w-3.5" />
+          </a>
+        </article>
       </div>
       {!!COMPANY_DOCUMENTS.length && (
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -12,7 +12,12 @@ const usd = (n: number) =>
     maximumFractionDigits: 1,
   }).format(n);
 
-export function PolymarketMarkets() {
+export function PolymarketMarkets({
+  expanded = false,
+}: {
+  expanded?: boolean;
+}) {
+  const [search, setSearch] = useState("");
   const [now, setNow] = useState(0);
   useEffect(() => {
     setNow(Date.now());
@@ -36,6 +41,9 @@ export function PolymarketMarkets() {
     },
   );
   const markets = q.data?.markets ?? [];
+  const shown = (expanded ? markets : markets.slice(0, 6)).filter((m) =>
+    m.question.toLowerCase().includes(search.trim().toLowerCase()),
+  );
   const stale = !!q.data?.fetchedAt && now - q.data.fetchedAt > 180_000;
   return (
     <section className="prediction-section">
@@ -59,9 +67,31 @@ export function PolymarketMarkets() {
                 : "Feed unavailable"}
         </span>
       </div>
+      {expanded && (
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <label className="market-search !w-full sm:!w-80">
+            <Icon name="search" className="h-4 w-4" />
+            <input
+              type="search"
+              aria-label="Search Polymarket markets"
+              placeholder="Search prediction markets…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </label>
+          <button
+            type="button"
+            className="btn-secondary !py-2"
+            disabled={q.isFetching}
+            onClick={() => q.refetch()}
+          >
+            {q.isFetching ? "Refreshing markets…" : "Refresh markets"}
+          </button>
+        </div>
+      )}
       {markets.length ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {markets.map((m, i) => (
+          {shown.map((m, i) => (
             <a
               key={m.slug || m.question}
               href={
@@ -103,6 +133,11 @@ export function PolymarketMarkets() {
               </div>
             </a>
           ))}
+          {!shown.length && (
+            <p className="py-8 text-sm text-graphite-300">
+              No markets match your search.
+            </p>
+          )}
         </div>
       ) : (
         <div className="feed-empty glass">

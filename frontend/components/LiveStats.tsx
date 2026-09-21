@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useProtocol } from "@/lib/hooks";
 import { formatAmount } from "@/lib/contract";
-import { Badge, Progress, StatCard } from "@/components/ui";
+import { Badge, StatCard } from "@/components/ui";
 import { LiveDot } from "@/components/Aurora";
 import { Icon } from "@/components/Icon";
 
@@ -18,26 +18,53 @@ function useSecondsSince(timestamp: number | undefined) {
   return Math.max(0, Math.round((Date.now() - timestamp) / 1000));
 }
 
-export function LiveStats() {
+export function LiveStats({ detailed = false }: { detailed?: boolean }) {
   const p = useProtocol();
   const secondsAgo = useSecondsSince(p.dataUpdatedAt || undefined);
 
   // Missing RPC results must not become zero balances or an "operating
   // normally" badge. A query can settle with individual calls failing.
-  if (p.totalAssets === undefined || p.totalStaked === undefined || p.balance === undefined
-    || p.arbitrageDeployed === undefined || p.arbitrageProfit === undefined
-    || p.paused === undefined || p.emergencyMode === undefined) {
-    return <section><h2 className="h-section">Protocol at a glance</h2><div className="feed-empty glass mt-6">
-      <Icon name="layers" className="h-7 w-7 text-gold-300" />
-      <h3>{p.isLoading ? "Reading the Polygon contract" : "On-chain data is currently unavailable"}</h3>
-      <p>{p.isLoading ? "Fetching balances, strategy capital and protocol status." : "Balances and operating status will appear after a successful contract read."}</p>
-      <button type="button" onClick={() => p.refetch()} disabled={p.isLoading} className="btn-secondary !py-2">{p.isLoading ? "Connecting…" : "Retry contract read"}</button>
-    </div></section>;
+  if (
+    p.totalAssets === undefined ||
+    p.totalStaked === undefined ||
+    p.balance === undefined ||
+    p.arbitrageDeployed === undefined ||
+    p.arbitrageProfit === undefined ||
+    p.paused === undefined ||
+    p.emergencyMode === undefined
+  ) {
+    return (
+      <section>
+        <h2 className="h-section">Protocol at a glance</h2>
+        <div className="feed-empty glass mt-6">
+          <Icon name="layers" className="h-7 w-7 text-gold-300" />
+          <h3>
+            {p.isLoading
+              ? "Reading the Polygon contract"
+              : "On-chain data is currently unavailable"}
+          </h3>
+          <p>
+            {p.isLoading
+              ? "Fetching balances, strategy capital and protocol status."
+              : "Balances and operating status will appear after a successful contract read."}
+          </p>
+          <button
+            type="button"
+            onClick={() => p.refetch()}
+            disabled={p.isLoading}
+            className="btn-secondary !py-2"
+          >
+            {p.isLoading ? "Connecting…" : "Retry contract read"}
+          </button>
+        </div>
+      </section>
+    );
   }
 
   const deployed = p.arbitrageDeployed ?? 0n;
   const assets = p.totalAssets ?? 0n;
-  const deployedPct = assets > 0n ? Number((deployed * 10000n) / assets) / 100 : 0;
+  const owed = p.totalStaked;
+  const coverage = owed > 0n ? Number((assets * 10000n) / owed) / 100 : null;
 
   const items = [
     {
@@ -60,23 +87,21 @@ export function LiveStats() {
       icon: "arrowDown" as const,
     },
     {
-      label: "Realized strategy profit",
+      label: "Recorded profit credits",
       value: p.arbitrageProfit,
-      // Only profit actually received in collateral is ever counted here, so
-      // this reads 0 until a position is genuinely closed at a gain — which it
-      // never has. That zero is the most consequential figure on the page, and
-      // it raises a question the visitor deserves an answer to rather than an
-      // assumption about, so it links to one instead of being softened.
       sub:
         (p.arbitrageProfit ?? 0n) === 0n ? (
           <>
-            Nothing realised yet.{" "}
-            <Link href="/strategy" className="text-gold-300 underline underline-offset-2">
+            No profit credits recorded.{" "}
+            <Link
+              href="/strategy"
+              className="text-gold-300 underline underline-offset-2"
+            >
               Why, and where the yield comes from
             </Link>
           </>
         ) : (
-          "After the performance fee, credited to the pool"
+          "Contract total; includes externally deposited profit"
         ),
       icon: "zap" as const,
     },
@@ -88,7 +113,9 @@ export function LiveStats() {
         <div className="min-w-0">
           <span className="eyebrow">
             <LiveDot />
-            {secondsAgo !== undefined && secondsAgo > 60 ? "Last known on-chain data" : "Live on-chain"}
+            {secondsAgo !== undefined && secondsAgo > 60
+              ? "Last known on-chain data"
+              : "Live on-chain"}
           </span>
           <h2 className="h-section mt-4">Protocol at a glance</h2>
           {secondsAgo !== undefined && (
@@ -103,7 +130,7 @@ export function LiveStats() {
           ) : p.paused ? (
             <Badge tone="warn">Paused</Badge>
           ) : (
-            <Badge tone="good">Operating normally</Badge>
+            <Badge tone="neutral">Contract not paused</Badge>
           )}
           {p.userCount !== undefined && (
             <Badge tone="neutral">{p.userCount.toString()} participants</Badge>
@@ -122,7 +149,9 @@ export function LiveStats() {
             value={
               <>
                 {formatAmount(it.value)}
-                <span className="ml-1.5 text-base font-semibold text-graphite-400">USDT</span>
+                <span className="ml-1.5 text-base font-semibold text-graphite-400">
+                  USDT
+                </span>
               </>
             }
             sub={it.sub}
@@ -130,175 +159,72 @@ export function LiveStats() {
         ))}
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <StrategyCapacity
-          deployed={deployed}
-          ceiling={p.arbitrageCeiling}
-          liquid={p.balance}
-          deployedPct={deployedPct}
-          staked={p.totalStaked}
-          paidOut={p.totalPaidOut}
-          realizedProfit={p.arbitrageProfit}
-        />
-        <BalanceSheet p={p} />
-      </div>
-    </section>
-  );
-}
-
-/**
- * Strategy capacity. When nothing is deployed the honest reading is "no open
- * positions", not a bare zero — a lone 0 reads as broken rather than idle, and
- * the distinction matters to someone deciding whether to stake.
- */
-function StrategyCapacity({
-  deployed,
-  ceiling,
-  liquid,
-  deployedPct,
-  staked,
-  paidOut,
-  realizedProfit,
-}: {
-  deployed: bigint;
-  ceiling?: bigint;
-  liquid?: bigint;
-  deployedPct: number;
-  staked?: bigint;
-  paidOut?: bigint;
-  realizedProfit?: bigint;
-}) {
-  /*
-   * Coverage: what the contract holds against what it owes stakers.
-   *
-   * This panel used to end after the capacity bar and leave half its height
-   * empty next to the balance sheet. What belongs in that space is the one
-   * figure a careful visitor is actually looking for and that a Ponzi cannot
-   * show, because its number does not add up. It is read from the same
-   * contract call as everything else, so it stays true or it stops saying
-   * 100% — either way nobody has to take our word for it.
-   */
-  const owed = staked ?? 0n;
-  const held = (liquid ?? 0n) + deployed;
-  const coverage = owed > 0n ? Number((held * 10000n) / owed) / 100 : null;
-  const fullyCovered = coverage !== null && coverage >= 100;
-
-  /*
-   * A red bar with no figure beside it is worse than the number it is hiding.
-   * "Holds less than it owes" could mean a dollar or half the pool, so a
-   * reader supplies the worst case — and the gap here has a precise size and
-   * a precise cause, both of which are less alarming than the guess.
-   *
-   * The cause is not a mystery to be investigated: yield has been claimed
-   * while realized strategy profit is zero, so it was paid out of deposited
-   * capital. There is nowhere else it could have come from. Saying that
-   * plainly is the difference between a warning and an accusation the reader
-   * makes on our behalf.
-   *
-   * `totalStaked` counts funded stake only — `stake()` runs
-   * `if (!free) totalStaked += amount`, so launch giveaways are never in this
-   * figure and the gap is real money, not an accounting artefact.
-   */
-  const shortfall = owed > held ? owed - held : 0n;
-  const yieldPaid = paidOut ?? 0n;
-  const profit = realizedProfit ?? 0n;
-  // Only claim the gap IS the paid-out yield when the arithmetic actually
-  // says so; otherwise state both figures and let them speak.
-  const gapIsPaidYield = shortfall > 0n && profit === 0n && yieldPaid >= shortfall;
-
-  return (
-    <div className="glass p-5 sm:p-6">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="text-sm font-semibold text-graphite-100">Strategy capital deployed</p>
-        <p className="text-sm tabular-nums text-graphite-300">
-          {deployed === 0n ? (
-            <Badge tone="neutral">No open positions</Badge>
-          ) : (
-            <>
-              <span className="font-semibold text-white">{formatAmount(deployed)}</span>
-              <span className="text-graphite-400"> / {formatAmount(ceiling)} USDT ceiling</span>
-            </>
-          )}
-        </p>
-      </div>
-      <div className="mt-4">
-        <Progress
-          value={Number(deployed / 1_000000n)}
-          max={Math.max(1, Number((ceiling ?? 1n) / 1_000000n))}
-          tone={deployedPct > 18 ? "warn" : "volt"}
-        />
-      </div>
-      <p className="mt-3.5 text-xs leading-relaxed text-graphite-400">
-        {deployed === 0n ? (
-          <>
-            Every staked dollar is liquid right now, with nothing committed to a position. The
-            contract can commit at most{" "}
-            <span className="text-graphite-200">{formatAmount(ceiling)} USDT</span> (20% of assets);
-            the rest can never leave the withdrawal buffer.
-          </>
-        ) : (
-          <>
-            Capped cumulatively at 20% of total assets plus realized profit. The remaining{" "}
-            <span className="text-graphite-200">{formatAmount(liquid)} USDT</span> stays liquid for
-            withdrawals.
-          </>
-        )}
-      </p>
-
-      {coverage !== null && (
-        <div className="mt-5 border-t border-white/[.07] pt-5">
-          <div className="flex items-baseline justify-between gap-3">
-            <p className="text-sm font-semibold text-graphite-100">Coverage of staker principal</p>
-            <p
-              className={`font-display text-2xl font-bold tabular-nums ${
-                fullyCovered ? "text-volt-300" : "text-danger-400"
-              }`}
-            >
-              {coverage.toFixed(coverage % 1 === 0 ? 0 : 1)}%
+      {detailed ? (
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="glass p-5 sm:p-6">
+            <h3 className="text-sm font-semibold">Reserve report</h3>
+            <p className="mt-2 text-xs text-graphite-300">
+              Pool assets after unswept fees, compared with recorded principal.
+            </p>
+            <dl className="mt-5 space-y-3 text-sm">
+              <div className="flex justify-between gap-3">
+                <dt>Net pool assets</dt>
+                <dd>{formatAmount(assets)} USDT</dd>
+              </div>
+              <div className="flex justify-between gap-3">
+                <dt>Recorded principal</dt>
+                <dd>{formatAmount(owed)} USDT</dd>
+              </div>
+              <div className="flex justify-between gap-3">
+                <dt>Asset coverage</dt>
+                <dd>
+                  {coverage === null
+                    ? "Not applicable"
+                    : `${coverage.toFixed(1)}%`}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-3">
+                <dt>Reserve shortfall</dt>
+                <dd>{formatAmount(owed > assets ? owed - assets : 0n)} USDT</dd>
+              </div>
+              <div className="flex justify-between gap-3">
+                <dt>Strategy deployment</dt>
+                <dd>{formatAmount(deployed)} USDT</dd>
+              </div>
+              <div className="flex justify-between gap-3">
+                <dt>Deployment ceiling</dt>
+                <dd>{formatAmount(p.arbitrageCeiling)} USDT</dd>
+              </div>
+            </dl>
+            <p className="mt-5 text-xs leading-relaxed text-graphite-300">
+              Coverage below 100% means current pool assets are less than
+              recorded principal. Liquid balances do not guarantee that every
+              withdrawal can be paid.
             </p>
           </div>
-          <div className="mt-3">
-            <Progress value={Math.min(coverage, 100)} max={100} tone={fullyCovered ? "good" : "bad"} />
-          </div>
-          <dl className="mt-4 space-y-1.5 text-xs">
-            <div className="flex justify-between">
-              <dt className="text-graphite-400">Held by the contract</dt>
-              <dd className="tabular-nums text-graphite-200">{formatAmount(held)} USDT</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-graphite-400">Owed to stakers as principal</dt>
-              <dd className="tabular-nums text-graphite-200">{formatAmount(owed)} USDT</dd>
-            </div>
-          </dl>
-          {!fullyCovered && shortfall > 0n && (
-            <div className="mt-2 flex justify-between border-t border-white/[.06] pt-2 text-xs">
-              <dt className="font-semibold text-danger-400">Short by</dt>
-              <dd className="tabular-nums font-semibold text-danger-400">
-                {formatAmount(shortfall)} USDT
-              </dd>
-            </div>
-          )}
-
-          <p className="mt-3 text-xs leading-relaxed text-graphite-400">
-            {fullyCovered ? (
-              "Every dollar of principal is backed right now. Read from the contract at this block, not from a report — check it yourself on Polygonscan."
-            ) : gapIsPaidYield ? (
-              <>
-                <span className="text-graphite-200">Where the gap came from:</span>{" "}
-                {formatAmount(yieldPaid)} USDT has been claimed as yield while realized strategy
-                profit is <span className="text-graphite-200">zero</span> — so it was paid out of
-                deposited capital, because there was nowhere else for it to come from. That is this
-                gap. It is not a loss, a fee or a withdrawal by anyone; it is yield paid before
-                anything earned it. Sending {formatAmount(shortfall)} USDT to the contract restores
-                full coverage, and this figure is read live, so it would say so.
-              </>
-            ) : (
-              "The contract currently holds less than the principal it owes. This is shown rather than hidden; ask us about it before depositing."
-            )}
-          </p>
+          <BalanceSheet p={p} />
+        </div>
+      ) : (
+        <div className="reserve-summary glass">
+          <span
+            className={
+              coverage !== null && coverage < 100
+                ? "text-danger-400"
+                : "text-graphite-200"
+            }
+          >
+            Asset coverage:{" "}
+            {coverage === null ? "Not applicable" : `${coverage.toFixed(1)}%`}
+            {coverage !== null && coverage < 100
+              ? " · Pool assets below recorded principal"
+              : ""}
+          </span>
+          <Link href="/transparency">
+            View reserve report <Icon name="external" className="h-3.5 w-3.5" />
+          </Link>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
@@ -313,7 +239,11 @@ function StrategyCapacity({
 function BalanceSheet({ p }: { p: ReturnType<typeof useProtocol> }) {
   const rows: Array<{ label: string; value?: bigint; tone?: "gold" }> = [
     { label: "Gross deposits received", value: p.grossDeposits },
-    { label: "Development & promotion fees", value: p.developmentFees, tone: "gold" },
+    {
+      label: "Development & promotion fees",
+      value: p.developmentFees,
+      tone: "gold",
+    },
     { label: "Recorded as user stakes", value: p.userNetStakes },
     { label: "Liquid in the main pool", value: p.mainPoolBalance },
     { label: "Deployed to strategy", value: p.deployedToArbitrage },
@@ -322,7 +252,9 @@ function BalanceSheet({ p }: { p: ReturnType<typeof useProtocol> }) {
   return (
     <div className="glass p-5 sm:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="text-sm font-semibold text-graphite-100">Where the money sits</p>
+        <p className="text-sm font-semibold text-graphite-100">
+          Where the money sits
+        </p>
         <Badge tone="brand">12–5% deposit fee</Badge>
       </div>
 
@@ -345,9 +277,10 @@ function BalanceSheet({ p }: { p: ReturnType<typeof useProtocol> }) {
       </dl>
 
       <p className="mt-3.5 text-xs leading-relaxed text-graphite-400">
-        The deposit fee falls with size — 12% under 500 USDT, 5% from 10,000 — and the exact split
-        is shown before you sign. Fees are counted separately and subtracted from total assets, so
-        fee income never gets mistaken for pool capital or withdrawn as though it were.
+        The deposit fee falls with size — 12% under 500 USDT, 5% from 10,000 —
+        and the exact split is shown before you sign. Fees are counted
+        separately and subtracted from total assets, so fee income never gets
+        mistaken for pool capital or withdrawn as though it were.
       </p>
     </div>
   );

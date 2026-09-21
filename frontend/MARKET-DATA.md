@@ -75,3 +75,31 @@ Run `npm ci`, `npm run test:market`, `npm run lint`, `npx tsc --noEmit` and
 legs, negative spreads, invalid inputs, stale/future timestamps and quote skew.
 For UI review, check filters, market search, fee input, refresh, unavailable
 states, the calculator disclosure, FAQ, themes and narrow-screen scrolling.
+
+## Polymarket Live page and reserves
+
+`/polymarket` displays the twelve public markets returned by the Gamma endpoint,
+with search, a manual refresh and automatic one-minute updates. The homepage
+still shows six. It also shows the existing scanner's best estimated gain and
+match count; these estimates are suppressed after 30 minutes. Invalid reports,
+including inconsistent counts and non-numeric profit, are rejected.
+
+The profit-credit metric comes from `totalArbitrageProfit`. It must not be
+labelled as Polymarket-only realized trading P&L: the contract also lets the
+owner deposit externally earned profit into this total. Recent
+`ArbitrageProfitAccrued` events are queried from exactly the latest 180 Polygon
+blocks in four bounded ranges. The page labels that range, refreshes every
+minute, links to each transaction, and marks stale or unavailable responses.
+Any failed range makes the refresh unavailable, not an empty successful result.
+It does not pretend that the bounded event window is the full trade history.
+
+The long homepage strategy-capital/coverage panel has been removed. A compact
+asset-coverage disclosure links to `/transparency`, which holds the reserve
+report and balance sheet. Coverage uses total assets after unswept fees divided
+by recorded principal; the report does not infer the cause of a shortfall.
+
+The requested `arbhub.com` is available as an ICANN registration lookup link.
+At review time its website displayed eCorp/VentureOS material, so neither domain
+ownership nor affiliation with this project has been asserted. Domain records
+are not financial licenses. No authentic license image has been supplied, and
+none is fabricated or borrowed from a different entity.
