@@ -932,7 +932,7 @@
     },
     {
       "id": "deposit-totals-stay-queryable-after-exit-forever",
-      "postedAt": null,
+      "postedAt": "2026-09-21T06:13:56.219Z",
       "text": "Your gross deposited, platform fee paid, and net staked figures are permanent counters that never reset to zero — even after you exit for good and your active stake drops to nothing, those three numbers stay exactly as they were, forever readable by anyone who calls the contract with your address.\n\n#ArbiSmart #Polygon #USDT #Transparency",
       "image": "docs/telegram-cards/deposit-totals-stay-queryable-after-exit-forever.png"
     },
